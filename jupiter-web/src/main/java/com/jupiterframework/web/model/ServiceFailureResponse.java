@@ -11,11 +11,17 @@ public class ServiceFailureResponse extends ServiceResponse<Object> {
 	private static final long serialVersionUID = 8886191134284746607L;
 
 	/** 错误详情 */
-	private String exceptionDetail;
+	private String exception;
+	/** 源异常堆栈信息 */
+	private String stackTrace;
+
+	/** 应用名称 */
+	private String serviceId;
+
 	/** 出错的服务路径 */
-	private String url;
+	private String path;
 	/** 出错的服务IP与端口 */
-	private String hostAndPort;
+	private String host;
 
 	public ServiceFailureResponse() {
 		super();

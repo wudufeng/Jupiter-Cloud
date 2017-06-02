@@ -7,19 +7,19 @@ public enum SysRespCodeEnum implements ExceptionDefinition {
 
 	METHOD_INVALID(2, "不支持的请求方式"), // 仅支持post请求
 
-	AUTH_SIGNATURE_NOTFOUND(3, "签名无效"), // 认证错误
+	AUTH_SIGNATURE_NOTFOUND(401, "签名无效"), // 认证错误
 
 	/** 404 */
-	SERVICE_NOTFOUND(4, "服务不存在"),
+	SERVICE_NOTFOUND(404, "服务不存在"),
 
 	/** Feign Client 调用服务超时 */
-	REQUEST_TIMEOUT(5, "服务超时"),
+	REQUEST_TIMEOUT(504, "服务超时"),
 
 	AUTH_SESSION_NOTFOUND(6, "登录已失效"),
 
 	AUTH_INVALID(7, "无访问权限"),
 
-	DATA_ACCESS_ERR(8, "系统异常"), // 数据库异常
+	DATA_ACCESS_ERR(508, "系统异常"), // 数据库异常
 
 	RESOURCE_INVALID(9, "服务不可用"), // 无可用服务
 

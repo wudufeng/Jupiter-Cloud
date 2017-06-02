@@ -50,8 +50,8 @@ import feign.codec.DecodeException;
  */
 @RestController
 @ControllerAdvice(annotations = MicroService.class) // 对于
-													 // Interceptor（拦截器）层的异常，Spring
-													 // 框架层的异常，就无能为力了
+// Interceptor（拦截器）层的异常，Spring
+// 框架层的异常，就无能为力了
 public class ServiceFailureHandler implements ErrorController {
 	private static final Logger log = LoggerFactory.getLogger(ServiceFailureHandler.class.getSimpleName());
 
@@ -98,8 +98,7 @@ public class ServiceFailureHandler implements ErrorController {
 			return exceptionConverter.buildServiceFailureResponse(se);
 		} else {
 			log.error("解析响应报文出错", e);
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR,
-				ExceptionUtils.getCause(e).getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e);
 		}
 	}
 
@@ -109,8 +108,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse illegalArgument(HttpServletResponse response, Exception e) {
 		log.error("非法的请求参数", e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.PARAMS_ERR,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.PARAMS_ERR, e);
 	}
 
 	/** 违反唯一索引 */
@@ -118,8 +116,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse duplicateKeyError(HttpServletResponse response, Exception e) {
 		log.error("{}违反唯一约束", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.DUPLICATE_KEY_ERR,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.DUPLICATE_KEY_ERR, e);
 	}
 
 	/** 操作数据库或者redis失败 */
@@ -127,7 +124,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse queryTimeout(HttpServletResponse response, QueryTimeoutException e) {
 		log.error("{} SQL超时", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT, e.getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT, e);
 	}
 
 	/** 操作数据库或者redis失败 */
@@ -135,8 +132,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse dataAccessError(HttpServletResponse response, Exception e) {
 		log.error("{}数据访问异常", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.DATA_ACCESS_ERR,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.DATA_ACCESS_ERR, e);
 	}
 
 	/** 无可用服务 */
@@ -145,8 +141,7 @@ public class ServiceFailureHandler implements ErrorController {
 		log.error("{}远程服务调用失败", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
 
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.RESOURCE_INVALID,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.RESOURCE_INVALID, e);
 	}
 
 	/** session找不到/失效 */
@@ -156,8 +151,7 @@ public class ServiceFailureHandler implements ErrorController {
 		log.error("session 失效", e);
 		changeResponseStatusSuccess(response);
 
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_SESSION_NOTFOUND,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_SESSION_NOTFOUND, e);
 	}
 
 	/** 签名验证不通过 */
@@ -165,8 +159,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse certificateExceptionHandler(HttpServletResponse response, Exception e) {
 		log.error("签名验证不通过", e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_SIGNATURE_NOTFOUND,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_SIGNATURE_NOTFOUND, e);
 
 	}
 
@@ -175,8 +168,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse securityExceptionHandler(HttpServletResponse response, Exception e) {
 		log.error("{}无访问权限", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
-		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_INVALID,
-			ExceptionUtils.getCause(e).getMessage());
+		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_INVALID, e);
 	}
 
 	/** feignclient调用服务失败 */
@@ -185,11 +177,9 @@ public class ServiceFailureHandler implements ErrorController {
 		log.error("{}远程服务调用失败", ServiceContext.getServiceCode(), e);
 		changeResponseStatusSuccess(response);
 		if (e.getCause() instanceof SocketTimeoutException) {
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT,
-				ExceptionUtils.getCause(e).getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT, e);
 		} else {
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR,
-				ExceptionUtils.getCause(e).getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e);
 		}
 	}
 
@@ -201,13 +191,11 @@ public class ServiceFailureHandler implements ErrorController {
 			throw ExceptionUtils.getCause(e);
 		} catch (SocketTimeoutException e1) {
 			log.error("", e);
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT,
-				e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.REQUEST_TIMEOUT, e);
 		} catch (ConnectException e1) {
 			// 拒绝连接 (Connection refused)
 			log.error("", e);
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.SERVICE_REJECT,
-				e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.SERVICE_REJECT, e);
 		} catch (ServiceException e1) {
 			return this.serviceException(response, e1);
 		} catch (DuplicateKeyException e1) {
@@ -230,11 +218,11 @@ public class ServiceFailureHandler implements ErrorController {
 
 			log.error("{} 系统异常", ServiceContext.getServiceCode(), e);
 			changeResponseStatusSuccess(response);
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e1.getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e1);
 		} catch (Throwable e1) {
 			log.error("{} 系统异常", ServiceContext.getServiceCode(), e);
 			changeResponseStatusSuccess(response);
-			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e1.getMessage());
+			return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, e1);
 		}
 
 	}
@@ -296,8 +284,8 @@ public class ServiceFailureHandler implements ErrorController {
 				sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, String.valueOf(status));
 		}
 
-		if (StringUtils.isBlank(sr.getUrl()))
-			sr.setUrl(uri);
+		if (StringUtils.isBlank(sr.getPath()))
+			sr.setPath(uri);
 		return sr;
 	}
 

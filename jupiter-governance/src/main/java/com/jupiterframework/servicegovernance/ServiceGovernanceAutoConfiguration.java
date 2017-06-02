@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,14 +55,12 @@ public class ServiceGovernanceAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass({	com.jupiterframework.web.ServerInstance.class,
-							com.jupiterframework.web.handler.ServiceFailureHandler.class })
+	@ConditionalOnClass({ com.jupiterframework.web.handler.ServiceFailureHandler.class })
 	public static class ExceptionMonitorTriggerConfigurer {
 		// 如果不额外定义一个class, 当参数类不存在时会报错
 		@Bean
 		public ExceptionMonitorTrigger exceptionMonitorTrigger(ApplicationContext applicationContext,
-				com.jupiterframework.web.ServerInstance server,
-				com.jupiterframework.web.handler.ServiceFailureHandler serviceErrorHandler,
+				ServiceInstance server, com.jupiterframework.web.handler.ServiceFailureHandler serviceErrorHandler,
 				ServiceGovernanceProperties serviceGovernanceProperties) {
 			return new ExceptionMonitorTrigger(applicationContext.getBeansOfType(ExceptionMonitor.class).values(),
 				server, serviceErrorHandler, serviceGovernanceProperties);

@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.jupiterframework</groupId>
+		<artifactId>jupiter-parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+	<groupId>com.jupiterframework.cloud</groupId>
+	<artifactId>jupiter-cloud-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<description>Paas</description>
+	<modules>
+		<module>config-server</module>
+		<module>registry-server</module>
+		<module>admin-server</module>
+		<module>sequence-service</module>
+	</modules>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.jupiterframework</groupId>
+			<artifactId>jupiter-logging</artifactId>
+		</dependency>
+	</dependencies>
+</project>

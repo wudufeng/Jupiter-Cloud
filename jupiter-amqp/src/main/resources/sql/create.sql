@@ -1,0 +1,31 @@
+drop table  if EXISTS queue_consumer_record;
+CREATE TABLE `queue_consumer_record` (
+	`id`  bigint(18) NOT NULL COMMENT 'id' ,
+	`company_id`  bigint(20) NOT NULL COMMENT '公司ID' ,
+	`trace_id`  varchar(32)  NOT NULL COMMENT 'trace_id' ,
+	`span_id`  varchar(32)  NOT NULL DEFAULT '' COMMENT '接收消息的服务跟踪号' ,
+	`parent_span_id`  varchar(32)  NOT NULL default '' COMMENT '发送消息的服务跟踪号' ,
+	`source_system_code`  varchar(20)  NOT NULL DEFAULT '' COMMENT '来源系统' ,
+	`target_system_code`  varchar(20)  NOT NULL DEFAULT '' COMMENT '目标系统' ,
+	`module1`  varchar(50)  NOT NULL DEFAULT '' COMMENT '一级模块' ,
+	`module2`  varchar(50)  NOT NULL DEFAULT '' COMMENT '二级模块' ,
+	`entity_name`  varchar(100)  NOT NULL DEFAULT '' COMMENT '实体名' ,
+	`virtual_host`  varchar(50)  NOT NULL COMMENT '虚拟主机' ,
+	`exchange`  varchar(50)  NOT NULL COMMENT '交换机' ,
+	`router_key`  varchar(50)  NOT NULL COMMENT '路由键' ,
+	`queue`  varchar(50)  NOT NULL COMMENT '队列名' ,
+	`msg_id`  varchar(20) NOT NULL COMMENT '消息id，由消息发送者产生' ,
+	`msg`  longtext  NOT NULL COMMENT '消息内容(Json)' ,
+	`msg_md5`  varchar(50)  NOT NULL COMMENT '消息md5(json转md5,用于校验消息重复)' ,
+	`note`  text  NULL COMMENT '备注' ,
+	`status`  int(11) NOT NULL DEFAULT 0 COMMENT '处理状态 0-未处理 1-无效消息 2-处理异常 3-处理成功' ,
+	`fail_count`  int(11) UNSIGNED NOT NULL COMMENT '失败次数' ,
+	`creater`  bigint(18) NOT NULL COMMENT '创建人' ,
+	`create_time`  datetime NOT NULL COMMENT '创建时间' ,
+	`updater`  bigint(18) NOT NULL COMMENT '修改人' ,
+	`update_time`  datetime NOT NULL COMMENT '修改时间' ,
+	`is_deleted`  tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除,1表示是，0表示否' ,
+	  PRIMARY KEY (`id`),
+	  UNIQUE KEY (msg_id,queue)
+)  COMMENT '消息消费记录表';
+

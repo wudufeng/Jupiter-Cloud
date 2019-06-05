@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+	<conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+	<conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+	
+	<property name="LOG_CHARSET" value="utf8" />
+	<springProperty name="APPLICATION_NAME" source="spring.application.name" scope="context"/>
+	<springProperty name="LOG_DIR" source="logging.path" defaultValue="${user.home}/logs/${APPLICATION_NAME}" scope="context" />
+	<springProperty name="LOG_FILE" source="logging.file" defaultValue="${LOG_DIR}/all.log" scope="context" />
+	<springProperty name="CONSOLE_LOG_PATTERN" source="logging.consolePattern" defaultValue="%d{MM-dd HH:mm:ss.SSS} %5p [${APPLICATION_NAME},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] ${PID:- } --- [%thread] %logger{39}.%method&lt;%-3L&gt; : %msg%n" scope="context" />
+	<springProperty name="FILE_LOG_PATTERN" source="logging.filePattern" defaultValue="-|%d{yyyy-MM-dd HH:mm:ss.SSS}|%5p|${APPLICATION_NAME}|%X{X-B3-TraceId:-}|%X{X-B3-SpanId:-}|%X{X-B3-ParentSpanId:-}|${PID:-}|%thread|%-40.40logger{39}.%method&lt;%-3L&gt; |%msg%n" scope="context" />
+	<springProperty name="MAX_FILE_SIZE" source="logging.maxFileSize" defaultValue="100MB" scope="context" />
+	<springProperty name="MAX_HISTORY" source="logging.maxHistory" defaultValue="30" scope="context" />
+	<springProperty name="TOTAL_SIZE_CAP" source="logging.totalSizeCap" defaultValue="5GB" scope="context" />
+	<springProperty name="ENABLE_CONSOLE" source="logging.enableConsole" defaultValue="false" scope="context" />
+
+	<!-- console  -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 异步输出所有日志到all.log文件 -->
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_FILE}</File>
+		<!-- 按照固定窗口模式生成日志文件，当文件大于100MB时，生成新的日志文件，并将旧文件挪到带日期的目录下。所有日志文件超过5GB,或者超过30天,最早的日志会先删掉。 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_DIR}/%d{yyyyMMdd}/all_%i.log</FileNamePattern>
+			<maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+			<totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<appender name="ALL_FILE" class="ch.qos.logback.classic.AsyncAppender">
+		<!--异步输入日志-->
+		<!-- 0不丢失日志，默认的如果队列的80%已满，则会丢丢弃TRACE、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度，该值会影响性能，默认值为256 -->
+		<queueSize>8192</queueSize>
+		<appender-ref ref="FILE" />
+	</appender>
+	
+	
+	<!-- spring 自带的 -->
+	<appender name="DEBUG_LEVEL_REMAPPER" class="org.springframework.boot.logging.logback.LevelRemappingAppender">
+		<destinationLogger>org.springframework.boot</destinationLogger>
+	</appender>
+	<logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR"/>
+	<logger name="org.apache.catalina.util.LifecycleBase" level="ERROR"/>
+	<logger name="org.apache.coyote.http11.Http11NioProtocol" level="WARN"/>
+	<logger name="org.apache.sshd.common.util.SecurityUtils" level="WARN"/>
+	<logger name="org.apache.tomcat.util.net.NioSelectorPool" level="WARN"/>
+	<logger name="org.crsh.plugin" level="WARN"/>
+	<logger name="org.crsh.ssh" level="WARN"/>
+	<logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="ERROR"/>
+	<logger name="org.hibernate.validator.internal.util.Version" level="WARN"/>
+	<logger name="org.springframework.boot.actuate.autoconfigure.CrshAutoConfiguration" level="WARN"/>
+	<logger name="org.springframework.boot.actuate.endpoint.jmx" additivity="false">
+		<appender-ref ref="DEBUG_LEVEL_REMAPPER"/>
+	</logger>
+	<logger name="org.thymeleaf" additivity="false">
+		<appender-ref ref="DEBUG_LEVEL_REMAPPER"/>
+	</logger>
+	
+	
+	
+	<!-- additivity设为false ,则logger内容不附加至root -->
+	<!-- 显示数据grid -->
+	<logger name="jdbc.resultsettable" level="OFF"/>
+	<!-- 仅记录 SQL -->
+ 	<logger name="jdbc.sqlonly" level="OFF"/>
+ 	<!-- 记录除了 ResultSet 之外的所有 JDBC 调用信息，会产生大量的记录，有利于调试跟踪具体的 JDBC 问题 -->
+ 	<logger name="jdbc.audit" level="OFF"/>
+ 	<!-- 会产生更多的记录信息，因为记录了 ResultSet 的信息 -->
+ 	<logger name="jdbc.resultset" level="OFF"/>
+ 	<!-- 记录连接打开、关闭等信息，有利于调试数据库连接相关问题 -->
+ 	<logger name="jdbc.connection" level="OFF"/>
+ 	<logger name="log4jdbc" level="INFO" />
+ 	<logger name="com.zaxxer" level="WARN" />
+ 	<logger name="org.springframework.web.servlet.mvc.method.annotation" level="WARN" />
+ 	<logger name="com.netflix" level="WARN" />
+	<logger name="com.alibaba.dubbo" level="WARN" />
+	<logger name="com.baidu" level="WARN" />
+	<logger name="io.netty.util" level="WARN" />
+  	<logger name="com.baomidou" level="WARN" />
+ 	<logger name="springfox.documentation" level="WARN" />
+ 	<logger name="com.sun" level="WARN" />
+ 	<logger name="sun" level="WARN" />
+ 	<logger name="springfox.documentation" level="WARN" />
+ 	<logger name="de.codecentric" level="INFO" />
+ 	<logger name="org.springframework.boot.actuate.endpoint.mvc" level="WARN" />
+	<logger name="org.springframework.boot.SpringApplication" level="INFO" />
+	<logger name="com.ueb.framework.amqp.core.AmqpTemplate" level="WARN" />
+	<logger name="com.ueb.framework.amqp.core.TraceMessageListenerContainer" level="WARN" />
+	<logger name="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer" level="INFO" additivity="false">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ALL_FILE" />
+	</logger>
+ 	<logger name="org.springframework" level="WARN" />
+ 	<logger name="org" level="WARN" />
+
+ 	<!-- 生产环境 -->
+ 	<if condition='"prod".equals(property("app.env"))'>
+        <then>
+			<logger name="jdbc.sqltiming" level="WARN" />
+		    <root level="INFO">
+				<appender-ref ref="ALL_FILE" />
+			</root>
+       </then>
+    </if>
+    
+    <!-- 非生产环境 -->
+    <if condition='!"prod".equals(property("app.env"))'>
+       <then>
+		<logger name="jdbc.sqltiming" level="INFO" />
+        <root level="DEBUG">
+	    	<if condition='${ENABLE_CONSOLE} || property("os.name").contains("Windows")'>
+	    		<!-- window为本地，默认输出控制台 -->
+		        <then>
+					<appender-ref ref="CONSOLE" />
+		       </then>
+		    </if>
+			<appender-ref ref="ALL_FILE" />
+		</root>
+       </then>
+    </if>
+</included>

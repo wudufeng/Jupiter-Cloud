@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.jupiterframework.transaction.TransactionAutoConfiguration,\
+    com.jupiterframework.autoconfig.mybatis.MybatisPlusAutoConfig
+    

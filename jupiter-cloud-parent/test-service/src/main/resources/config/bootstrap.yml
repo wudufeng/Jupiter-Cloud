@@ -1,0 +1,20 @@
+server:
+  port: 8000
+  contextPath: /test
+
+spring:
+  application:
+    name: test-service
+  cloud:
+    config:
+      fail-fast: true
+      uri: http://config.jupiter.com:10000
+      username: user
+      password: 123456
+
+spring.datasource:
+  type: com.zaxxer.hikari.HikariDataSource
+  url: jdbc:mysql://www.jupiter.org:3306/sequence?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&connectTimeout=1000
+  username: root
+  password: 123456
+  

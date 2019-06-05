@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.jupiterframework.servicegovernance.ServiceGovernanceAutoConfiguration
+
+
+# Environment Post Processor
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.jupiterframework.servicegovernance.ServiceGovernanceEnvironmentPostProcessor

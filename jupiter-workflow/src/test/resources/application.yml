@@ -1,0 +1,37 @@
+logging:
+  level:
+    root: DEBUG
+#    org.springframework: INFO
+    com.zaxxer.hikari: WARN
+server:
+  context-path: /
+  port: 3007
+#security.basic: 
+#  enabled: false
+#  authorizeMode: NONE
+#management.security.enabled: false
+spring:
+  resources.static-locations: classpath:static
+  mvc.view: 
+    prefix: /WEB-INF/page/
+    suffix: .jsp
+  datasource: 
+    url: 'jdbc:mysql://172.16.6.160:3306/ueb_stars_oms?useUnicode=true&characterEncoding=UTF-8'
+    username: admin
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    
+  redis: 
+    host: 172.16.6.163
+    port: 6379
+    password: 
+    pool:
+      maxActive: 32
+      maxIdle: 32
+      maxWait: 5000
+      
+  activiti:
+    checkProcessDefinitions: false
+    databaseSchemaUpdate: false
+    asyncExecutorEnabled: false

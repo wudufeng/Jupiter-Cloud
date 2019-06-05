@@ -1,0 +1,44 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+	<id>win-${timestamp}</id>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>target/generated-resources/appassembler/jsw/${project.name}/bin</directory>
+			<outputDirectory>${project.name}/bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<includes>
+				<!-- <include>${project.name}</include> -->
+				<!-- <include>wrapper-linux*</include> -->
+				<include>${project.name}.bat</include>
+				<include>wrapper-windows*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>target/generated-resources/appassembler/jsw/${project.name}</directory>
+			<outputDirectory>${project.name}</outputDirectory>
+			<includes>
+				<include>lib/*.jar</include>
+				<!-- <include>lib/libwrapper-linux*</include> -->
+				<include>lib/wrapper-windows*</include>
+				<include>config/**</include>
+				<include>logs/**</include>
+				<include>temp/**</include>
+			</includes>
+			<excludes>
+				<exclude>lib/${project.artifactId}-*.jar</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}/classes</directory>
+			<outputDirectory>${project.name}/classes</outputDirectory>
+			<includes>
+				<include>**</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>

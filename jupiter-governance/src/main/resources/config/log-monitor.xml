@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<!--参数在log-all.xml-->
+	<appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_DIR}/err.log</File>
+        <!-- 
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">  
+            <level>ERROR</level>  
+            <onMatch>ACCEPT</onMatch>  
+            <onMismatch>DENY</onMismatch>  
+        </filter>
+        --> 
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_DIR}/%d{yyyyMMdd}/err_%i.log</FileNamePattern>
+			<maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+			<totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<pattern>-|%d{yyyy-MM-dd HH:mm:ss.SSS}|${APPLICATION_NAME}|%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="METRIC_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_DIR}/metric.log</File>
+		<!-- 按照固定窗口模式生成日志文件，当文件大于100MB时，生成新的日志文件，并将旧文件挪到带日期的目录下。所有日志文件超过5GB,或者超过30天,最早的日志会先删掉。 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_DIR}/%d{yyyyMMdd}/metric_%i.log</FileNamePattern>
+			<maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+			<totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<!-- msg为 Dimension维度|维度值|成功次数|失败次数|平均并发次数|最大并发次数|平均耗时|最大耗时|最小耗时 -->
+			<pattern>-|%d{yyyy-MM-dd HH:mm:ss.SSS}|${APPLICATION_NAME}|%X{_dimension}|%X{_dimension_val}|%X{_inst.success}|%X{_inst.failure}|%X{_inst.concurrent}|%X{_inst.maxConcurrent}|%X{_inst.elapsed}|%X{_inst.maxElapsed}|%X{_inst.minElapsed}%n</pattern>
+		</encoder>
+	</appender>
+
+ 	<logger name="error-logger" level="TRACE" additivity="false">
+ 		<appender-ref ref="ALL_FILE" />
+ 		<appender-ref ref="ERROR_FILE" />
+ 	</logger>
+ 	<logger name="metric-logger" level="TRACE" additivity="false">
+ 		<appender-ref ref="METRIC_FILE" />
+ 	</logger>
+
+</included>

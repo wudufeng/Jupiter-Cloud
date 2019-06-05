@@ -1,0 +1,37 @@
+logging.config: classpath:config/logback-spring.xml
+logging.path: ${user.home}/logs/${spring.application.name}
+logging.file: ${logging.path}/all.log
+logging.level.root: INFO
+
+server:
+  port: 10000
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      label: master
+      server:
+        native.searchLocations: file:D:/DEV_ENV/config-file/config-server-files
+        git:
+          uri: http://git.jupiter.com/config-files/stars.git
+          search-paths: commons,{application} 
+          username: config-server-user
+          password: 123456
+    
+  cloud.bus.trace.enabled: false
+  rabbitmq:
+    addresses: rabbitmq.jupiter.com:5672
+    username: admin
+    password: 123456
+    virtualHost: jupiter
+  
+management.security.enabled: false
+
+security:
+  user:
+    name: user
+    password: 123456

@@ -26,6 +26,8 @@
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 	</properties>
 
+	<modules>
+	</modules>
 
 	<dependencyManagement>
 		<dependencies>
@@ -644,7 +646,4 @@
 			<url>http://nexus.jupiter.com:8081/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	<modules>
-		<module>jupiter-channel</module>
-	</modules>
 </project>

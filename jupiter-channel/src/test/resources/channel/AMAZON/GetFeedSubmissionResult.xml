@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response format="XML">
+	<field path="Error.Code" name="errorCode" default-value="0000" />
+	<field path="Error.Message" name="errorMessage" default-value="success" />
+	<field path="Message.MessageID" name="id" type="java.lang.Integer" />
+	<field path="Message.ProcessingReport" name="report"  type="java.util.Map" >
+		<field path="DocumentTransactionID" name="feedSubmitionId"/>
+		<field path="ProcessingSummary" name="statistic" type="java.util.Map" >
+			<field path="MessagesProcessed" name="processed" />
+			<field path="MessagesSuccessful" name="success" />
+			<field path="MessagesWithError" name="warn" />
+		</field>
+	</field>
+	
+</response>

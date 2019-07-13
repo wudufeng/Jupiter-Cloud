@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response format="XML">
+	<field path="Error.Code" name="errorCode" default-value="0000" />
+	<field path="Error.Message" name="errorMessage" default-value="success" />
+	<field path="GetOrderResult.LastUpdatedBefore" name="lastUpdate"  />
+	<field path="GetOrderResult.Orders.Order" name="orders"  type="java.util.List" >
+		<field path="AmazonOrderId" name="platformOrderId"/>
+		<field path="OrderStatus" name="orderStatus"/>
+		<field path="ShippingAddress" name="address" type="java.util.Map" >
+			<field path="Name" name="name" />
+			<field path="AddressLine1" name="line" />
+			<field path="PostalCode" name="code" />
+		</field>
+		<field path="PaymentExecutionDetail.PaymentExecutionDetailItem" name="paymentDetail" type="java.util.List" >
+			<field path="Payment" name="payment" type="java.util.Map" >
+				<field path="Amount" name="amount" />
+				<field path="CurrencyCode" name="cny" />
+			</field>
+		</field>
+	</field>
+	
+</response>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response format="JSON">
+	<field path="batch_result.failures" name="failures" type="java.util.List" >
+		<field path="item_id" name="platformProductId" />
+		<field path="variation_id" name="platformSku" />
+		<field path="error_description" name="desc" />
+	</field>
+</response>

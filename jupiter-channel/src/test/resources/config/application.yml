@@ -1,0 +1,40 @@
+spring.application.name: channel
+logging:
+  config: "classpath:config/logback-spring.xml"
+  level.ROOT: DEBUG
+
+channel:
+  channelConfigurations:
+    LAZADA:
+      requestMethod: HTTP_POST
+      authorized: 
+        prefix: '@PATH@'
+        paramName: sign
+        signatureAlgorith: hmacMd5
+        upperCase: true
+          
+    SHOPEE:
+      requestMethod: HTTP_POST
+      url: 'https://partner.shopeemobile.com/api/v1'
+      authorized: 
+        prefix: '@URL@|'
+        paramName: Authorization
+        header: true
+        signatureAlgorith: hmacSHA256
+    AMAZON:
+      requestMethod: HTTP_POST
+      authorized: 
+        prefix: |
+              POST
+              @HOST@
+              /
+        pairs: '='
+        split: '&'
+        paramName: Signature
+        encodeValue: true
+        signatureAlgorith: hmacSHA256
+        byteConvert: BASE64
+          
+        
+      
+      

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response format="XML">
+	<field path="Error.Code" name="errorCode" default-value="0000" />
+	<field path="Error.Message" name="errorMessage" default-value="success" />
+	<field path="GetFeedSubmissionListResult.FeedSubmissionInfo" name="feedSubmissionInfo" type="java.util.List" >
+			<field path="FeedSubmissionId" name="feedSubmissionId" />
+			<field path="FeedType" name="feedType" />
+			<field path="FeedProcessingStatus" name="status" >
+				<value-mapping outbound="a" inbound="1" />
+				<value-mapping outbound="_DONE_" inbound="1" />
+			</field>
+	</field>
+	
+</response>

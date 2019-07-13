@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response format="JSON">
+	<field path="orders" name="orders"  type="java.util.List" >
+		<field path="ordersn" name="platformOrderId"/>
+		<field path="country" name="country"/>
+		<field path="recipient_address" name="address" type="java.util.Map" >
+			<field path="name" name="name" />
+			<field path="phone" name="phone" />
+			<field path="city" name="city" />
+		</field>
+		<field path="items" name="items" type="java.util.List" >
+				<field path="item_id" name="itemId" />
+				<field path="item_sku" name="itemSku" />
+				<field path="item_name" name="itemName" />
+		</field>
+	</field>
+</response>

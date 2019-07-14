@@ -64,7 +64,7 @@ public class ApiDocAutoConfiguration {
 
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder().title(this.env.getProperty("spring.application.name") + "的API文档")
-			.description("自动生成的文档").termsOfServiceUrl("http://www.ueb.cn").version("1.0").build();
+			.description("自动生成的文档").termsOfServiceUrl("http://www.jupiter.com").version("1.0").build();
 	}
 
 }

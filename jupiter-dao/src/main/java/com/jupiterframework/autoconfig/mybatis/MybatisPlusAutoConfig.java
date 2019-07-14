@@ -12,11 +12,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ObjectUtils;
@@ -25,20 +25,18 @@ import org.springframework.util.StringUtils;
 import com.baomidou.mybatisplus.MybatisConfiguration;
 import com.baomidou.mybatisplus.MybatisXMLLanguageDriver;
 import com.baomidou.mybatisplus.entity.GlobalConfiguration;
-import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.baomidou.mybatisplus.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.spring.MybatisMapperRefresh;
 import com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean;
-import com.jupiterframework.autoconfig.mybatis.generator.GeneratorAutoConfiguration;
+import com.jupiterframework.autoconfig.mybatis.generator.CodeGeneratorController;
+import com.jupiterframework.dao.GenericDao;
 
 
 @Configuration
 @ConditionalOnBean({ DataSource.class })
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties({ MybatisExtendProperties.class })
-@Import(GeneratorAutoConfiguration.class)
-@MapperScan(basePackages = { "com.jupiterframework.**.dao" }, markerInterface = BaseMapper.class)
-
+@MapperScan(basePackages = "com.jupiterframework.**.dao", markerInterface = GenericDao.class)
 public class MybatisPlusAutoConfig {
 	@Autowired
 	private DataSource dataSource;
@@ -112,5 +110,11 @@ public class MybatisPlusAutoConfig {
 		MybatisExtendProperties.ReloadPropertis conf = this.extProperties.getReloadMapper();
 		return new MybatisMapperRefresh(this.properties.resolveMapperLocations(), sqlSessionFactory,
 			conf.getDelaySecond(), conf.getSleepSeconds(), conf.isEnabled());
+	}
+
+	@ConditionalOnWebApplication
+	@Bean
+	public CodeGeneratorController generatorController() {
+		return new CodeGeneratorController();
 	}
 }

@@ -3,7 +3,7 @@ package com.jupiterframework.sequence.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jupiterframework.model.BasePO;
+import com.jupiterframework.model.GenericPo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class SequenceDefinition extends BasePO {
+public class SequenceDefinition extends GenericPo {
 
 	private static final long serialVersionUID = 1233722859063738913L;
 

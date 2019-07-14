@@ -8,19 +8,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+/**
+ * 分页查询结果
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResult<T> implements Serializable {
 	private static final long serialVersionUID = -1325097077210906969L;
 
-	/** 总页数 */
-	private Integer pageCount;
-
 	/** 总记录数 */
-	private Long totalRecord;
+	private int total;
 
 	/** 结果集 */
-	private List<T> data;
+	private List<T> records;
 
 }

@@ -14,8 +14,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
@@ -29,13 +33,12 @@ import org.springframework.util.StringUtils;
 import com.jupiterframework.channel.communication.ClientHandler;
 import com.jupiterframework.channel.config.Channel;
 import com.jupiterframework.channel.config.Request;
+import com.jupiterframework.channel.config.Request.Parameter;
 import com.jupiterframework.channel.config.RequestMethod;
 import com.jupiterframework.channel.config.Service;
-import com.jupiterframework.channel.config.Request.Parameter;
 import com.jupiterframework.channel.pojo.Authorization;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 @Slf4j
 @Component
@@ -71,9 +74,28 @@ public class HttpClientHandler implements ClientHandler {
         return new byte[0];
     }
 
-
     private HttpRequestBase createHttpRequest(Authorization auth, Request requestParams, Channel chlcfg, Service svccfg) {
-        HttpRequestBase httpReq = svccfg.getRequestMethod() == RequestMethod.HTTP_POST ? new HttpPost() : new HttpGet();
+        HttpRequestBase httpReq = null;
+        switch (svccfg.getRequestMethod()) {
+        case HTTP_GET:
+            httpReq = new HttpGet();
+            break;
+        case HTTP_POST:
+            httpReq = new HttpPost();
+            break;
+        case HTTP_DELETE:
+            httpReq = new HttpDelete();
+            break;
+        case HTTP_PATCH:
+            httpReq = new HttpPatch();
+            break;
+        case HTTP_PUT:
+            httpReq = new HttpPut();
+            break;
+        default:
+            throw new IllegalArgumentException("不支持的请求方法" + svccfg.getRequestMethod());
+        }
+
         String url = auth.getUrl() + svccfg.getPath();
 
         List<NameValuePair> nvps = new ArrayList<>();
@@ -88,21 +110,16 @@ public class HttpClientHandler implements ClientHandler {
                 nvps.add(new BasicNameValuePair(chlcfg.getAuthorized().getParamName(), requestParams.getSignValue()));
         }
 
-        if (svccfg.getRequestMethod() == RequestMethod.HTTP_POST) {
-            if (((HttpPost) httpReq).getEntity() == null) {
-                ((HttpPost) httpReq).setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
-                httpReq.setURI(URI.create(url));
-            } else {
-                httpReq.setURI(URI.create(url + "?" + URLEncodedUtils.format(nvps, StandardCharsets.UTF_8)));
-            }
-        } else if (svccfg.getRequestMethod() == RequestMethod.HTTP_GET) {
-            httpReq.setURI(URI.create(url + "?" + URLEncodedUtils.format(nvps, StandardCharsets.UTF_8)));
-        } else
-            throw new IllegalArgumentException("不支持的请求方法" + svccfg.getRequestMethod());
+        if (httpReq instanceof HttpEntityEnclosingRequestBase && ((HttpEntityEnclosingRequestBase) httpReq).getEntity() == null) {
+            ((HttpEntityEnclosingRequestBase) httpReq).setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
+            httpReq.setURI(URI.create(url));
+            return httpReq;
+        }
+
+        httpReq.setURI(URI.create(url + "?" + URLEncodedUtils.format(nvps, StandardCharsets.UTF_8)));
 
         return httpReq;
     }
-
 
     private void pack(HttpRequestBase result, Request s, List<NameValuePair> nvps) {
         for (Parameter p : s.getParameters()) {
@@ -115,7 +132,7 @@ public class HttpClientHandler implements ClientHandler {
                 result.addHeader(p.getKey(), p.getValue());
                 break;
             case BODY:
-                ((HttpPost) result).setEntity(new StringEntity(p.getValue().trim(), StandardCharsets.UTF_8));
+                ((HttpEntityEnclosingRequestBase) result).setEntity(new StringEntity(p.getValue().trim(), StandardCharsets.UTF_8));
                 break;
             default:
                 break;
@@ -125,11 +142,9 @@ public class HttpClientHandler implements ClientHandler {
 
     }
 
-
     @Override
     public List<RequestMethod> getRequestMode() {
 
         return Arrays.asList(RequestMethod.HTTP_GET, RequestMethod.HTTP_POST);
     }
-
 }

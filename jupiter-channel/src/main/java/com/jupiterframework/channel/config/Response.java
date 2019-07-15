@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 /**
  * 数据字典映射
  */
@@ -18,10 +17,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @lombok.Data
 public class Response {
+    /** 将源报文设置到map中的key */
+    public static final String PAYLOAD_KEY = "_payload";
 
     /** XML / JSON */
     @XmlAttribute
     private Format format = Format.JSON;
+
+    /** 是否返回源报文 */
+    @XmlAttribute
+    private boolean payload;
 
     @XmlElement(name = "field")
     private List<Field> fields;
@@ -63,6 +68,10 @@ public class Response {
         @XmlElement(name = "value-mapping", type = ValueMapping.class)
         private List<ValueMapping> valueMapping;
 
+        /** 是否返回源报文仅限在List类型中使用 */
+        @XmlAttribute
+        private boolean payload;
+
         /** 值映射关系 */
         @XmlRootElement(name = "value-mapping")
         @XmlAccessorType(XmlAccessType.NONE)
@@ -78,7 +87,6 @@ public class Response {
     }
 
     public enum Format {
-        JSON,
-        XML
+        JSON, XML
     }
 }

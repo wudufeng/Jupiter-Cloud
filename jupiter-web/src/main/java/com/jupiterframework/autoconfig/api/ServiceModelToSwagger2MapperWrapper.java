@@ -1,7 +1,5 @@
 package com.jupiterframework.autoconfig.api;
 
-import java.util.Map.Entry;
-
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -10,8 +8,6 @@ import com.jupiterframework.constant.SysRespCodeEnum;
 import com.jupiterframework.web.model.ServiceResponse;
 
 import io.swagger.models.ModelImpl;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.properties.ArrayProperty;
@@ -34,62 +30,66 @@ import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2MapperImpl
 @Component
 public class ServiceModelToSwagger2MapperWrapper extends ServiceModelToSwagger2MapperImpl {
 
-	@Override
-	public Swagger mapDocumentation(Documentation from) {
-		Swagger swagger = super.mapDocumentation(from);
+    @Override
+    public Swagger mapDocumentation(Documentation from) {
+        Swagger swagger = super.mapDocumentation(from);
 
-		for (Entry<String, Path> entry : swagger.getPaths().entrySet()) {
-			for (Operation oper : entry.getValue().getOperations()) {
+        swagger.getPaths().entrySet().forEach(entry -> {
+            entry.getValue().getOperations().forEach(oper -> {
 
-				Response response = oper.getResponses().get(Integer.toString(HttpStatus.OK.value()));
-				Property pro = response.getSchema();
-				String oriName = pro != null ? pro.getType() : "Void";
+                Response response = oper.getResponses().get(Integer.toString(HttpStatus.OK.value()));
+                Property pro = response.getSchema();
+                String oriName = pro != null ? pro.getType() : "Void";
 
-				if (pro instanceof ArrayProperty) {
-					ArrayProperty ap = (ArrayProperty) pro;
+                if (pro instanceof ArrayProperty) {
+                    oriName = handleArrayProperty(swagger, pro);
 
-					String itemType = ap.getItems().getType();
-					if (ap.getItems() instanceof RefProperty) {
-						ModelImpl model =
-								(ModelImpl) swagger.getDefinitions().get(((RefProperty) ap.getItems()).getSimpleRef());
+                } else if (pro instanceof RefProperty) {
+                    RefProperty ref = (RefProperty) pro;
+                    ModelImpl model = (ModelImpl) swagger.getDefinitions().get(ref.getSimpleRef());
+                    oriName = model.getName();
+                    if (oriName.equals(ServiceResponse.class.getSimpleName())) {
+                        return;
+                    }
+                }
 
-						if (model != null) {
-							itemType = model.getName();
-						}
-					}
-					oriName = "Array&lt;" + itemType + "&gt;";
+                String newName = "ServiceResponse&lt;" + oriName + "&gt;";
 
-				} else if (pro instanceof RefProperty) {
-					RefProperty ref = (RefProperty) pro;
-					ModelImpl model = (ModelImpl) swagger.getDefinitions().get(ref.getSimpleRef());
-					oriName = model.getName();
-					if (oriName.equals(ServiceResponse.class.getSimpleName())) {
-						continue;
-					}
-				}
+                ModelImpl svc = new ModelImpl();
+                StringProperty code = new StringProperty();
+                code.setDescription("响应码[表示成功]");
+                code.setExample(SysRespCodeEnum.SUCCESS.getCode());
+                svc.addProperty("code", code);
+                StringProperty msg = new StringProperty();
+                msg.setDescription("响应信息");
+                msg.setExample("success");
+                svc.addProperty("message", msg);
+                svc.addProperty("data", pro instanceof LongProperty ? new StringProperty() : pro);
+                svc.setType(ModelImpl.OBJECT);
+                svc.setName(newName);
+                swagger.getDefinitions().put(newName, svc);
 
-				String newName = "ServiceResponse&lt;" + oriName + "&gt;";
+                RefProperty newRef = new RefProperty(RefType.DEFINITION.getInternalPrefix() + newName);
 
-				ModelImpl svc = new ModelImpl();
-				StringProperty code = new StringProperty();
-				code.setDescription("响应码[表示成功]");
-				code.setExample(SysRespCodeEnum.SUCCESS.getCode());
-				svc.addProperty("code", code);
-				StringProperty msg = new StringProperty();
-				msg.setDescription("响应信息");
-				msg.setExample("success");
-				svc.addProperty("message", msg);
-				svc.addProperty("data", pro instanceof LongProperty ? new StringProperty() : pro);
-				svc.setType("object");
-				svc.setName(newName);
-				swagger.getDefinitions().put(newName, svc);
+                response.setSchema(newRef);
+            });
+        });
 
-				RefProperty newRef = new RefProperty(RefType.DEFINITION.getInternalPrefix() + newName);
+        return swagger;
+    }
 
-				response.setSchema(newRef);
-			}
-		}
 
-		return swagger;
-	}
+    private String handleArrayProperty(Swagger swagger, Property pro) {
+        ArrayProperty ap = (ArrayProperty) pro;
+
+        String itemType = ap.getItems().getType();
+        if (ap.getItems() instanceof RefProperty) {
+            ModelImpl model = (ModelImpl) swagger.getDefinitions().get(((RefProperty) ap.getItems()).getSimpleRef());
+
+            if (model != null) {
+                itemType = model.getName();
+            }
+        }
+        return "Array&lt;" + itemType + "&gt;";
+    }
 }

@@ -1,4 +1,4 @@
-package com.jupiterframework.autoconfig.mybatis;
+package com.jupiterframework.mybatis;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

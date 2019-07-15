@@ -6,6 +6,12 @@ package com.jupiterframework.channel.config;
 public enum RequestMethod {
     HTTP_GET,
 
-    HTTP_POST
+    HTTP_POST,
+
+    HTTP_PUT,
+
+    HTTP_PATCH,
+
+    HTTP_DELETE
 
 }

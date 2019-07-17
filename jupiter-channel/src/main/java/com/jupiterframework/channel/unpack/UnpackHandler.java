@@ -19,10 +19,12 @@ import com.jupiterframework.channel.resolver.ValueResolverFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public abstract class UnpackHandler<T> {
     @Autowired
     private ValueResolverFactory valueResolverFactory;
+
 
     public Map<String, Object> handle(byte[] respData, Response response) {
         T ctx = this.parseObj(respData);
@@ -30,7 +32,7 @@ public abstract class UnpackHandler<T> {
         List<Field> field = response.getFields();
         Map<String, Object> result = new HashMap<>(field.size());
         if (response.isPayload()) {
-            result.put(Response.PAYLOAD_KEY, JSON.toJSONString(respData));
+            result.put(Response.PAYLOAD_KEY, JSON.parseObject(respData, String.class));
         }
 
         for (Field f : field) {
@@ -39,6 +41,7 @@ public abstract class UnpackHandler<T> {
 
         return result;
     }
+
 
     protected void transform(T obj, String parentPath, Field f, Map<String, Object> result) {
         String path = getPath(parentPath, f);
@@ -53,17 +56,23 @@ public abstract class UnpackHandler<T> {
         }
     }
 
+
     protected abstract T parseObj(byte[] respData);
+
 
     /** 转换、拼接要解析的path */
     protected abstract String getPath(String parentPath, Field f);
 
+
     /** 从对象中获取path的值 */
     protected abstract String readPathValue(T obj, String path);
 
+
     protected abstract void handleList(T obj, Field f, Map<String, Object> result, String path);
 
+
     protected abstract void handleMap(T obj, Field f, Map<String, Object> result, String path);
+
 
     private final void convertValue(String val, Field f, Map<String, Object> result) {
         if (!StringUtils.hasText(val)) {

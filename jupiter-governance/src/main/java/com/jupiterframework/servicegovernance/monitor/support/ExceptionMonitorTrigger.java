@@ -7,11 +7,11 @@ import org.springframework.core.annotation.Order;
 
 import com.jupiterframework.exception.ExceptionEvent;
 import com.jupiterframework.filter.ServiceResponseFilter;
+import com.jupiterframework.model.ServiceFailureResponse;
 import com.jupiterframework.servicegovernance.config.ServiceGovernanceProperties;
 import com.jupiterframework.servicegovernance.monitor.ExceptionMonitor;
 import com.jupiterframework.servicegovernance.monitor.domain.ErrorInstance;
 import com.jupiterframework.web.handler.ServiceFailureHandler;
-import com.jupiterframework.web.model.ServiceFailureResponse;
 
 import lombok.AllArgsConstructor;
 
@@ -47,7 +47,7 @@ public class ExceptionMonitorTrigger implements ServiceResponseFilter, Exception
 	/** 异步调用抛出的异常监控 */
 	@Override
 	public void doEvent(Throwable e) {
-		com.jupiterframework.web.model.ServiceFailureResponse sr = serviceErrorHandler.commonHandleException(null, e);
+		com.jupiterframework.model.ServiceFailureResponse sr = serviceErrorHandler.commonHandleException(null, e);
 		this.doCollect(sr);
 	}
 

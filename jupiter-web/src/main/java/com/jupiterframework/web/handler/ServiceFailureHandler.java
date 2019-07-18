@@ -30,11 +30,11 @@ import org.springframework.web.util.NestedServletException;
 import com.jupiterframework.constant.SysRespCodeEnum;
 import com.jupiterframework.context.ServiceContext;
 import com.jupiterframework.exception.ServiceException;
+import com.jupiterframework.model.ServiceFailureResponse;
 import com.jupiterframework.util.ExceptionUtils;
 import com.jupiterframework.util.StringUtils;
 import com.jupiterframework.web.annotation.MicroService;
 import com.jupiterframework.web.converter.ExceptionConverter;
-import com.jupiterframework.web.model.ServiceFailureResponse;
 import com.netflix.client.ClientException;
 
 import feign.FeignException;
@@ -68,7 +68,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse validationError(HttpServletResponse response, MethodArgumentNotValidException e) {
 		changeResponseStatusSuccess(response);
 		log.debug("", e);
-		return this.getErrMsg(e.getBindingResult());
+		return this.getErrMsg(e.getBindingResult(), e);
 	}
 
 	/** 参数校验异常处理 */
@@ -76,7 +76,7 @@ public class ServiceFailureHandler implements ErrorController {
 	public ServiceFailureResponse validationError(HttpServletResponse response, BindException e) {
 		changeResponseStatusSuccess(response);
 		log.debug("", e);
-		return this.getErrMsg(e.getBindingResult());
+		return this.getErrMsg(e.getBindingResult(), e);
 	}
 
 	/** 抛业务异常的处理 */
@@ -228,13 +228,13 @@ public class ServiceFailureHandler implements ErrorController {
 	}
 
 	/** 参数检验失败,获取错误信息 */
-	private ServiceFailureResponse getErrMsg(BindingResult br) {
+	private ServiceFailureResponse getErrMsg(BindingResult br, Throwable e) {
 		StringBuilder fieldErrorMsg = new StringBuilder();
 		br.getFieldErrors().forEach(error -> fieldErrorMsg.append("[").append(error.getField()).append("] ")
 			.append(error.getDefaultMessage()).append(" "));
 
 		return exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.PARAMS_ERR.getCode(),
-			fieldErrorMsg.toString());
+			fieldErrorMsg.toString(), e);
 	}
 
 	@RequestMapping(value = "/error", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -251,37 +251,39 @@ public class ServiceFailureHandler implements ErrorController {
 		int status = response.getStatus();
 		changeResponseStatusSuccess(response);
 
+		Throwable t = (Throwable) request
+			.getAttribute("org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR");
+		if (t == null) {
+			t = (Throwable) request.getAttribute("javax.servlet.error.exception");
+			if (t instanceof NestedServletException) {
+				t = t.getCause();
+			}
+		}
+
 		switch (status) {
 		case 401:
 			// 无权限
 			sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.AUTH_INVALID,
-				HttpStatus.UNAUTHORIZED.toString());
+				HttpStatus.UNAUTHORIZED.toString(), t);
 			break;
 		/** 接口不存在 */
 		case 404:// HttpStatus.NOT_FOUND
 			sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.SERVICE_NOTFOUND,
-				HttpStatus.NOT_FOUND.toString());
+				HttpStatus.NOT_FOUND.toString(), t);
 			break;
 
 		/** 不支持的请求方式 */
 		case 405:// HttpStatus.METHOD_NOT_ALLOWED
 			sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.METHOD_INVALID,
-				HttpStatus.METHOD_NOT_ALLOWED.toString());
+				HttpStatus.METHOD_NOT_ALLOWED.toString(), t);
 			break;
 		default:
-			Throwable t = (Throwable) request
-				.getAttribute("org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR");
-			if (t == null) {
-				t = (Throwable) request.getAttribute("javax.servlet.error.exception");
-				if (t instanceof NestedServletException) {
-					t = t.getCause();
-				}
-			}
 			log.error("Request uri [{}] error ", uri);
 			if (t != null)
 				sr = this.commonHandleException(response, t);
 			else
-				sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, String.valueOf(status));
+				sr = exceptionConverter.buildServiceFailureResponse(SysRespCodeEnum.UNKNOW_ERR, String.valueOf(status),
+					t);
 		}
 
 		if (StringUtils.isBlank(sr.getPath()))

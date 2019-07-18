@@ -1,11 +1,11 @@
-package com.jupiterframework.autoconfig.api;
+package com.jupiterframework.web.apidoc;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.jupiterframework.constant.SysRespCodeEnum;
-import com.jupiterframework.web.model.ServiceResponse;
+import com.jupiterframework.model.ServiceResponse;
 
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;

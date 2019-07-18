@@ -9,11 +9,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jupiterframework.sequence.service.SequenceManager;
+import com.jupiterframework.sequence.manage.SequenceManager;
 import com.jupiterframework.sequence.vo.CreateSequenceRequest;
-import com.jupiterframework.sequence.vo.DropSequenceRequest;
-import com.jupiterframework.sequence.vo.GetSequenceRequest;
 import com.jupiterframework.sequence.vo.GetSequenceResponse;
+import com.jupiterframework.sequence.vo.SequenceOperationRequest;
 import com.jupiterframework.util.BeanUtils;
 
 
@@ -54,7 +53,7 @@ public class SequenceGeneratorTest {
 
 	@Test
 	public void drop() {
-		DropSequenceRequest req = new DropSequenceRequest();
+		SequenceOperationRequest req = new SequenceOperationRequest();
 		req.setTenantId(TENANT_ID);
 		req.setSeqName(SEQ_NAME);
 		sequenceGenerator.dropSequence(req);
@@ -62,7 +61,7 @@ public class SequenceGeneratorTest {
 
 	@Test
 	public void testObtain() {
-		GetSequenceRequest req = new GetSequenceRequest();
+		SequenceOperationRequest req = new SequenceOperationRequest();
 		req.setSeqName(SEQ_NAME);
 		req.setTenantId(TENANT_ID);
 

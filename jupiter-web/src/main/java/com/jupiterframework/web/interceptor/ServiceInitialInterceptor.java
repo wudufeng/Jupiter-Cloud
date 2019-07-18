@@ -12,13 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.alibaba.fastjson.JSON;
 import com.jupiterframework.constant.CoreConstant;
 import com.jupiterframework.context.ServiceContext;
-import com.jupiterframework.model.BaseInfo;
-import com.jupiterframework.model.UserInfo;
 import com.jupiterframework.util.NetUtils;
-import com.jupiterframework.util.SessionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,25 +46,8 @@ public class ServiceInitialInterceptor extends GenericFilterBean {// filter比Ha
 		}
 
 		HttpServletRequest request = (HttpServletRequest) req;
-		String userSessionStr = request.getHeader(UserInfo.HEADER_KEY);
-		UserInfo user = null;
-		if (userSessionStr != null) {
-			user = JSON.parseObject(userSessionStr, UserInfo.class);
-		}
-		if (user == null) {
-			user = new UserInfo();
-		}
-		user.setSessionId(request.getHeader(CoreConstant.SESSION_KEY));
-		SessionUtils.setUserInfo(user);
 
 		// 设置请求的源基本信息到线程变量里
-		String baseInfoStr = request.getHeader(BaseInfo.HEADER_KEY);
-		BaseInfo baseInfo = null;
-		if (baseInfoStr != null) {
-			baseInfo = JSON.parseObject(baseInfoStr, BaseInfo.class);
-
-		}
-		SessionUtils.setBaseInfo(baseInfo);
 		ServiceContext.setServiceCode(request.getRequestURI());
 
 		chain.doFilter(request, response);

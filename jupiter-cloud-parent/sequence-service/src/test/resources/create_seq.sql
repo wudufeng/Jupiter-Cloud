@@ -5,8 +5,6 @@ create table sequence_definition(
 	seq_name  varchar(32) not null comment '序列名称',
 	min_value  bigint(19) not null  comment '最小值',
 	max_value  bigint(19) not null comment '最大值',
-	partition_min_value  bigint(19) not null comment '分片最小值',
-	partition_max_value  bigint(19) not null comment '分片最大值',
 	increase  int not null comment '增长缓冲区',
 	current_value  bigint(19 ) not null comment '当前值' ,
 	cycle tinyint(1) not null comment '是否允许循环 0否，1是' ,

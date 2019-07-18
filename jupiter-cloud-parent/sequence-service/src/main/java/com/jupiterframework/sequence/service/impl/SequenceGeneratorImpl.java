@@ -9,19 +9,16 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.jupiterframework.sequence.manage.SequenceManager;
 import com.jupiterframework.sequence.service.SequenceGenerator;
-import com.jupiterframework.sequence.service.SequenceManager;
-import com.jupiterframework.sequence.vo.GetSequenceRequest;
 import com.jupiterframework.sequence.vo.GetSequenceResponse;
-import com.jupiterframework.web.annotation.MicroService;
-
-import io.swagger.annotations.ApiOperation;
+import com.jupiterframework.sequence.vo.SequenceOperationRequest;
 
 
-@MicroService
+@Service
 public class SequenceGeneratorImpl implements SequenceGenerator {
 
 	@Autowired
@@ -31,8 +28,6 @@ public class SequenceGeneratorImpl implements SequenceGenerator {
 	private Lock lock = new ReentrantLock();
 
 	@Override
-	@ApiOperation("产生一个序列值")
-	@GetMapping("/generator")
 	public String generator(@RequestParam("TenantId") String tenantId, @RequestParam("seqName") String seqName) {
 		AtomicSequence seq = sequenceMap.get(seqName);
 		if (seq == null) {
@@ -90,13 +85,13 @@ public class SequenceGeneratorImpl implements SequenceGenerator {
 		}
 
 		private void reset() {
-			GetSequenceRequest req = new GetSequenceRequest();
+			SequenceOperationRequest req = new SequenceOperationRequest();
 			req.setSeqName(seqName);
 			req.setTenantId(tenantId);
 			sequence = sequenceManager.obtainSequence(req);
 			cacheMaxValue = sequence.getCurrentValue() + sequence.getIncrease() - 1;
-			if (cacheMaxValue > sequence.getPartitionMaxValue())
-				cacheMaxValue = sequence.getPartitionMaxValue();
+			if (cacheMaxValue > sequence.getMaxValue())
+				cacheMaxValue = sequence.getMaxValue();
 			currentValue.set(sequence.getCurrentValue());
 		}
 	}

@@ -19,8 +19,6 @@ import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.concurrent.ListenableFuture;
 
-import com.jupiterframework.threadpool.propagation.SessionContinueCallable;
-import com.jupiterframework.threadpool.propagation.SessionContinueRunnable;
 import com.jupiterframework.threadpool.propagation.TaskCallable;
 
 
@@ -145,32 +143,32 @@ public class ThreadPoolExecutor extends ThreadPoolTaskExecutor {
 
 	@Override
 	public void execute(Runnable task) {
-		this.delegate.execute(new SessionContinueRunnable(task));
+		this.delegate.execute(task);
 	}
 
 	@Override
 	public void execute(Runnable task, long startTimeout) {
-		this.delegate.execute(new SessionContinueRunnable(task), startTimeout);
+		this.delegate.execute(task, startTimeout);
 	}
 
 	@Override
 	public Future<?> submit(Runnable task) {
-		return this.delegate.submit(new SessionContinueRunnable(task));
+		return this.delegate.submit(task);
 	}
 
 	@Override
 	public <T> Future<T> submit(Callable<T> task) {
-		return this.delegate.submit(new SessionContinueCallable<>(task));
+		return this.delegate.submit(task);
 	}
 
 	@Override
 	public ListenableFuture<?> submitListenable(Runnable task) {
-		return this.delegate.submitListenable(new SessionContinueRunnable(task));
+		return this.delegate.submitListenable(task);
 	}
 
 	@Override
 	public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
-		return this.delegate.submitListenable(new SessionContinueCallable<>(task));
+		return this.delegate.submitListenable(task);
 	}
 
 	@Override

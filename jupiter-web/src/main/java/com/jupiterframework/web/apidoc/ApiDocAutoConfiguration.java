@@ -1,4 +1,4 @@
-package com.jupiterframework.autoconfig.api;
+package com.jupiterframework.web.apidoc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +27,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @EnableSwagger2
 @Configuration
-@ComponentScan
 @ConditionalOnWebApplication
 public class ApiDocAutoConfiguration {
 	@Autowired(required = false)

@@ -25,7 +25,6 @@ import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.DynamicMethodMatcherPointcut;
 import org.springframework.aop.support.annotation.AnnotationClassFilter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -50,11 +49,8 @@ import com.jupiterframework.constant.CoreConstant;
 import com.jupiterframework.constant.SysRespCodeEnum;
 import com.jupiterframework.context.ServiceContext;
 import com.jupiterframework.exception.RemoteExecutionException;
-import com.jupiterframework.model.BaseInfo;
-import com.jupiterframework.model.UserInfo;
+import com.jupiterframework.model.ServiceResponse;
 import com.jupiterframework.util.BeanUtils;
-import com.jupiterframework.util.SessionUtils;
-import com.jupiterframework.web.model.ServiceResponse;
 
 import feign.FeignException;
 import feign.Response;
@@ -73,9 +69,6 @@ import lombok.extern.slf4j.Slf4j;
 public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, feign.RequestInterceptor,
 		feign.codec.Decoder, ApplicationContextAware {
 
-	@Autowired
-	private BaseInfo baseInfo;
-
 	@Value("${spring.application.name}")
 	private String applicationName;
 
@@ -89,14 +82,7 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
 
 	@Override
 	public void apply(feign.RequestTemplate template) {
-		template.header(UserInfo.HEADER_KEY, JSON.toJSONString(SessionUtils.currentUser()));
-		template.header(BaseInfo.HEADER_KEY, JSON.toJSONString(BeanUtils.copy(baseInfo, BaseInfo.class)));
 		template.header(CoreConstant.CONSUMER_SIDE, applicationName);
-
-		// 设置sessionID到header，传递给服务提供方
-		if (!template.headers().containsKey(CoreConstant.SESSION_KEY)) {
-			template.header(CoreConstant.SESSION_KEY, SessionUtils.getSessionId());
-		}
 
 		ServiceContext.setRemoteServiceCode(template.url());
 

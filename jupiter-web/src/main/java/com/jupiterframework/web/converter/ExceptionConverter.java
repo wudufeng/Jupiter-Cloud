@@ -9,45 +9,39 @@ import com.alibaba.fastjson.JSON;
 import com.jupiterframework.constant.SysRespCodeEnum;
 import com.jupiterframework.context.ServiceContext;
 import com.jupiterframework.exception.ServiceException;
-import com.jupiterframework.model.BaseInfo;
+import com.jupiterframework.model.ServiceFailureResponse;
 import com.jupiterframework.util.ExceptionUtils;
-import com.jupiterframework.web.model.ServiceFailureResponse;
 
 
 @Component
 public class ExceptionConverter {
 
 	@Resource
-	private BaseInfo baseInfo;
-
-	@Resource
 	private ServiceInstance serverInstance;
 
 	/** 系统级异常 */
-	public ServiceFailureResponse buildServiceFailureResponse(SysRespCodeEnum sysResp, Throwable exceptionDetail) {
-		ServiceFailureResponse sr = buildServiceFailureResponse();
-		sr.setCode(sysResp.getCode());// 系统级异常不需要拼接应用ID
-		sr.setMessage(sysResp.getMessage());
-		sr.setException(exceptionDetail.getClass().getName());
-		sr.setStackTrace(ExceptionUtils.getCause(exceptionDetail).getMessage());
-		return sr;
+	public ServiceFailureResponse buildServiceFailureResponse(SysRespCodeEnum sysResp, Throwable e) {
+		return this.buildServiceFailureResponse(sysResp, null, e);
 	}
 
 	/** 系统级异常 */
-	public ServiceFailureResponse buildServiceFailureResponse(SysRespCodeEnum sysResp, String exceptionDetail) {
+	public ServiceFailureResponse buildServiceFailureResponse(SysRespCodeEnum sysResp, String exceptionClass,
+			Throwable e) {
 		ServiceFailureResponse sr = buildServiceFailureResponse();
 		sr.setCode(sysResp.getCode());// 系统级异常不需要拼接应用ID
 		sr.setMessage(sysResp.getMessage());
-		sr.setException(exceptionDetail);
-		sr.setStackTrace(exceptionDetail);
+		sr.setException(exceptionClass == null ? e.getClass().getName() : exceptionClass);
+		sr.setStackTrace(ExceptionUtils.getCauseMessage(e));
 		return sr;
 	}
 
 	/** 参数异常 */
-	public ServiceFailureResponse buildServiceFailureResponse(int code, String message) {
+	public ServiceFailureResponse buildServiceFailureResponse(int code, String message, Throwable e) {
 		ServiceFailureResponse sr = buildServiceFailureResponse();
 		sr.setCode(code);
 		sr.setMessage(message);
+		sr.setException(e.getClass().getName());
+		sr.setStackTrace(ExceptionUtils.getCauseMessage(e));
 		return sr;
 	}
 
@@ -60,6 +54,8 @@ public class ExceptionConverter {
 			sr = buildServiceFailureResponse();
 			sr.setMessage(se.getMessage());
 			sr.setCode(se.getCode());
+			sr.setException(se.getClass().getName());
+			sr.setStackTrace(ExceptionUtils.getCauseMessage(se));
 		} else {
 			// FastJsonHttpMessageConverterEx 将原响应信息设置到detail里作为异常抛出，此处直接将其还原返回
 			sr = JSON.parseObject(se.getDetail(), ServiceFailureResponse.class);

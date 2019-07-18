@@ -1,23 +1,33 @@
 package com.jupiterframework.manage.impl;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.plugins.Page;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.jupiterframework.dao.GenericDao;
 import com.jupiterframework.manage.GenericManage;
 import com.jupiterframework.model.PageQuery;
 import com.jupiterframework.model.PageResult;
 
 
-public class GenericManageImpl<M extends BaseMapper<T>, T> extends ServiceImpl<BaseMapper<T>, T>
+public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<GenericDao<T>, T>
 		implements GenericManage<T> {
 
 	@Override
 	public PageResult<T> selectPage(PageQuery<T> query) {
 
-		Page<T> page = new Page<>(query.getCurrent(), query.getSize());
-		this.selectPage(page, new EntityWrapper<>(query.getParam()));
-		return new PageResult<>(page.getTotal(), page.getRecords());
+		Map<String, Object> condition = query.getExtra();
+		if (condition == null)
+			condition = new HashMap<String, Object>();
+		condition.put("ew", query.getCondition());
+		condition.put("queryBeginTime", query.getQueryBeginTime());
+		condition.put("queryEndTime", query.getQueryEndTime());
+
+		Pagination page = new Pagination(query.getCurrent(), query.getSize());
+		List<T> records = this.baseMapper.selectPageList(page, condition);
+		return new PageResult<>(page.getTotal(), records);
 
 	}
 

@@ -10,4 +10,5 @@ public class SequenceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SequenceApplication.class, args);
 	}
+
 }

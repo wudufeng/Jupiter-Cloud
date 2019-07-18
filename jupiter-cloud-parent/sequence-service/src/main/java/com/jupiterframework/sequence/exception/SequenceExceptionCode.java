@@ -8,6 +8,8 @@ public enum SequenceExceptionCode implements ExceptionDefinition {
 
 	OVER_MAXVALUE(701, "超出序列[{}]最大值"),
 
+	ERR_MAXVALUE(702, "最大值{}与最小值{}范围太小，不能少于10"),
+
 	;
 
 	private SequenceExceptionCode(int code, String message) {

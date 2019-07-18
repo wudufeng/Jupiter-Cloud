@@ -1,4 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    com.jupiterframework.autoconfig.api.ApiDocAutoConfiguration,\
     com.jupiterframework.web.WebConfiguration
     

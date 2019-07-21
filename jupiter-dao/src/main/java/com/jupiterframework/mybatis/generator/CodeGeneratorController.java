@@ -128,6 +128,25 @@ public class CodeGeneratorController {
 				return file;
 			}
 		});
+		focList.add(new FileOutConfig("/freemarker/generator/pageList.vue.ftl") {
+			@Override
+			public String outputFile(TableInfo tableInfo) {
+				// 自定义输出文件名
+				String file = gc.getOutputDir() + "/web/views/" + pc.getModuleName() + "/" + tableInfo.getEntityName()
+						+ ".vue";
+				new File(file).getParentFile().mkdirs();
+				return file;
+			}
+		});
+		focList.add(new FileOutConfig("/freemarker/generator/api.js.ftl") {
+			@Override
+			public String outputFile(TableInfo tableInfo) {
+				// 自定义输出文件名
+				String file = gc.getOutputDir() + "/web/api/" + tableInfo.getEntityName() + ".js";
+				new File(file).getParentFile().mkdirs();
+				return file;
+			}
+		});
 		cfg.setFileOutConfigList(focList);
 		mpg.setCfg(cfg);
 

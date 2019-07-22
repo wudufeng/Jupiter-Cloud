@@ -1,6 +1,6 @@
 <template>
   <div class="create${entity}-container">
-    <el-form ref="${entity}Form" :model="${entity}Form" :rules="rules" class="form-container">
+    <el-form ref="${entity?uncap_first}Form" :model="${entity?uncap_first}Form" :rules="rules" class="form-container">
       <div class="create${entity}-main-container">
         <el-row>
           <el-col :span="24">
@@ -9,7 +9,7 @@
 <#list table.fields as field>
                 <el-col :span="8">
                   <el-form-item label-width="60px" label="${field.comment}" class="${entity?uncap_first}Info-container-item">
-                    <el-input v-model="${entity}Form.${field.propertyName}" />
+                    <el-input v-model="${entity?uncap_first}${r'Form.'}${field.propertyName}" />
                   </el-form-item>
                 </el-col>
 <#if field?has_next && (field?index+1)%3==0>
@@ -59,11 +59,11 @@ export default {
       }
     }
     return {
-      ${entity}Form: Object.assign({}, defaultForm),
+      ${entity?uncap_first}Form: Object.assign({}, defaultForm),
       loading: false,
       rules: {
 <#list table.fields as field>
-        field: [{ validator: validateRequire }]<#if field?has_next>,</#if>
+        ${field.propertyName}: [{ validator: validateRequire }]<#if field?has_next>,</#if>
 </#list>
       },
       tempRoute: {}
@@ -76,7 +76,7 @@ export default {
       const id = this.$route.params && this.$route.params.id
       this.fetchData(id)
     } else {
-      this.${entity}Form = Object.assign({}, defaultForm)
+      this.${entity?uncap_first}Form = Object.assign({}, defaultForm)
     }
 
     this.tempRoute = Object.assign({}, this.$route)
@@ -91,7 +91,7 @@ export default {
 </#list>
       }
       get${entity}Detail(params).then(response => {
-        this.${entity}Form = response.data
+        this.${entity?uncap_first}Form = response.data
         this.setTagsViewTitle()
         this.setPageTitle()
       }).catch(err => {
@@ -100,7 +100,7 @@ export default {
     },
     setTagsViewTitle() {
       const title = 'Edit ${entity}'
-      const route = Object.assign({}, this.tempRoute, { title: `${r'${title}-${this.'}${entity}Form.id}` })
+      const route = Object.assign({}, this.tempRoute, { title: `${r'${title}-${this.'}${entity?uncap_first}Form.id}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     setPageTitle() {
@@ -108,29 +108,29 @@ export default {
       document.title = `${r'${title} - ${this.'}postForm.id}`
     },
     submitForm() {
-      console.log(this.${entity}Form)
-      this.$refs.${entity}Form.validate(valid => {
+      console.log(this.${entity?uncap_first}Form)
+      this.$refs.${entity?uncap_first}Form.validate(valid => {
         if (valid) {
           this.loading = true
-          if(this.isEdit) {
-		      add${entity}(${entity}Form).then(response => {          
-		          this.$notify({
-		            title: '成功',
-		            message: 'Add ${entity} Success',
-		            type: 'success'
-		          })
-		          this.loading = false
-		      }
-		  } else {
-		      update${entity}(${entity}Form).then(response => {          
-		          this.$notify({
-		            title: '成功',
-		            message: 'Update ${entity} Success',
-		            type: 'success'
-		          })
-		          this.loading = false
-		      }
-		  }
+          if (this.isEdit) {
+            add${entity}(this.${entity?uncap_first}Form).then(response => {
+              this.$notify({
+                title: '成功',
+                message: 'Add ${entity} Success',
+                type: 'success'
+              })
+              this.loading = false
+            })
+          } else {
+            update${entity}(this.${entity?uncap_first}Form).then(response => {
+              this.$notify({
+                title: '成功',
+                message: 'Update ${entity} Success',
+                type: 'success'
+              })
+              this.loading = false
+            })
+          }
         } else {
           console.log('error submit!!')
           return false

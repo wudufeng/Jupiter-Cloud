@@ -9,13 +9,13 @@
       </el-button>
     </div>
 
-    <el-table 
-      :key="tableKey" 
-      v-loading="listLoading" 
+    <el-table
+      :key="tableKey"
+      v-loading="listLoading"
       :data="list"
-      border 
-      fit 
-      highlight-current-row 
+      border
+      fit
+      highlight-current-row
       style="width: 100%;">
 <#list table.fields as field>
       <el-table-column label="${field.comment}" width="120px" align="center">
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { get${entity}List, get${entity}Detail } from '@/api/${package.ModuleName}'
+import { get${entity}List } from '@/api/${package.ModuleName}'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 

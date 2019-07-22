@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/${entity?cap_first}'
+import { get${entity}List, get${entity}Detail } from '@/api/${package.ModuleName}'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 
@@ -89,7 +89,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      get${entity}List(this.listQuery).then(response => {
         this.list = response.data.records
         this.total = response.data.total
         this.listLoading = false

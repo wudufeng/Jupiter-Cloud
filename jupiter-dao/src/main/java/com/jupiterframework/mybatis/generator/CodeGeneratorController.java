@@ -5,14 +5,15 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -50,159 +51,179 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CodeGeneratorController {
 
-	@Autowired
-	private HikariDataSource dataSource;
+    @Autowired
+    private HikariDataSource dataSource;
+    private static final String XML_TEMPLATE_PATH = "/freemarker/generator/mapper.xml";
 
-	@RequestMapping(value = "/code/generate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE, method = RequestMethod.GET)
-	public void generator(@RequestParam(name = "dbType", defaultValue = "MYSQL") DbType dbType,
-			@RequestParam String parentPackage, @RequestParam String module,
-			@RequestParam(value = "trancateTablePrefix", required = false) String trancatePrefix,
-			@RequestParam(value = "tableNames", required = false) String[] tableNames,
-			@RequestParam(value = "outputDir", required = false) String outputDir,
-			@RequestParam(value = "fileOverride", defaultValue = "false") boolean fileOverride,
-			@RequestParam(value = "download", required = false, defaultValue = "false") boolean download,
-			HttpServletResponse response) {
 
-		// 代码生成器
-		if (org.apache.commons.lang3.StringUtils.isBlank(outputDir))
-			outputDir = System.getProperty("java.io.tmpdir") + File.separatorChar + UUID.randomUUID().toString();
+    @GetMapping(value = "/code/generate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void generator(@RequestParam(name = "dbType", defaultValue = "MYSQL") DbType dbType, @RequestParam String parentPackage, @RequestParam String module,
+            @RequestParam(value = "trancateTablePrefix", required = false) String trancatePrefix, @RequestParam(value = "tableNames", required = false) String[] tableNames,
+            @RequestParam(value = "outputDir", required = false) String outputDir, @RequestParam(value = "fileOverride", defaultValue = "false") boolean fileOverride,
+            @RequestParam(value = "download", required = false, defaultValue = "true") boolean download, HttpServletRequest request, HttpServletResponse response) {
 
-		AutoGenerator mpg = new AutoGenerator();
+        // 代码生成器
+        if (org.apache.commons.lang3.StringUtils.isBlank(outputDir))
+            outputDir = System.getProperty("java.io.tmpdir") + File.separatorChar + UUID.randomUUID().toString();
 
-		// 全局配置
-		GlobalConfig gc = new GlobalConfig();
-		gc.setFileOverride(fileOverride);
-		gc.setOutputDir(outputDir);
-		gc.setAuthor(System.getProperty("user.name"));
-		gc.setActiveRecord(false);
-		gc.setOpen(System.getProperty("os.name").contains("Windows"));
-		gc.setEnableCache(false);
-		gc.setBaseResultMap(true);
-		gc.setBaseColumnList(true);
-		gc.setMapperName("%sDao");
-		gc.setXmlName("%s");
-		gc.setServiceName("%sManage");
-		gc.setServiceImplName("%sManageImpl");
-		gc.setControllerName("%sController");
-		mpg.setGlobalConfig(gc);
+        AutoGenerator mpg = new AutoGenerator();
 
-		// 数据源配置
-		DataSourceConfig dsc = new DataSourceConfig();
-		dsc.setDbType(DbType.MYSQL);
-		dsc.setUrl(dataSource.getJdbcUrl());
-		dsc.setDriverName(dataSource.getDriverClassName());
-		dsc.setUsername(dataSource.getUsername());
-		dsc.setPassword(dataSource.getPassword());
-		mpg.setDataSource(dsc);
+        // 全局配置
+        GlobalConfig gc = new GlobalConfig();
+        gc.setFileOverride(fileOverride);
+        gc.setOutputDir(outputDir);
+        gc.setAuthor(System.getProperty("user.name"));
+        gc.setActiveRecord(false);
+        gc.setOpen(System.getProperty("os.name").contains("Windows"));
+        gc.setEnableCache(false);
+        gc.setBaseResultMap(true);
+        gc.setBaseColumnList(true);
+        gc.setMapperName("%sDao");
+        gc.setXmlName("%s");
+        gc.setServiceName("%sManage");
+        gc.setServiceImplName("%sManageImpl");
+        gc.setControllerName("%sController");
+        mpg.setGlobalConfig(gc);
 
-		// 包配置
-		PackageConfig pc = new PackageConfig();
-		pc.setParent(parentPackage);
-		pc.setModuleName(module);
-		pc.setService("manage");
-		pc.setServiceImpl("manage.impl");
-		pc.setMapper("dao");
-		pc.setXml("dao.xml");
-		pc.setController("web");
-		mpg.setPackageInfo(pc);
+        // 数据源配置
+        DataSourceConfig dsc = new DataSourceConfig();
+        dsc.setDbType(DbType.MYSQL);
+        dsc.setUrl(dataSource.getJdbcUrl());
+        dsc.setDriverName(dataSource.getDriverClassName());
+        dsc.setUsername(dataSource.getUsername());
+        dsc.setPassword(dataSource.getPassword());
+        mpg.setDataSource(dsc);
 
-		// 自定义配置
-		InjectionConfig cfg = new InjectionConfig() {
-			@Override
-			public void initMap() {
-				this.setMap(new HashMap<>());
-			}
-		};
+        // 包配置
+        PackageConfig pc = new PackageConfig();
+        pc.setParent(parentPackage);
+        pc.setEntity("entity");
+        pc.setModuleName(module);
+        pc.setService("manage");
+        pc.setServiceImpl("manage.impl");
+        pc.setMapper("dao");
+        pc.setXml("dao.xml");
+        pc.setController("web");
+        mpg.setPackageInfo(pc);
 
-		// 自定义输出配置
-		List<FileOutConfig> focList = new ArrayList<>();
-		String xmlTemplatePath = "/freemarker/generator/mapper.xml";
-		// 自定义配置会被优先输出
-		focList.add(new FileOutConfig(xmlTemplatePath + ".ftl") {
-			@Override
-			public String outputFile(TableInfo tableInfo) {
-				// 自定义输出文件名
-				String file =
-						gc.getOutputDir() + "/mapper/" + pc.getModuleName() + "/" + tableInfo.getEntityName() + ".xml";
-				new File(file).getParentFile().mkdirs();
-				return file;
-			}
-		});
-		focList.add(new FileOutConfig("/freemarker/generator/pageList.vue.ftl") {
-			@Override
-			public String outputFile(TableInfo tableInfo) {
-				// 自定义输出文件名
-				String file = gc.getOutputDir() + "/web/views/" + pc.getModuleName() + "/" + tableInfo.getEntityName()
-						+ ".vue";
-				new File(file).getParentFile().mkdirs();
-				return file;
-			}
-		});
-		focList.add(new FileOutConfig("/freemarker/generator/api.js.ftl") {
-			@Override
-			public String outputFile(TableInfo tableInfo) {
-				// 自定义输出文件名
-				String file = gc.getOutputDir() + "/web/api/" + tableInfo.getEntityName() + ".js";
-				new File(file).getParentFile().mkdirs();
-				return file;
-			}
-		});
-		cfg.setFileOutConfigList(focList);
-		mpg.setCfg(cfg);
+        // 自定义配置
+        InjectionConfig cfg = new InjectionConfig() {
+            @Override
+            public void initMap() {
+                Map<String, Object> map = new HashMap<>();
+                map.put("contextPath", request.getContextPath());
+                this.setMap(map);
+            }
+        };
 
-		// 配置模板
-		TemplateConfig templateConfig = new TemplateConfig();
-		// // 配置自定义输出模板
-		templateConfig.setEntity("/freemarker/generator/entity.java");
-		templateConfig.setService("/freemarker/generator/manage.java");
-		templateConfig.setServiceImpl("/freemarker/generator/manageImpl.java");
-		templateConfig.setController("/freemarker/generator/controller.java");
-		templateConfig.setXml(xmlTemplatePath);
-		mpg.setTemplate(templateConfig);
+        // 自定义输出配置
+        List<FileOutConfig> focList = new ArrayList<>();
+        userDefinitionFile(gc, pc, focList);
+        cfg.setFileOutConfigList(focList);
+        mpg.setCfg(cfg);
 
-		// 策略配置
-		StrategyConfig strategy = new StrategyConfig();
-		strategy.setNaming(NamingStrategy.underline_to_camel);
-		strategy.setSuperEntityClass(GenericPo.class.getName());
-		List<String> superEntityFields = new ArrayList<>();
-		for (Field f : GenericPo.class.getDeclaredFields()) {
-			superEntityFields.add(f.getName());
-			TableField tf = f.getAnnotation(TableField.class);
-			if (tf != null)
-				superEntityFields.add(tf.value());
-		}
-		strategy.setSuperEntityColumns(superEntityFields.toArray(new String[superEntityFields.size()]));
-		strategy.setSuperServiceClass(GenericManage.class.getName());
-		strategy.setSuperServiceImplClass(GenericManageImpl.class.getName());
-		strategy.setSuperMapperClass(GenericDao.class.getName());
-		strategy.setSuperControllerClass(GenericController.class.getName());
+        // 配置模板
+        TemplateConfig templateConfig = new TemplateConfig();
+        // // 配置自定义输出模板
+        templateConfig.setEntity("/freemarker/generator/entity.java");
+        templateConfig.setService("/freemarker/generator/manage.java");
+        templateConfig.setServiceImpl("/freemarker/generator/manageImpl.java");
+        templateConfig.setController("/freemarker/generator/controller.java");
+        templateConfig.setXml(XML_TEMPLATE_PATH);
+        mpg.setTemplate(templateConfig);
 
-		strategy.setEntityLombokModel(true);
-		strategy.setRestControllerStyle(true);
-		strategy.setInclude(tableNames);
-		strategy.setEntityBooleanColumnRemoveIsPrefix(true);
-		strategy.entityTableFieldAnnotationEnable(false);
-		strategy.setControllerMappingHyphenStyle(true);
-		strategy.setTablePrefix(trancatePrefix == null ? "" : trancatePrefix.trim());
+        // 策略配置
+        StrategyConfig strategy = new StrategyConfig();
+        strategy.setNaming(NamingStrategy.underline_to_camel);
+        strategy.setSuperEntityClass(GenericPo.class.getName());
+        List<String> superEntityFields = new ArrayList<>();
+        for (Field f : GenericPo.class.getDeclaredFields()) {
+            superEntityFields.add(f.getName());
+            TableField tf = f.getAnnotation(TableField.class);
+            if (tf != null)
+                superEntityFields.add(tf.value());
+        }
+        strategy.setSuperEntityColumns(superEntityFields.toArray(new String[superEntityFields.size()]));
+        strategy.setSuperServiceClass(GenericManage.class.getName());
+        strategy.setSuperServiceImplClass(GenericManageImpl.class.getName());
+        strategy.setSuperMapperClass(GenericDao.class.getName());
+        strategy.setSuperControllerClass(GenericController.class.getName());
 
-		mpg.setStrategy(strategy);
-		mpg.setTemplateEngine(new FreemarkerTemplateEngine());
+        strategy.setEntityLombokModel(true);
+        strategy.setRestControllerStyle(true);
+        strategy.setInclude(tableNames);
+        strategy.setEntityBooleanColumnRemoveIsPrefix(true);
+        strategy.entityTableFieldAnnotationEnable(false);
+        strategy.setControllerMappingHyphenStyle(true);
+        strategy.setTablePrefix(trancatePrefix == null ? "" : trancatePrefix.trim());
 
-		log.info("code generate to path : {}", outputDir);
+        mpg.setStrategy(strategy);
+        mpg.setTemplateEngine(new FreemarkerTemplateEngine());
 
-		mpg.execute();
+        log.info("code generate to path : {}", outputDir);
 
-		if (download) {
-			// response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-			response.setHeader("Content-Disposition", "attachment;filename=code-generate-" + module + ".zip");
-			response.addHeader("Pargam", "no-cache");
-			response.addHeader("Cache-Control", "no-cache");
-			try {
-				ZipUtil.toZip(outputDir, response.getOutputStream(), true);
-			} catch (Exception e) {
-				log.warn("", e);
-			}
-		}
-	}
+        mpg.execute();
+
+        if (download || !gc.isOpen()) {
+            response.setHeader("Content-Disposition", "attachment;filename=code-generate-" + module + ".zip");
+            response.addHeader("Pargam", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+            try {
+                ZipUtil.toZip(outputDir, response.getOutputStream(), true);
+            } catch (Exception e) {
+                log.warn("", e);
+            }
+        }
+    }
+
+
+    private void userDefinitionFile(GlobalConfig gc, PackageConfig pc, List<FileOutConfig> focList) {
+        // 自定义配置会被优先输出
+        focList.add(new FileOutConfig(XML_TEMPLATE_PATH + ".ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = gc.getOutputDir() + "/mapper/" + pc.getModuleName() + "/" + tableInfo.getEntityName() + ".xml";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+        focList.add(new FileOutConfig("/freemarker/generator/view/detail.vue.ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = gc.getOutputDir() + "/web/views/" + pc.getModuleName() + "/" + tableInfo.getEntityName() + "Detail.vue";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+        focList.add(new FileOutConfig("/freemarker/generator/view/pageList.vue.ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = gc.getOutputDir() + "/web/views/" + pc.getModuleName() + "/" + tableInfo.getEntityName() + "List.vue";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+        focList.add(new FileOutConfig("/freemarker/generator/view/api.js.ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = gc.getOutputDir() + "/web/view/api/" + pc.getModuleName() + ".js";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+        focList.add(new FileOutConfig("/freemarker/generator/view/router.js.ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = gc.getOutputDir() + "/web/view/router/modules/" + pc.getModuleName() + ".js";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+    }
 
 }

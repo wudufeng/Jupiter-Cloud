@@ -12,23 +12,22 @@ import com.jupiterframework.model.PageQuery;
 import com.jupiterframework.model.PageResult;
 
 
-public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<GenericDao<T>, T>
-		implements GenericManage<T> {
+public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<GenericDao<T>, T> implements GenericManage<T> {
 
-	@Override
-	public PageResult<T> selectPage(PageQuery<T> query) {
+    @Override
+    public PageResult<T> selectPage(PageQuery<T> query) {
 
-		Map<String, Object> condition = query.getExtra();
-		if (condition == null)
-			condition = new HashMap<String, Object>();
-		condition.put("ew", query.getCondition());
-		condition.put("queryBeginTime", query.getQueryBeginTime());
-		condition.put("queryEndTime", query.getQueryEndTime());
+        Map<String, Object> condition = query.getExtra();
+        if (condition == null)
+            condition = new HashMap<>();
+        condition.put("ew", query.getCondition());
+        condition.put("queryBeginTime", query.getQueryBeginTime());
+        condition.put("queryEndTime", query.getQueryEndTime());
 
-		Pagination page = new Pagination(query.getCurrent(), query.getSize());
-		List<T> records = this.baseMapper.selectPageList(page, condition);
-		return new PageResult<>(page.getTotal(), records);
+        Pagination page = new Pagination(query.getCurrent(), query.getSize());
+        List<T> records = this.baseMapper.selectPageList(page, condition);
+        return new PageResult<>(page.getTotal(), records);
 
-	}
+    }
 
 }

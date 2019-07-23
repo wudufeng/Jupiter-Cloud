@@ -16,7 +16,8 @@
       border
       fit
       highlight-current-row
-      style="width: 100%;">
+      style="width: 100%"
+    >
 <#list table.fields as field>
       <el-table-column label="${field.comment}" width="120px" align="center">
         <template slot-scope="scope">

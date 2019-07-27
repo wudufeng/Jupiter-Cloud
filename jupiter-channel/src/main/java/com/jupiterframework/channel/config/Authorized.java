@@ -19,6 +19,7 @@ public class Authorized {
      * 存在@HOST@，则替换为new URI（“serviceUrl”）.getHost()
      */
     private String prefix;
+    private String suffix;// 后缀
     private String pairs = ""; // key=value的等号
     private String split = ""; // key=value&key2=val2的&符号
     private boolean upperCase = false;

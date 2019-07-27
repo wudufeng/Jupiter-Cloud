@@ -56,9 +56,17 @@ public class ExceptionMonitorTrigger implements ServiceResponseFilter, Exception
     private void doCollect(ServiceFailureResponse sr) {
         if (!properties.getIgnoreErrorCode().contains(String.valueOf(sr.getCode()))) {
             ErrorInstance m = new ErrorInstance(sr.getCode(), sr.getMessage(), sr.getHost(), sr.getStackTrace(), sr.getTraceId(), sr.getPath());
-            for (ExceptionMonitor filter : filters) {
-                filter.collect(m);
-            }
+            this.doCollect(m);
+        }
+    }
+
+
+    /** 自定义异常采集 */
+    public void doCollect(ErrorInstance error) {
+        if (error.getHostAndPort() == null)
+            error.setHostAndPort(String.format("%s:%s", server.getHost(), server.getPort()));
+        for (ExceptionMonitor filter : filters) {
+            filter.collect(error);
         }
     }
 }

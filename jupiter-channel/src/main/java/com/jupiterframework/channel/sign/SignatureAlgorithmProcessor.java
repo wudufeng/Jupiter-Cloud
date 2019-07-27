@@ -69,8 +69,8 @@ public abstract class SignatureAlgorithmProcessor {
 
         StringBuilder query = new StringBuilder();
         if (StringUtils.hasText(authCfg.getPrefix())) {
-            query.append(
-                authCfg.getPrefix().replace("@URL@", auth.getUrl() + svccfg.getPath()).replace("@PATH@", svccfg.getPath()).replace("@HOST@", URI.create(auth.getUrl()).getHost()));
+            query.append(authCfg.getPrefix().replace("@URL", auth.getUrl() + svccfg.getPath()).replace("@PATH", svccfg.getPath())
+                .replace("@HOST", URI.create(auth.getUrl()).getHost()).replace("@SECURET", auth.getSecuretKey()));
         }
 
         Iterator<Entry<String, String>> pairs = sorted.entrySet().iterator();
@@ -80,6 +80,11 @@ public abstract class SignatureAlgorithmProcessor {
             query.append(pair.getKey()).append(authCfg.getPairs()).append(authCfg.isEncodeValue() ? urlEncode(pair.getValue()) : pair.getValue());
             if (pairs.hasNext())
                 query.append(authCfg.getSplit());
+        }
+
+        if (StringUtils.hasText(authCfg.getSuffix())) {
+            query.append(authCfg.getSuffix().replace("@URL", auth.getUrl() + svccfg.getPath()).replace("@PATH", svccfg.getPath())
+                .replace("@HOST", URI.create(auth.getUrl()).getHost()).replace("@SECURET", auth.getSecuretKey()));
         }
 
         log.debug("sign query {}", query);

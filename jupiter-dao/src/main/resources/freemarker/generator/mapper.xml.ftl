@@ -37,10 +37,10 @@
 
 	<sql id="Base_Where">
 	  <#list table.fields as field>
-	  <if test="ew.${field.propertyName} != null<#if field.propertyType == 'String'> and ${field.propertyName} != ''</#if>">${field.name}=${r'#{ew.'}${field.propertyName}${r'}'} AND</if>
+	  <if test="ew.${field.propertyName} != null<#if field.propertyType == 'String'> and ew.${field.propertyName} != ''</#if>">${field.name}=${r'#{ew.'}${field.propertyName}${r'}'} AND</if>
 	  </#list>
 	  <#list table.commonFields as field>
-	  <if test="ew.${field.propertyName} != null<#if field.propertyType == 'String'> and ${field.propertyName} != ''</#if>">${field.name}=${r'#{ew.'}${field.propertyName}${r'}'} AND</if>
+	  <if test="ew.${field.propertyName} != null<#if field.propertyType == 'String'> and ew.${field.propertyName} != ''</#if>">${field.name}=${r'#{ew.'}${field.propertyName}${r'}'} AND</if>
 	  </#list>
 	</sql>
 

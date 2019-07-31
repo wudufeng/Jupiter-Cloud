@@ -64,7 +64,8 @@ public class FastJsonHttpMessageConverterEx extends FastJsonHttpMessageConverter
 
 
     @Override
-    public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+    public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage)
+            throws IOException, HttpMessageNotWritableException {
 
         for (ServiceResponseFilter filter : serviceFilterContext.getSvcRespFilters()) {
             filter.doFilter(o);
@@ -77,7 +78,8 @@ public class FastJsonHttpMessageConverterEx extends FastJsonHttpMessageConverter
 
     public static class FastJsonParseConfig extends ParserConfig {
         @Override
-        public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
+        public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo,
+                FieldInfo fieldInfo) {
 
             Class<?> clazz = beanInfo.clazz;
             Class<?> fieldClass = fieldInfo.fieldClass;

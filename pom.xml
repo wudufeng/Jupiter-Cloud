@@ -15,9 +15,9 @@
 		<spring.admin.version>1.5.7</spring.admin.version>
 		<jupiter.framework.version>2.0.0-SNAPSHOT</jupiter.framework.version>
 		<slf4j.version>1.7.25</slf4j.version>
-		<lombok.version>1.16.20</lombok.version>
+		<lombok.version>1.18.8</lombok.version>
 		<swagger.version>2.7.0</swagger.version>
-		<fastjson.version>1.2.46</fastjson.version>
+		<fastjson.version>1.2.59</fastjson.version>
 		<jackson.version>2.8.11</jackson.version>
 		<kryo.version>4.0.2</kryo.version>
 		<mybatis.version>3.4.6</mybatis.version>
@@ -27,6 +27,17 @@
 	</properties>
 
 	<modules>
+		<module>jupiter-amqp</module>
+		<module>jupiter-assembly</module>
+		<module>jupiter-cache</module>
+		<module>jupiter-channel</module>
+		<module>jupiter-cloud-parent</module>
+		<module>jupiter-core</module>
+		<module>jupiter-dao</module>
+		<module>jupiter-governance</module>
+		<module>jupiter-logging</module>
+		<module>jupiter-web</module>
+		<module>jupiter-workflow</module>
 	</modules>
 
 	<dependencyManagement>

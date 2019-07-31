@@ -20,7 +20,6 @@ import io.swagger.annotations.ApiModelProperty;
 <#if superEntityClass??>
 @lombok.EqualsAndHashCode(callSuper = true)
 </#if>
-@lombok.experimental.Accessors(chain = true)
 </#if>
 <#if table.convert>
 @TableName("${table.name}")

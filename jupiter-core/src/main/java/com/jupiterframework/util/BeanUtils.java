@@ -17,6 +17,7 @@ import org.springframework.cglib.beans.BeanMap;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
@@ -33,14 +34,17 @@ public class BeanUtils {
     }
 
     /** Map<source class,<target class , BeanCopier>> */
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, BeanCopier>> cache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, BeanCopier>> cache =
+            new ConcurrentHashMap<>();
 
     private static final ThreadLocal<Kryo> KRYO = ThreadLocal.withInitial(Kryo::new);
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final FastJsonConfig FASTJSON_CONFIG = new FastJsonConfig();
-    private static final SerializerFeature[] SERIALIZER_FEATURES = new SerializerFeature[] { SerializerFeature.BrowserSecure, SerializerFeature.DisableCircularReferenceDetect };
+    private static final SerializerFeature[] SERIALIZER_FEATURES =
+            new SerializerFeature[] { SerializerFeature.BrowserSecure,
+                                      SerializerFeature.DisableCircularReferenceDetect };
     static {
         FASTJSON_CONFIG.setDateFormat(DATE_FORMAT);
         SerializeConfig serializeConfig = SerializeConfig.globalInstance;
@@ -52,6 +56,7 @@ public class BeanUtils {
         serializeConfig.put(Date.class, new SimpleDateFormatSerializer(DATE_FORMAT));
         FASTJSON_CONFIG.setSerializerFeatures(SERIALIZER_FEATURES);
         FASTJSON_CONFIG.setSerializeConfig(serializeConfig);
+        FASTJSON_CONFIG.setFeatures(Feature.AllowSingleQuotes);
     }
 
 
@@ -238,7 +243,8 @@ public class BeanUtils {
             return isPrimitive(cls.getComponentType());
         }
 
-        return cls.isPrimitive() || cls == Class.class || cls == String.class || cls == Boolean.class || cls == Character.class || Number.class.isAssignableFrom(cls)
+        return cls.isPrimitive() || cls == Class.class || cls == String.class || cls == Boolean.class
+                || cls == Character.class || Number.class.isAssignableFrom(cls)
                 || Date.class.isAssignableFrom(cls);
     }
 

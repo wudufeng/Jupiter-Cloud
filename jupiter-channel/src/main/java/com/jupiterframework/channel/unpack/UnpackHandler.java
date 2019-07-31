@@ -79,7 +79,6 @@ public abstract class UnpackHandler<T> {
             if (f.getDefaultValue() != null) {
                 val = f.getDefaultValue();
             } else {
-                result.put(f.getName(), null);
                 return;
             }
         }

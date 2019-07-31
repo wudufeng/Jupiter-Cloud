@@ -3,16 +3,16 @@
     <el-form ref="${entity?uncap_first}Form" :model="${entity?uncap_first}Form" :rules="rules" class="form-container">
       <div class="create${entity}-main-container">
         <el-row>
-          <el-col :span="24">
+          <el-col>
             <div class="${entity?uncap_first}Info-container">
               <el-row>
 <#list table.fields as field>
-                <el-col :span="8">
-                  <el-form-item label-width="60px" label="${field.comment}" class="${entity?uncap_first}Info-container-item">
+                <el-col :span="6">
+                  <el-form-item prop="field.propertyName" label="${field.comment}">
                     <el-input v-model="${entity?uncap_first}${r'Form.'}${field.propertyName}" />
                   </el-form-item>
                 </el-col>
-<#if field?has_next && (field?index+1)%3==0>
+<#if field?has_next && (field?index+1)%2==0>
                 </el-row>
               <el-row>
 </#if>
@@ -154,10 +154,6 @@ export default {
       position: relative;
       @include clearfix;
       margin-bottom: 10px;
-
-      .${entity?uncap_first}Info-container-item {
-        float: left;
-      }
     }
   }
 }

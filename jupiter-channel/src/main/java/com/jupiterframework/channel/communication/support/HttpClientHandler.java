@@ -40,6 +40,7 @@ import com.jupiterframework.channel.pojo.Authorization;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 @Component
 public class HttpClientHandler implements ClientHandler {
@@ -57,6 +58,7 @@ public class HttpClientHandler implements ClientHandler {
         org.apache.http.StatusLine status = response.getStatusLine();
         if (status != null) {
             if (status.getStatusCode() != HttpStatus.SC_OK) {
+                log.error("request failure ! url : {}  , status {}", req.getURI(), status);
                 throw new RemoteAccessException(String.format("%d:%s", status.getStatusCode(), status.getReasonPhrase()));
             }
 
@@ -73,6 +75,7 @@ public class HttpClientHandler implements ClientHandler {
 
         return new byte[0];
     }
+
 
     private HttpRequestBase createHttpRequest(Authorization auth, Request requestParams, Channel chlcfg, Service svccfg) {
         HttpRequestBase httpReq = null;
@@ -121,6 +124,7 @@ public class HttpClientHandler implements ClientHandler {
         return httpReq;
     }
 
+
     private void pack(HttpRequestBase result, Request s, List<NameValuePair> nvps) {
         for (Parameter p : s.getParameters()) {
 
@@ -141,6 +145,7 @@ public class HttpClientHandler implements ClientHandler {
         }
 
     }
+
 
     @Override
     public List<RequestMethod> getRequestMode() {

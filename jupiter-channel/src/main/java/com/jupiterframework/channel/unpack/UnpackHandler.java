@@ -2,6 +2,7 @@ package com.jupiterframework.channel.unpack;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,11 +29,19 @@ public abstract class UnpackHandler<T> {
 
     public Map<String, Object> handle(byte[] respData, Response response) {
         T ctx = this.parseObj(respData);
+        String indicateVal = null;
+        if (StringUtils.hasText(response.getIndicate())) {
+            indicateVal = this.readPathValue(ctx, response.getIndicate());
+            if (indicateVal != null) {
+                log.debug("receive response : {}", indicateVal);
+                ctx = this.parseObj(indicateVal.getBytes(StandardCharsets.UTF_8));
+            }
+        }
 
         List<Field> field = response.getFields();
         Map<String, Object> result = new HashMap<>(field.size());
         if (response.isPayload()) {
-            result.put(Response.PAYLOAD_KEY, JSON.parseObject(respData, String.class));
+            result.put(Response.PAYLOAD_KEY, indicateVal != null ? indicateVal : JSON.parseObject(respData, String.class));
         }
 
         for (Field f : field) {
@@ -90,7 +99,8 @@ public abstract class UnpackHandler<T> {
 
         // 值解析/加、解密
         if (StringUtils.hasText(f.getResolver())) {
-            val = valueResolverFactory.create(f.getResolver()).resolve(null, val);
+            for (String resolver : f.getResolver().split(","))
+                val = valueResolverFactory.create(resolver).resolve(null, val);
         }
 
         switch (f.getType().getName()) {

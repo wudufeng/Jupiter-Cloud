@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+
 /**
  * 数据字典映射
  */
@@ -27,6 +28,10 @@ public class Response {
     /** 是否返回源报文 */
     @XmlAttribute
     private boolean payload;
+
+    /** 指定只解析某个结构体作为field */
+    @XmlAttribute
+    private String indicate = "";
 
     @XmlElement(name = "field")
     private List<Field> fields;
@@ -87,6 +92,7 @@ public class Response {
     }
 
     public enum Format {
-        JSON, XML
+        JSON,
+        XML
     }
 }

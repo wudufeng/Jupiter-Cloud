@@ -18,9 +18,9 @@ import com.jupiterframework.channel.communication.ClientHandler;
 import com.jupiterframework.channel.config.Channel;
 import com.jupiterframework.channel.config.ChannelProperties;
 import com.jupiterframework.channel.config.Request;
+import com.jupiterframework.channel.config.Request.Parameter;
 import com.jupiterframework.channel.config.RequestMethod;
 import com.jupiterframework.channel.config.Service;
-import com.jupiterframework.channel.config.Request.Parameter;
 import com.jupiterframework.channel.pojo.Authorization;
 import com.jupiterframework.channel.pojo.MessageRequest;
 import com.jupiterframework.channel.pojo.MessageResponse;
@@ -78,8 +78,10 @@ public class CommunicationProcessor implements ApplicationContextAware {
         }
 
         // 添加参数签名
-        String sign = signatureFactory.create(chlcfg.getAuthorized().getSignatureAlgorith()).process(svccfg, auth, signParams);
-        reqParam.setSignValue(sign);
+        if (chlcfg.getAuthorized() != null) {
+            String sign = signatureFactory.create(chlcfg.getAuthorized().getSignatureAlgorith()).process(svccfg, auth, signParams);
+            reqParam.setSignValue(sign);
+        }
 
         byte[] respData = null;
         long startTime = System.currentTimeMillis();

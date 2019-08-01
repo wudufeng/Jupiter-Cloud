@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.jupiterframework.cloud</groupId>
+		<groupId>com.jupiter.cloud</groupId>
 		<artifactId>jupiter-cloud-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
@@ -49,7 +49,7 @@
 				<configuration>
 					<daemons>
 						<daemon>
-							<mainClass>com.jupiterframework.config.ConfigServerApplication</mainClass>
+							<mainClass>com.jupiter.config.ConfigServerApplication</mainClass>
 						</daemon>
 					</daemons>
 				</configuration>

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: codegen-service
+  cloud:
+    config:
+      fail-fast: true
+      uri: http://config.jupiter.com:10000
+      username: user
+      password: 123456

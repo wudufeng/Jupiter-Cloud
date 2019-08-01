@@ -9,10 +9,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jupiterframework.sequence.manage.SequenceManager;
-import com.jupiterframework.sequence.vo.CreateSequenceRequest;
-import com.jupiterframework.sequence.vo.GetSequenceResponse;
-import com.jupiterframework.sequence.vo.SequenceOperationRequest;
+import com.jupiter.sequence.manage.SequenceManager;
+import com.jupiter.sequence.vo.CreateSequenceRequest;
+import com.jupiter.sequence.vo.GetSequenceResponse;
+import com.jupiter.sequence.vo.SequenceOperationRequest;
 import com.jupiterframework.util.BeanUtils;
 
 

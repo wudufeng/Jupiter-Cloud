@@ -12,7 +12,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -29,13 +28,13 @@ import com.baomidou.mybatisplus.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.spring.MybatisMapperRefresh;
 import com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean;
 import com.jupiterframework.dao.GenericDao;
-import com.jupiterframework.mybatis.generator.CodeGeneratorController;
+
 
 @Configuration
 @ConditionalOnBean({ DataSource.class })
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties({ MybatisExtendProperties.class })
-@MapperScan(basePackages = "com.jupiterframework.**.dao", markerInterface = GenericDao.class)
+@MapperScan(basePackages = "com.jupiter.**.dao", markerInterface = GenericDao.class)
 public class MybatisPlusAutoConfig {
     @Autowired
     private DataSource dataSource;
@@ -45,7 +44,9 @@ public class MybatisPlusAutoConfig {
     private MybatisExtendProperties extProperties;
     @Autowired
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
-    private String[] deafultMapperLocations = { "classpath*:mapper/**/*.xml", "classpath*:config/mapper/**/*.xml" };
+    private String[] deafultMapperLocations =
+            { "classpath*:mapper/**/*.xml", "classpath*:config/mapper/**/*.xml" };
+
 
     @Bean
     public PaginationInterceptor paginationInterceptor() {
@@ -54,18 +55,22 @@ public class MybatisPlusAutoConfig {
         return page;
     }
 
+
     @Bean
-    public MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean(@Autowired(required = false) DatabaseIdProvider databaseIdProvider, Interceptor[] interceptors) {
+    public MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean(
+            @Autowired(required = false) DatabaseIdProvider databaseIdProvider, Interceptor[] interceptors) {
         MybatisSqlSessionFactoryBean mybatisPlus = new MybatisSqlSessionFactoryBean();
         mybatisPlus.setDataSource(this.dataSource);
         mybatisPlus.setVfs(SpringBootVFS.class);
         if (StringUtils.hasText(this.properties.getConfigLocation())) {
-            mybatisPlus.setConfigLocation(this.resourceLoader.getResource(this.properties.getConfigLocation()));
+            mybatisPlus
+                .setConfigLocation(this.resourceLoader.getResource(this.properties.getConfigLocation()));
         }
         // if (!ObjectUtils.isEmpty(this.interceptors)) {
         mybatisPlus.setPlugins(interceptors);
         // }
-        if ((this.properties.getMapperLocations() == null) || (this.properties.getMapperLocations().length < 1)) {
+        if ((this.properties.getMapperLocations() == null)
+                || (this.properties.getMapperLocations().length < 1)) {
             this.properties.setMapperLocations(this.deafultMapperLocations);
         }
 
@@ -99,19 +104,17 @@ public class MybatisPlusAutoConfig {
         return mybatisPlus;
     }
 
+
     @Bean
     @Autowired
     public MybatisMapperRefresh mybatisMapperRefresh(SqlSessionFactory sqlSessionFactory) {
-        if ((this.properties.getMapperLocations() == null) || (this.properties.getMapperLocations().length < 1)) {
+        if ((this.properties.getMapperLocations() == null)
+                || (this.properties.getMapperLocations().length < 1)) {
             this.properties.setMapperLocations(this.deafultMapperLocations);
         }
         MybatisExtendProperties.ReloadPropertis conf = this.extProperties.getReloadMapper();
-        return new MybatisMapperRefresh(this.properties.resolveMapperLocations(), sqlSessionFactory, conf.getDelaySecond(), conf.getSleepSeconds(), conf.isEnabled());
+        return new MybatisMapperRefresh(this.properties.resolveMapperLocations(), sqlSessionFactory,
+            conf.getDelaySecond(), conf.getSleepSeconds(), conf.isEnabled());
     }
 
-    @ConditionalOnWebApplication
-    @Bean
-    public CodeGeneratorController generatorController() {
-        return new CodeGeneratorController();
-    }
 }

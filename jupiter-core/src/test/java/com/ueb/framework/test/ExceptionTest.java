@@ -4,9 +4,6 @@ import org.junit.Test;
 
 import com.jupiterframework.constant.ExceptionDefinition;
 import com.jupiterframework.exception.BusinessException;
-import com.jupiterframework.model.ServiceFailureResponse;
-import com.jupiterframework.model.ServiceResponse;
-import com.jupiterframework.util.BeanUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,13 +21,6 @@ public class ExceptionTest {
 
     }
 
-
-    @Test
-    public void testCopy() {
-        ServiceFailureResponse err = new ServiceFailureResponse(200, "error");
-        ServiceResponse sr = BeanUtils.copy(err, ServiceResponse.class);
-        log.debug("{}", sr);
-    }
 }
 
 

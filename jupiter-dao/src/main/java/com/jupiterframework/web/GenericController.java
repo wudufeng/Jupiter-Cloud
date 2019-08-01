@@ -49,7 +49,7 @@ public class GenericController<M extends GenericManage<T>, T> {
 
 
     @ApiOperation(value = "分页查询数据")
-    @PostMapping("/page")
+    @PostMapping("/list")
     public PageResult<T> selectPage(@RequestBody PageQuery<T> query) {
         return manage.selectPage(query);
     }

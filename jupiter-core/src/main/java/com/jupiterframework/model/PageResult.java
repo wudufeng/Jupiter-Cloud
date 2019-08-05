@@ -15,12 +15,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResult<T> implements Serializable {
-	private static final long serialVersionUID = -1325097077210906969L;
+    private static final long serialVersionUID = -1325097077210906969L;
 
-	/** 总记录数 */
-	private int total;
+    /** 总记录数 */
+    private long total;
 
-	/** 结果集 */
-	private List<T> records;
+    /** 结果集 */
+    private List<T> records;
 
 }

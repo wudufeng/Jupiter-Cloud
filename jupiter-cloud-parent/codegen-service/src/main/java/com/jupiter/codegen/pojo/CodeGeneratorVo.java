@@ -24,10 +24,6 @@ public class CodeGeneratorVo {
     @ApiModelProperty(value = "表注释")
     private String tableComment;
 
-    /** 索引 */
-    @ApiModelProperty(value = "索引")
-    private String tableIndex;
-
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间")
     private Date tableCreateTime;

@@ -40,6 +40,7 @@ import com.jupiterframework.model.PageQuery;
 import com.jupiterframework.model.PageResult;
 import com.jupiterframework.util.StringUtils;
 import com.jupiterframework.web.GenericController;
+import com.mysql.jdbc.Driver;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,24 +56,54 @@ public class GeneratorServiceImpl implements GeneratorService {
 
 
     @Override
-    public void generateCurdCode(GeneratorConfigQo qo) {
+    public boolean generateCurdCode(GeneratorConfigQo qo) {
         DatabaseInfo db = databaseInfoManage.selectById(qo.getDatabaseId());
-        if (db == null)
-            return;
+        if (db == null) {
+            return false;
+        }
 
         AutoGenerator mpg = new AutoGenerator();
         // 全局配置
-        GlobalConfig gc = this.createGlobalConfig(qo);
-        mpg.setGlobalConfig(gc);
+        this.createGlobalConfig(qo, mpg);
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setUrl(db.getJdbcUrl());
+        dsc.setDbType(com.baomidou.mybatisplus.generator.config.rules.DbType
+            .valueOf(com.baomidou.mybatisplus.toolkit.JdbcUtils.getDbType(db.getJdbcUrl()).name()));
+        dsc.setDriverName(Driver.class.getName());
         dsc.setUsername(db.getUserName());
         dsc.setPassword(db.getPassword());
         mpg.setDataSource(dsc);
 
         // 包配置
+        this.configPackage(qo, mpg);
+
+        // 自定义配置
+        this.userDefinitionFile(qo, mpg);
+
+        // 配置模板
+        TemplateConfig templateConfig = new TemplateConfig();
+        templateConfig.setEntity(PATH + "entity.java");
+        templateConfig.setService(PATH + "manage.java");
+        templateConfig.setServiceImpl(PATH + "manageImpl.java");
+        templateConfig.setController(PATH + "controller.java");
+        mpg.setTemplate(templateConfig);
+
+        // 策略配置
+        this.createStrategyConfig(qo, mpg);
+
+        mpg.setTemplateEngine(new FreemarkerTemplateEngine());
+
+        log.info("code generate to path : {}", qo.getOutputDir());
+
+        mpg.execute();
+
+        return true;
+    }
+
+
+    private void configPackage(GeneratorConfigQo qo, AutoGenerator mpg) {
         PackageConfig pc = new PackageConfig();
         pc.setParent(qo.getPackageName());
         pc.setEntity("entity");
@@ -83,43 +114,10 @@ public class GeneratorServiceImpl implements GeneratorService {
         pc.setXml("dao.xml");
         pc.setController("web");
         mpg.setPackageInfo(pc);
-
-        // 自定义配置
-        InjectionConfig cfg = new InjectionConfig() {
-            @Override
-            public void initMap() {
-                this.setMap(qo.getInitMap());
-            }
-        };
-
-        // 自定义输出配置
-        List<FileOutConfig> focList = new ArrayList<>();
-        userDefinitionFile(gc, pc, focList);
-        cfg.setFileOutConfigList(focList);
-        mpg.setCfg(cfg);
-
-        // 配置模板
-        TemplateConfig templateConfig = new TemplateConfig();
-        // // 配置自定义输出模板
-        templateConfig.setEntity(PATH + "entity.java");
-        templateConfig.setService(PATH + "manage.java");
-        templateConfig.setServiceImpl(PATH + "manageImpl.java");
-        templateConfig.setController(PATH + "controller.java");
-        mpg.setTemplate(templateConfig);
-
-        // 策略配置
-        StrategyConfig strategy = this.createStrategyConfig(qo);
-
-        mpg.setStrategy(strategy);
-        mpg.setTemplateEngine(new FreemarkerTemplateEngine());
-
-        log.info("code generate to path : {}", qo.getOutputDir());
-
-        mpg.execute();
     }
 
 
-    private GlobalConfig createGlobalConfig(GeneratorConfigQo qo) {
+    private void createGlobalConfig(GeneratorConfigQo qo, AutoGenerator mpg) {
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
         gc.setFileOverride(true);
@@ -135,11 +133,11 @@ public class GeneratorServiceImpl implements GeneratorService {
         gc.setServiceName("%sManage");
         gc.setServiceImplName("%sManageImpl");
         gc.setControllerName("%sController");
-        return gc;
+        mpg.setGlobalConfig(gc);
     }
 
 
-    private StrategyConfig createStrategyConfig(GeneratorConfigQo qo) {
+    private void createStrategyConfig(GeneratorConfigQo qo, AutoGenerator mpg) {
         StrategyConfig strategy = new StrategyConfig();
         strategy.setNaming(NamingStrategy.underline_to_camel);
         strategy.setSuperEntityClass(GenericPo.class.getName());
@@ -162,29 +160,39 @@ public class GeneratorServiceImpl implements GeneratorService {
         strategy.setEntityBooleanColumnRemoveIsPrefix(true);
         strategy.entityTableFieldAnnotationEnable(false);
         strategy.setControllerMappingHyphenStyle(true);
-        strategy.setTablePrefix(qo.getTablePrefix());
-        return strategy;
+        strategy.setTablePrefix(qo.getTablePrefix() == null ? "" : qo.getTablePrefix());
+        mpg.setStrategy(strategy);
     }
 
 
-    private void userDefinitionFile(GlobalConfig gc, PackageConfig pc, List<FileOutConfig> focList) {
+    private void userDefinitionFile(GeneratorConfigQo qo, AutoGenerator mpg) {
+        // 自定义配置
+        InjectionConfig cfg = new InjectionConfig() {
+            @Override
+            public void initMap() {
+                this.setMap(qo.getInitMap());
+            }
+        };
+
+        List<FileOutConfig> focList = new ArrayList<>();
+        String moduleName = mpg.getPackageInfo().getModuleName();
         // 自定义配置会被优先输出
         focList.add(new FileOutConfig(PATH + "mapper.xml.ftl") {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = gc.getOutputDir() + "/mapper/" + pc.getModuleName() + "/"
+                String file = mpg.getGlobalConfig().getOutputDir() + "/mapper/" + moduleName + "/"
                         + tableInfo.getEntityName() + ".xml";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
         });
-        focList.add(new FileOutConfig(PATH + "view/pageList.vue.ftl") {
+        focList.add(new FileOutConfig(PATH + "view/index.vue.ftl") {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = gc.getOutputDir() + "/web/views/" + pc.getModuleName() + "/"
-                        + tableInfo.getEntityName() + "List.vue";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/"
+                        + tableInfo.getEntityName() + ".vue";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -193,7 +201,7 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = gc.getOutputDir() + "/web/api/" + pc.getModuleName() + ".js";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/api/" + moduleName + ".js";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -202,11 +210,15 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = gc.getOutputDir() + "/web/router/modules/" + pc.getModuleName() + ".js";
+                String file =
+                        mpg.getGlobalConfig().getOutputDir() + "/web/router/modules/" + moduleName + ".js";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
         });
+
+        cfg.setFileOutConfigList(focList);
+        mpg.setCfg(cfg);
     }
 
 

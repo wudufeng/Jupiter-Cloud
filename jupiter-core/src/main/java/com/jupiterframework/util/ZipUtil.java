@@ -9,40 +9,39 @@ import java.util.zip.ZipOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public class ZipUtil {
 
     private static final int BUFFER_SIZE = 2 * 1024;
 
+
     private ZipUtil() {
     }
+
 
     /**
      * 
      * 压缩成ZIP 方法1
      * 
-     * @param srcDir
-     *            压缩文件夹路径
-     * @param out
-     *            压缩文件输出流
-     * @param keepDirStructure
-     *            是否保留原来的目录结构,true:保留目录结构; false:所有文件跑到压缩包根目录下(注意：不保留目录结构可能会出现同名文件,会压缩失败)
+     * @param srcDir 压缩文件夹路径
+     * @param out 压缩文件输出流
+     * @param keepDirStructure 是否保留原来的目录结构,true:保留目录结构; false:所有文件跑到压缩包根目录下(注意：不保留目录结构可能会出现同名文件,会压缩失败)
      * 
-     * @throws RuntimeException
-     *             压缩失败会抛出运行时异常
+     * @throws RuntimeException 压缩失败会抛出运行时异常
      * 
      */
 
-    public static void toZip(String srcDir, OutputStream out, boolean keepDirStructure) {
+    public static void toZip(String srcDir, String zipRootName, OutputStream out, boolean keepDirStructure) {
 
         long start = System.currentTimeMillis();
 
         try (ZipOutputStream zos = new ZipOutputStream(out);) {
 
             File sourceFile = new File(srcDir);
-            compress(sourceFile, zos, sourceFile.getName(), keepDirStructure);
+            compress(sourceFile, zos, zipRootName, keepDirStructure);
             long end = System.currentTimeMillis();
-            log.debug("压缩完成，耗时：{} ms", (end - start));
+            log.debug("压缩{}完成，耗时：{} ms", srcDir, (end - start));
 
         } catch (Exception e) {
             throw new IllegalArgumentException("zip error ! " + srcDir, e);
@@ -51,18 +50,16 @@ public class ZipUtil {
 
     }
 
+
     /**
      * 
      * 压缩成ZIP 方法2
      * 
-     * @param srcFiles
-     *            需要压缩的文件列表
+     * @param srcFiles 需要压缩的文件列表
      * 
-     * @param out
-     *            压缩文件输出流
+     * @param out 压缩文件输出流
      * 
-     * @throws RuntimeException
-     *             压缩失败会抛出运行时异常
+     * @throws RuntimeException 压缩失败会抛出运行时异常
      * 
      */
 
@@ -90,21 +87,18 @@ public class ZipUtil {
 
     }
 
+
     /**
      * 
      * 递归压缩方法
      * 
-     * @param sourceFile
-     *            源文件
+     * @param sourceFile 源文件
      * 
-     * @param zos
-     *            zip输出流
+     * @param zos zip输出流
      * 
-     * @param name
-     *            压缩后的名称
+     * @param name 压缩后的名称
      * 
-     * @param keepDirStructure
-     *            是否保留原来的目录结构,true:保留目录结构;
+     * @param keepDirStructure 是否保留原来的目录结构,true:保留目录结构;
      * 
      *            false:所有文件跑到压缩包根目录下(注意：不保留目录结构可能会出现同名文件,会压缩失败)
      * 
@@ -112,7 +106,8 @@ public class ZipUtil {
      * 
      */
 
-    private static void compress(File sourceFile, ZipOutputStream zos, String name, boolean keepDirStructure) throws Exception {
+    private static void compress(File sourceFile, ZipOutputStream zos, String name, boolean keepDirStructure)
+            throws Exception {
 
         if (sourceFile.isFile()) {
 

@@ -44,6 +44,7 @@ public class GeneratorController {
     public void generator(GeneratorConfigQo qo,
             @RequestParam(value = "download", required = false, defaultValue = "true") boolean download,
             HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         // 代码生成器
         if (org.apache.commons.lang3.StringUtils.isBlank(qo.getOutputDir()))
@@ -52,16 +53,14 @@ public class GeneratorController {
 
         generator.generateCurdCode(qo);
 
-        if (download) {
-            response.setHeader("Content-Disposition",
-                "attachment;filename=code-generate-" + qo.getModuleName() + ".zip");
-            response.addHeader("Pargam", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
-            try {
-                ZipUtil.toZip(qo.getOutputDir(), response.getOutputStream(), true);
-            } catch (Exception e) {
-                log.warn("", e);
-            }
+        response.setHeader("Content-Disposition",
+            "attachment;filename=code-generate-" + qo.getModuleName() + ".zip");
+        response.addHeader("Pargam", "no-cache");
+        response.addHeader("Cache-Control", "no-cache");
+        try {
+            ZipUtil.toZip(qo.getOutputDir(), qo.getModuleName(), response.getOutputStream(), true);
+        } catch (Exception e) {
+            log.warn("", e);
         }
     }
 

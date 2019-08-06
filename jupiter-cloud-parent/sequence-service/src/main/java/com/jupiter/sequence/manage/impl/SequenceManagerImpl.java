@@ -51,6 +51,10 @@ public class SequenceManagerImpl extends GenericManageImpl<SequenceDefinitionDao
     public Boolean updateSequence(Long id, UpdateSequenceRequest request) {
         SequenceDefinition seq = com.jupiterframework.util.BeanUtils.copy(request, SequenceDefinition.class);
         seq.setId(id);
+        if (request.getPrefix() == null)
+            seq.setPrefix("");
+        if (request.getAppendDateFormat() == null)
+            seq.setAppendDateFormat("");
         return this.updateById(seq);
     }
 

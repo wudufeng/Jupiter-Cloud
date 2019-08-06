@@ -9,7 +9,7 @@ import com.jupiterframework.model.PageResult;
 
 public interface GeneratorService {
 
-    void generateCurdCode(GeneratorConfigQo qo);
+    boolean generateCurdCode(GeneratorConfigQo qo);
 
 
     PageResult<CodeGeneratorVo> getTableList(PageQuery<TableListQo> pageQuery);

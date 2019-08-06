@@ -36,8 +36,9 @@ public class GeneratorConfigQo {
     @ApiModelProperty(value = "表名")
     private String[] tableName;
 
-    @ApiModelProperty(value = "生成的目录")
+    @ApiModelProperty(value = "生成的目录", hidden = true)
     private String outputDir;
 
+    @ApiModelProperty(hidden = true)
     private Map<String, Object> initMap;
 }

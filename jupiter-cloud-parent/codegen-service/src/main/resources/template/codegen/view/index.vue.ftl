@@ -7,7 +7,7 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleDetail('create', {})">
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleDetail('add', {})">
         新增
       </el-button>
     </div>
@@ -22,24 +22,24 @@
       style="width: 100%"
     >
 <#list table.fields as field>
-      <el-table-column label="${field.comment}" width="120px" align="center">
+      <el-table-column label="${field.comment}" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.${field.propertyName} }}</span>
         </template>
       </el-table-column>
 </#list>
 <#list table.commonFields as field><#--生成公共字段 -->
-      <el-table-column label="${field.comment}" width="160px" align="center">
+      <el-table-column label="${field.comment}" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.${field.propertyName} }}</span>
         </template>
       </el-table-column>
 </#list>
-      <el-table-column label="操作" align="center" width="240" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="240">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleDetail('view',row)">查看</el-button>
-          <el-button type="info" size="mini" @click="handleDetail('update',row)">编辑</el-button>
-          <el-button type="danger" size="mini" @click="rowDel(row)">删除</el-button>
+          <el-button size="mini" @click="handleDetail('view',row)">查看</el-button>
+          <el-button size="mini" @click="handleDetail('update',row)">编辑</el-button>
+          <el-button size="mini" @click="remove(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,47 +80,34 @@ const defaultForm = {
 }
 
 export default {
-  name: '${entity}List',
+  name: '${entity}',
   components: {
     Pagination },
   directives: { waves },
   data() {
-    const validateRequire = (rule, value, callback) => {
-      if (value === undefined || value === '') {
-        this.$message({
-          message: rule.field + '为必传项',
-          type: 'error'
-        })
-        callback(new Error(rule.field + '为必传项'))
-      } else {
-        callback()
-      }
-    }
     return {
       ${entity?uncap_first}Form: Object.assign({}, defaultForm),
       loading: false,
       tableKey: 0,
       list: null,
       total: 0,
-      listLoading: true,
+      listLoading: false,
       listQuery: {
         'current': 1,
         'size': 20,
         'condition': {},
-        'extra': {},
-        'queryBeginTime': null,
-        'queryEndTime': null
+        'extra': {}
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
         view: '查看',
         update: '编辑',
-        create: '新增'
+        add: '新增'
       },
       rules: {
 <#list table.fields as field>
-        ${field.propertyName}: [{ validator: validateRequire }]<#if field?has_next>,</#if>
+        ${field.propertyName}: [{ required: true, message: '请输入${field.comment}', trigger: 'blur' }]<#if field?has_next>,</#if>
 </#list>
       }
     }
@@ -168,7 +155,7 @@ export default {
       this.$refs.dataForm.validate(valid => {
         if (valid) {
           this.loading = true
-          if (this.dialogStatus === 'create') {
+          if (this.dialogStatus === 'add') {
             add${entity}(this.${entity?uncap_first}Form).then(response => {
               this.$notify({
                 title: '成功',
@@ -178,6 +165,7 @@ export default {
               this.list.unshift(this.${entity?uncap_first}Form)
               this.loading = false
               this.dialogFormVisible = false
+              this.getList()
             })
           } else {
             update${entity}(this.${entity?uncap_first}Form).then(response => {
@@ -188,6 +176,7 @@ export default {
               })
               this.loading = false
               this.dialogFormVisible = false
+              this.getList()
             })
           }
         } else {
@@ -196,7 +185,7 @@ export default {
         }
       })
     },
-    rowDel: function(row, index) {
+    remove(row, index) {
       const _this = this
       this.$confirm('是否确认删除记录', '提示', {
         confirmButtonText: '确定',
@@ -219,6 +208,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
+          this.getList()
         })
     }
   }

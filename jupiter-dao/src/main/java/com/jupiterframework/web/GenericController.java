@@ -1,12 +1,14 @@
 package com.jupiterframework.web;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.jupiterframework.manage.GenericManage;
 import com.jupiterframework.model.PageQuery;
@@ -27,9 +29,9 @@ public class GenericController<M extends GenericManage<T>, T> {
     }
 
 
-    @ApiOperation(value = "根据ID获取数据")
-    @GetMapping
-    public T get(@RequestParam Long id) {
+    @ApiOperation(value = "根据主键获取数据")
+    @GetMapping(value = "{id}")
+    public T get(@PathVariable Serializable id) {
         return manage.selectById(id);
     }
 
@@ -41,9 +43,9 @@ public class GenericController<M extends GenericManage<T>, T> {
     }
 
 
-    @ApiOperation(value = "根据ID删除数据")
-    @DeleteMapping
-    public boolean remove(@RequestParam Long id) {
+    @ApiOperation(value = "根据主键删除数据")
+    @DeleteMapping(value = "{id}")
+    public boolean remove(@PathVariable Serializable id) {
         return manage.deleteById(id);
     }
 

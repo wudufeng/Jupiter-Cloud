@@ -12,7 +12,8 @@ import com.jupiterframework.model.PageQuery;
 import com.jupiterframework.model.PageResult;
 
 
-public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<GenericDao<T>, T> implements GenericManage<T> {
+public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<M, T>
+        implements GenericManage<T> {
 
     @Override
     public PageResult<T> selectPage(PageQuery<T> query) {

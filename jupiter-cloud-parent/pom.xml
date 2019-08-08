@@ -17,6 +17,7 @@
 		<module>admin-server</module>
 		<module>sequence-service</module>
 		<module>codegen-service</module>
+		<module>jupiter-upms</module>
 	</modules>
 	
 	<dependencies>

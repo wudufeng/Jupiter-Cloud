@@ -19,11 +19,10 @@ export function add${entity}(data) {
   })
 }
 
-export function get${entity}Detail(data) {
+export function get${entity}Detail(id) {
   return request({
-    url: '${contextPath!""}<#if package.ModuleName??>/${package.ModuleName}</#if>/<#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>',
-    method: 'get',
-    params: data
+    url: '${contextPath!""}<#if package.ModuleName??>/${package.ModuleName}</#if>/<#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>/' + id,
+    method: 'get'
   })
 }
 
@@ -35,10 +34,9 @@ export function update${entity}(data) {
   })
 }
 
-export function remove${entity}(data) {
+export function remove${entity}(id) {
   return request({
-    url: '${contextPath!""}<#if package.ModuleName??>/${package.ModuleName}</#if>/<#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>',
-    method: 'delete',
-    params: data
+    url: '${contextPath!""}<#if package.ModuleName??>/${package.ModuleName}</#if>/<#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>/' + id,
+    method: 'delete'
   })
 }

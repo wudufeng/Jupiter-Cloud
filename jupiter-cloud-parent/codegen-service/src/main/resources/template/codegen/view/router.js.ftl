@@ -5,7 +5,7 @@ import Layout from '@/layout'
 const ${package.ModuleName}Router = {
   path: '/${package.ModuleName}',
   component: Layout,
-  redirect: '/${controllerMappingHyphen}/list',
+  redirect: '${controllerMappingHyphen}',
   name: '${package.ModuleName}Manage',
   meta: {
     title: '${table.comment}管理',
@@ -13,7 +13,7 @@ const ${package.ModuleName}Router = {
   },
   children: [
     {
-      path: '${controllerMappingHyphen}/list',
+      path: '${controllerMappingHyphen}',
       component: () => import('@/views/${package.ModuleName}/${entity}'),
       name: '${entity}',
       meta: { title: '${table.comment}列表', icon: 'list' }

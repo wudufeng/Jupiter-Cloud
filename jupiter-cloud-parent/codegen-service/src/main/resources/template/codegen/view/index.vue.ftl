@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.condition.tenantId" placeholder="租户" style="width: 200px;" class="filter-item" clearable />
-      <el-date-picker v-model="listQuery.queryBeginTime" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="开始时间" clearable />
-      <el-date-picker v-model="listQuery.queryEndTime" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="结束时间" clearable />
+      <el-date-picker v-model="listQuery.queryBeginTime" type="datetime" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" placeholder="开始时间" clearable />
+      <el-date-picker v-model="listQuery.queryEndTime" type="datetime" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" placeholder="结束时间" clearable />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -136,15 +136,8 @@ export default {
       })
       this.dialogFormVisible = true
     },
-    fetchData(id) {
-      const params = {
-<#list table.fields as field>
-<#if field.keyFlag>
-        ${field.name}: id
-</#if>
-</#list>
-      }
-      get${entity}Detail(params).then(response => {
+    fetchData(row) {
+      get${entity}Detail(<#list table.fields as field><#if field.keyFlag>row.${field.name}</#if></#list>).then(response => {
         this.${entity?uncap_first}Form = response.data
       }).catch(err => {
         console.log(err)
@@ -193,14 +186,7 @@ export default {
         type: 'warning'
       })
         .then(function() {
-          const params = {
-<#list table.fields as field>
-<#if field.keyFlag>
-            ${field.name}: row.${field.name}
-</#if>
-</#list>
-          }
-          return remove${entity}(params)
+          return remove${entity}(<#list table.fields as field><#if field.keyFlag>row.${field.name}</#if></#list>)
         })
         .then(data => {
           _this.$message({

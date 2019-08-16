@@ -16,10 +16,10 @@ import javax.xml.bind.JAXBException;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.jupiterframework.channel.config.Response.Field;
@@ -86,12 +86,11 @@ public class ChannelProperties implements InitializingBean {
 
 
     private void parseResponseConfig(Service svc) {
-        String path = this.getResponseFilePath(svc);
         Response r;
         try {
-            r = XmlUtils.parse(new PathMatchingResourcePatternResolver().getResources(path)[0].getInputStream(), Response.class);
+            r = XmlUtils.parse(this.getResponseFilePath(svc).getInputStream(), Response.class);
         } catch (JAXBException | IOException e) {
-            throw new IllegalArgumentException("解析xml文件" + path + "错误!", e);
+            throw new IllegalArgumentException("解析xml文件" + svc.getName() + "错误!", e);
         }
 
         this.validate(r.getFields(), svc.getName());
@@ -121,8 +120,10 @@ public class ChannelProperties implements InitializingBean {
     }
 
 
-    private String getResponseFilePath(Service svc) {
-        return PREFIX + File.separatorChar + svc.getChannel().getName() + File.separatorChar + svc.getName() + ".xml";
+    private Resource getResponseFilePath(Service svc) throws IOException {
+        String path = PREFIX + File.separatorChar + svc.getChannel().getName() + File.separatorChar + svc.getName() + ".xml";
+        return new PathMatchingResourcePatternResolver().getResources(path)[0];
+
     }
 
     private class ReloadResponseConfiguration implements Runnable {
@@ -132,9 +133,10 @@ public class ChannelProperties implements InitializingBean {
 
                 chnl.getServices().values().forEach(svc -> {
                     try {
-                        String path = getResponseFilePath(svc);
-                        ClassPathResource res = new ClassPathResource(path);
-
+                        Resource res = getResponseFilePath(svc);
+                        if (ResourceUtils.isJarFileURL(res.getURL())) {
+                            return;
+                        }
                         if (res.lastModified() > svc.getResponse().getLastModified()) {
                             parseResponseConfig(svc);
                             svc.getResponse().setLastModified(res.lastModified());

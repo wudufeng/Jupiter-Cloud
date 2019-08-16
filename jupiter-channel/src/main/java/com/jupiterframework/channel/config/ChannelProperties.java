@@ -1,9 +1,10 @@
 package com.jupiterframework.channel.config;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.bind.JAXBException;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.jupiterframework.channel.config.Response.Field;
@@ -26,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @lombok.Data
 @Configuration
-@org.springframework.boot.context.properties.ConfigurationProperties(prefix = ChannelProperties.PREFIX)
+@org.springframework.boot.context.properties.ConfigurationProperties(prefix = "channel")
 public class ChannelProperties implements InitializingBean {
-    public static final String PREFIX = "channel";
+    public static final String PREFIX = "classpath*:channel";
 
     private Map<String /* name */, Channel> channelConfigurations = new HashMap<>();
 
@@ -43,14 +49,18 @@ public class ChannelProperties implements InitializingBean {
         for (Entry<String, Channel> chnl : channelConfigurations.entrySet()) {
             chnl.getValue().setName(chnl.getKey());
 
-            File[] files = new ClassPathResource(PREFIX + File.separatorChar + chnl.getKey()).getFile().listFiles((File dir, String name) -> name.endsWith(".ftl"));
+            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] files = resolver.getResources(String.format("%s/%s/*.ftl", PREFIX, chnl.getKey()));
 
-            for (File f : files) {
-                for (String line : Files.readAllLines(Paths.get(f.getAbsolutePath()))) {
+            for (Resource res : files) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(res.getInputStream(), StandardCharsets.UTF_8));) {
+                    String line = reader.readLine();
+
                     if (line.startsWith("<request ")) {
+                        String filename = res.getFilename();
                         Service svc = XmlUtils.parse(line + "</request>", Service.class);
                         svc.setChannel(chnl.getValue());
-                        svc.setName(f.getName().substring(0, f.getName().length() - 4));
+                        svc.setName(filename.substring(0, filename.length() - 4));
                         if (svc.getRequestMethod() == null) {
                             svc.setRequestMethod(chnl.getValue().getRequestMethod());
                         }
@@ -63,6 +73,7 @@ public class ChannelProperties implements InitializingBean {
                         break;
                     }
                 }
+
             }
 
         }
@@ -75,8 +86,13 @@ public class ChannelProperties implements InitializingBean {
 
 
     private void parseResponseConfig(Service svc) {
-
-        Response r = XmlUtils.parse(new File(getResponseFilePath(svc)), Response.class);
+        String path = this.getResponseFilePath(svc);
+        Response r;
+        try {
+            r = XmlUtils.parse(new PathMatchingResourcePatternResolver().getResources(path)[0].getInputStream(), Response.class);
+        } catch (JAXBException | IOException e) {
+            throw new IllegalArgumentException("解析xml文件" + path + "错误!", e);
+        }
 
         this.validate(r.getFields(), svc.getName());
 

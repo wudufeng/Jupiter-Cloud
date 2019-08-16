@@ -2,6 +2,7 @@ package com.jupiterframework.channel.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.StringReader;
 
 import javax.xml.bind.JAXBContext;
@@ -31,6 +32,16 @@ public class XmlUtils {
         } catch (JAXBException e) {
             throw new IllegalArgumentException("解析xml文件" + xmlFilePath.getAbsolutePath() + "错误!", e);
         }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <D> D parse(InputStream xml, Class<D> clazz) throws JAXBException {
+
+        final JAXBContext context = JAXBContext.newInstance(clazz);
+        final Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        return (D) unmarshaller.unmarshal(xml);
     }
 
 

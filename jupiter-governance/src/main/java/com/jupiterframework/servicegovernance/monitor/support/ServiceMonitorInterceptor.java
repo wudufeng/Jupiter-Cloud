@@ -68,9 +68,9 @@ public class ServiceMonitorInterceptor implements WebRequestInterceptor {
     private long elapsed(WebRequest request, String uri) {
         long elapsed = System.nanoTime() - (long) request.getAttribute(ELAPSED_BEGIN_KEY, WebRequest.SCOPE_REQUEST);
 
-        if (elapsed < properties.getInfoElapsed()) {// 基于时间复杂度
+        if (elapsed < properties.getElapsed().getInfo()) {// 基于时间复杂度
             log.debug("{} 耗时 {} (纳秒)", uri, elapsed);
-        } else if (elapsed < properties.getWarnElapsed()) {
+        } else if (elapsed < properties.getElapsed().getWarn()) {
             log.info("{} 耗时 {} (纳秒)", uri, elapsed);
         } else {
             log.warn("{} 耗时 {} (纳秒)", uri, elapsed);

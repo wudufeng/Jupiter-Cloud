@@ -24,6 +24,8 @@ import org.springframework.util.StringUtils;
 import com.baomidou.mybatisplus.MybatisConfiguration;
 import com.baomidou.mybatisplus.MybatisXMLLanguageDriver;
 import com.baomidou.mybatisplus.entity.GlobalConfiguration;
+import com.baomidou.mybatisplus.mapper.ISqlInjector;
+import com.baomidou.mybatisplus.mapper.LogicSqlInjector;
 import com.baomidou.mybatisplus.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.spring.MybatisMapperRefresh;
 import com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean;
@@ -57,6 +59,12 @@ public class MybatisPlusAutoConfig {
 
 
     @Bean
+    public ISqlInjector sqlInjector() {
+        return new LogicSqlInjector();
+    }
+
+
+    @Bean
     public MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean(
             @Autowired(required = false) DatabaseIdProvider databaseIdProvider, Interceptor[] interceptors) {
         MybatisSqlSessionFactoryBean mybatisPlus = new MybatisSqlSessionFactoryBean();
@@ -79,6 +87,8 @@ public class MybatisPlusAutoConfig {
         globalConfig.setIdType(this.extProperties.getIdType());
         globalConfig.setDbColumnUnderline(this.extProperties.isDbColumnUnderline());
         globalConfig.setSqlInjector(new CustomSqlInjector());
+        globalConfig.setLogicDeleteValue("1");
+        globalConfig.setLogicNotDeleteValue("0");
         mybatisPlus.setGlobalConfig(globalConfig);
 
         MybatisConfiguration mc = new MybatisConfiguration();

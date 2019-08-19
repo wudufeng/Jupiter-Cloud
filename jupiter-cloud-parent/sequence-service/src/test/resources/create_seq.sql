@@ -1,7 +1,7 @@
 drop table if exists sequence_definition;
 create table sequence_definition(
 	id bigint(19) not null comment '主键',
-	tenant_id  varchar(32) not null comment '租户编码',
+	tenant_id bigint(20) not null comment '租户编码',
 	seq_name  varchar(32) not null comment '序列名称',
 	min_value  bigint(19) not null  comment '最小值',
 	max_value  bigint(19) not null comment '最大值',
@@ -16,4 +16,3 @@ create table sequence_definition(
 	primary key (id),
 	unique key tenant_seq(tenant_id, seq_name)
 ) comment '序列定义';
- 

@@ -9,12 +9,11 @@ import lombok.Data;
 @Data
 public class SequenceOperationRequest {
 
-	@NotNull
-	@Size(max = 32)
-	private String tenantId;
+    @NotNull
+    private Long tenantId;
 
-	@NotNull
-	@Size(max = 32)
-	private String seqName;
+    @NotNull
+    @Size(max = 32)
+    private String seqName;
 
 }

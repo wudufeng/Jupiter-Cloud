@@ -50,7 +50,7 @@
       <el-form ref="dataForm" :rules="rules" :model="${entity?uncap_first}Form" label-position="right" label-width="46%">
         <el-row>
 <#list table.fields as field>
-          <el-col style="width:400px;"><el-form-item prop="${field.propertyName}" label="${field.comment}"><el-input v-model="${entity?uncap_first}Form.${field.propertyName}" :readonly="dialogStatus==='view'" clearable /></el-form-item></el-col>
+          <el-col style="width:400px;"><el-form-item prop="${field.propertyName}" label="${field.comment}"><el-input v-model="${entity?uncap_first}Form.${field.propertyName}" :disabled="dialogStatus==='view'" clearable /></el-form-item></el-col>
 <#if field?has_next && (field?index+1)%2==0>
         </el-row>
         <el-row>

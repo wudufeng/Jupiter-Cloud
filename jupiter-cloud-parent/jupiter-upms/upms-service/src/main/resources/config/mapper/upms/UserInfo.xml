@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.upms.user.dao.UserInfoDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.upms.user.entity.UserInfo">
+        <id column="user_id" property="userId" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="nickname" property="nickname" />
+        <result column="realname" property="realname" />
+        <result column="sex" property="sex" />
+        <result column="head_img_url" property="headImgUrl" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="country" property="country" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="address" property="address" />
+        <result column="signature" property="signature" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">user_info</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        user_id,username,password,nickname,realname,sex,head_img_url,phone,email,country,province,city,address,signature,status
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="ew.userId != null">user_id=#{ew.userId} AND</if>
+	  <if test="ew.username != null and ew.username != ''">username=#{ew.username} AND</if>
+	  <if test="ew.password != null and ew.password != ''">password=#{ew.password} AND</if>
+	  <if test="ew.nickname != null and ew.nickname != ''">nickname=#{ew.nickname} AND</if>
+	  <if test="ew.realname != null and ew.realname != ''">realname=#{ew.realname} AND</if>
+	  <if test="ew.sex != null and ew.sex != ''">sex=#{ew.sex} AND</if>
+	  <if test="ew.headImgUrl != null and ew.headImgUrl != ''">head_img_url=#{ew.headImgUrl} AND</if>
+	  <if test="ew.phone != null and ew.phone != ''">phone=#{ew.phone} AND</if>
+	  <if test="ew.email != null and ew.email != ''">email=#{ew.email} AND</if>
+	  <if test="ew.country != null and ew.country != ''">country=#{ew.country} AND</if>
+	  <if test="ew.province != null and ew.province != ''">province=#{ew.province} AND</if>
+	  <if test="ew.city != null and ew.city != ''">city=#{ew.city} AND</if>
+	  <if test="ew.address != null and ew.address != ''">address=#{ew.address} AND</if>
+	  <if test="ew.signature != null and ew.signature != ''">signature=#{ew.signature} AND</if>
+	  <if test="ew.status != null and ew.status != ''">status=#{ew.status} AND</if>
+	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
+	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
+		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

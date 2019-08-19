@@ -16,5 +16,5 @@ import com.jupiterframework.dao.GenericDao;
  */
 public interface SequenceDefinitionDao extends GenericDao<SequenceDefinition> {
 
-	SequenceDefinition selectForUpdate(@Param("tenantId") String tenantId, @Param("seqName") String seqName);
+    SequenceDefinition selectForUpdate(@Param("tenantId") Long tenantId, @Param("seqName") String seqName);
 }

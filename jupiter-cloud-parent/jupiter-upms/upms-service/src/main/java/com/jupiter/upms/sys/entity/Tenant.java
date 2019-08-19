@@ -1,8 +1,9 @@
-package com.jupiter.upms.entity;
+package com.jupiter.upms.sys.entity;
 
 import java.util.Date;
-import com.baomidou.mybatisplus.annotations.TableId;
+
 import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.jupiterframework.model.GenericPo;
 
@@ -25,7 +26,7 @@ public class Tenant extends GenericPo {
     /** 租户编码 */
     @ApiModelProperty(value = "租户编码")
     @TableId("tenant_id")
-    private String tenantId;
+    private Long tenantId;
 
     /** 租户名称 */
     @ApiModelProperty(value = "租户名称")
@@ -59,6 +60,5 @@ public class Tenant extends GenericPo {
     @ApiModelProperty(value = "联系邮箱")
     @TableField("contact_email")
     private String contactEmail;
-
 
 }

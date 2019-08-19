@@ -16,7 +16,7 @@ const ${package.ModuleName}Router = {
       path: '${controllerMappingHyphen}',
       component: () => import('@/views/${package.ModuleName}/${entity}'),
       name: '${entity}',
-      meta: { title: '${table.comment}列表', icon: 'list' }
+      meta: { title: '${table.comment}', icon: 'list' }
     }
   ]
 }

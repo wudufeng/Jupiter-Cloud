@@ -1,6 +1,6 @@
-package com.jupiter.upms.dao;
+package com.jupiter.upms.sys.dao;
 
-import com.jupiter.upms.entity.Tenant;
+import com.jupiter.upms.sys.entity.Tenant;
 import com.jupiterframework.dao.GenericDao;
 
 /**

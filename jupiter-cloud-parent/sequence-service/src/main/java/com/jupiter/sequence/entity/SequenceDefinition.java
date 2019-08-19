@@ -30,7 +30,7 @@ public class SequenceDefinition extends GenericPo {
     /** 租户编码 */
     @ApiModelProperty(value = "租户编码")
     @TableField("tenant_id")
-    private String tenantId;
+    private Long tenantId;
 
     /** 序列名称 */
     @ApiModelProperty(value = "序列名称")

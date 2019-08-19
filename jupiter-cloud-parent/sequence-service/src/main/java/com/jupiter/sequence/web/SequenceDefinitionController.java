@@ -48,7 +48,7 @@ public class SequenceDefinitionController {
 
     @ApiOperation("产生一个序列值")
     @GetMapping
-    public String generator(@RequestParam("TenantId") String tenantId,
+    public String generator(@RequestParam("TenantId") Long tenantId,
             @RequestParam("seqName") String seqName) {
         return generator.generator(tenantId, seqName);
     }
@@ -56,7 +56,7 @@ public class SequenceDefinitionController {
 
     @ApiOperation("产生多个序列值")
     @GetMapping("/batch")
-    public List<String> generators(@RequestParam("TenantId") String tenantId,
+    public List<String> generators(@RequestParam("TenantId") Long tenantId,
             @RequestParam("seqName") String seqName, @RequestParam(defaultValue = "10") int count) {
         List<String> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {

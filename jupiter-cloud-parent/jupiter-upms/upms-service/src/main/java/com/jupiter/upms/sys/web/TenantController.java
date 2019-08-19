@@ -1,9 +1,9 @@
-package com.jupiter.upms.web;
+package com.jupiter.upms.sys.web;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.jupiter.upms.entity.Tenant;
-import com.jupiter.upms.manage.TenantManage;
+import com.jupiter.upms.sys.entity.Tenant;
+import com.jupiter.upms.sys.manage.TenantManage;
 import com.jupiterframework.web.GenericController;
 import com.jupiterframework.web.annotation.MicroService;
 

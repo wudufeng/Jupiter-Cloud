@@ -2,6 +2,6 @@ package com.jupiter.sequence.service;
 
 public interface SequenceGenerator {
 
-	String generator(String tenantId, String seqName);
+    String generator(Long tenantId, String seqName);
 
 }

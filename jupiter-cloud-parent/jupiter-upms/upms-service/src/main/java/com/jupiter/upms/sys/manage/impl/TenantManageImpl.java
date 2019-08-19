@@ -1,8 +1,8 @@
-package com.jupiter.upms.manage.impl;
+package com.jupiter.upms.sys.manage.impl;
 
-import com.jupiter.upms.entity.Tenant;
-import com.jupiter.upms.dao.TenantDao;
-import com.jupiter.upms.manage.TenantManage;
+import com.jupiter.upms.sys.dao.TenantDao;
+import com.jupiter.upms.sys.entity.Tenant;
+import com.jupiter.upms.sys.manage.TenantManage;
 import com.jupiterframework.manage.impl.GenericManageImpl;
 import org.springframework.stereotype.Service;
 

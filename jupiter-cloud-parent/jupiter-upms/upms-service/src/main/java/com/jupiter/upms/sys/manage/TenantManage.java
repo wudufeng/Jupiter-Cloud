@@ -1,7 +1,8 @@
-package com.jupiter.upms.manage;
+package com.jupiter.upms.sys.manage;
 
-import com.jupiter.upms.entity.Tenant;
+import com.jupiter.upms.sys.entity.Tenant;
 import com.jupiterframework.manage.GenericManage;
+
 
 /**
  * 租户信息 管理服务类
@@ -10,5 +11,4 @@ import com.jupiterframework.manage.GenericManage;
  * @since 2019-08-07
  */
 public interface TenantManage extends GenericManage<Tenant> {
-
 }

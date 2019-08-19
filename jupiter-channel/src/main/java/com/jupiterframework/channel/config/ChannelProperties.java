@@ -54,23 +54,25 @@ public class ChannelProperties implements InitializingBean {
 
             for (Resource res : files) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(res.getInputStream(), StandardCharsets.UTF_8));) {
-                    String line = reader.readLine();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
 
-                    if (line.startsWith("<request ")) {
-                        String filename = res.getFilename();
-                        Service svc = XmlUtils.parse(line + "</request>", Service.class);
-                        svc.setChannel(chnl.getValue());
-                        svc.setName(filename.substring(0, filename.length() - 4));
-                        if (svc.getRequestMethod() == null) {
-                            svc.setRequestMethod(chnl.getValue().getRequestMethod());
+                        if (line.startsWith("<request ")) {
+                            String filename = res.getFilename();
+                            Service svc = XmlUtils.parse(line + "</request>", Service.class);
+                            svc.setChannel(chnl.getValue());
+                            svc.setName(filename.substring(0, filename.length() - 4));
+                            if (svc.getRequestMethod() == null) {
+                                svc.setRequestMethod(chnl.getValue().getRequestMethod());
+                            }
+
+                            this.parseResponseConfig(svc);
+
+                            chnl.getValue().getServices().put(svc.getName(), svc);
+                            log.info("registry service {} {} {}", chnl.getValue().getName(), svc.getName(), svc.getDescription());
+
+                            break;
                         }
-
-                        this.parseResponseConfig(svc);
-
-                        chnl.getValue().getServices().put(svc.getName(), svc);
-                        log.info("registry service {} {} {}", chnl.getValue().getName(), svc.getName(), svc.getDescription());
-
-                        break;
                     }
                 }
 

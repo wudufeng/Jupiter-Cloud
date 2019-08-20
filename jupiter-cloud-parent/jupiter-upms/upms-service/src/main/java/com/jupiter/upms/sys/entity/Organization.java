@@ -63,7 +63,6 @@ public class Organization extends GenericPo {
     public Organization(Long tenantId) {
         super();
         this.tenantId = tenantId;
-        this.del = Boolean.FALSE;
     }
 
 

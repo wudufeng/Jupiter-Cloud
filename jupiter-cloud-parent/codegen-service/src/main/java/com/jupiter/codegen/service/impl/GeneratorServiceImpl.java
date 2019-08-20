@@ -69,8 +69,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setUrl(db.getJdbcUrl());
-        dsc.setDbType(com.baomidou.mybatisplus.generator.config.rules.DbType
-            .valueOf(com.baomidou.mybatisplus.toolkit.JdbcUtils.getDbType(db.getJdbcUrl()).name()));
+        dsc.setDbType(com.baomidou.mybatisplus.generator.config.rules.DbType.valueOf(com.baomidou.mybatisplus.toolkit.JdbcUtils.getDbType(db.getJdbcUrl()).name()));
         dsc.setDriverName(Driver.class.getName());
         dsc.setUsername(db.getUserName());
         dsc.setPassword(db.getPassword());
@@ -181,8 +180,7 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/mapper/" + moduleName + "/"
-                        + tableInfo.getEntityName() + ".xml";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/mapper/" + moduleName + "/" + tableInfo.getEntityName() + ".xml";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -191,8 +189,16 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/"
-                        + tableInfo.getEntityName() + ".vue";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/" + tableInfo.getEntityName() + "-index.vue";
+                new File(file).getParentFile().mkdirs();
+                return file;
+            }
+        });
+        focList.add(new FileOutConfig(PATH + "view/crud.vue.ftl") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/" + tableInfo.getEntityName().toLowerCase() + ".vue";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -210,8 +216,7 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file =
-                        mpg.getGlobalConfig().getOutputDir() + "/web/router/modules/" + moduleName + ".js";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/router/modules/" + moduleName + ".js";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -236,24 +241,24 @@ public class GeneratorServiceImpl implements GeneratorService {
             tableName = "";
 
         List<CodeGeneratorVo> records = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         try {
-            Connection conn =
-                    DriverManager.getConnection(db.getJdbcUrl(), db.getUserName(), db.getPassword());
-            String condition =
-                    "from information_schema.tables where table_schema = (select database()) and table_name like ? order by create_time desc";
+            conn = DriverManager.getConnection(db.getJdbcUrl(), db.getUserName(), db.getPassword());
+            String condition = "from information_schema.tables where table_schema = (select database()) and table_name like ? order by create_time desc";
 
             // 总记录
-            PreparedStatement stmt = conn.prepareStatement("select count(*) " + condition);
+            stmt = conn.prepareStatement("select count(*) " + condition);
             stmt.setString(1, String.format("%%%s%%", tableName));
-            ResultSet rs = stmt.executeQuery();
+            rs = stmt.executeQuery();
             rs.next();
             result.setTotal(rs.getLong(1));
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(stmt);
 
             // 明细
-            stmt = conn.prepareStatement(
-                "select table_name, table_comment, create_time, engine " + condition + " limit ?, ?");
+            stmt = conn.prepareStatement("select table_name, table_comment, create_time, engine " + condition + " limit ?, ?");
             stmt.setString(1, String.format("%%%s%%", tableName));
             stmt.setInt(2, (pageQuery.getCurrent() - 1) * pageQuery.getSize());
             stmt.setInt(3, pageQuery.getSize());
@@ -263,12 +268,12 @@ public class GeneratorServiceImpl implements GeneratorService {
             }
             result.setRecords(records);
 
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("无法连接数据库!", e);
+        } finally {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(stmt);
             JdbcUtils.closeConnection(conn);
-
-        } catch (SQLException e) {
-            throw new IllegalArgumentException("无法连接数据库!", e);
         }
 
         return result;

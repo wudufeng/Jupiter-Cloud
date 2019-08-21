@@ -12,7 +12,22 @@
       @row-update="handleUpdate"
       @row-del="handleDel"
       @refresh-change="handleGetList"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
     >
+      <!--
+      <template slot="searchMenu" slot-scope="scope">
+        <el-button size="small" icon="el-icon-refresh" @click="refresh(scope)">自定义搜索按钮</el-button>
+      </template>
+      <template slot="menu" slot-scope="scope">
+        <router-link :to="/url">
+	      <el-button icon="el-icon-refresh" class="el-button el-button&#45;&#45;text el-button&#45;&#45;small">自定义操作按钮</el-button>
+        </router-link>
+      </template>
+      <template slot="menuForm">
+        <el-button type="info" icon="el-icon-check" size="small">自定义表单按钮</el-button>
+      </template>
+      -->
     </avue-crud>
   </div>
 </template>
@@ -43,6 +58,7 @@ export default {
       datas: [],
       option: {
         border: true,
+        searchResetBtn: false,
         viewBtn: true,
         delBtn: true,
         index: true,
@@ -74,6 +90,15 @@ export default {
     handleSearch(params) {
       this.page.currentPage = 1
       this.query.condition = params
+      // this.query.condition = this.$refs['crud'].$refs['headerSearch'].searchForm
+      this.handleGetList()
+    },
+    handleCurrentChange(currentPage) {
+      this.page.currentPage = currentPage
+      this.handleGetList()
+    },
+    handleSizeChange(pageSize) {
+      this.page.pageSize = pageSize
       this.handleGetList()
     },
     handleAdd(row, done, loading) {

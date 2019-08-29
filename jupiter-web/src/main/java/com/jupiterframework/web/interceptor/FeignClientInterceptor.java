@@ -66,196 +66,200 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, feign.RequestInterceptor,
-		feign.codec.Decoder, ApplicationContextAware {
+public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, feign.RequestInterceptor, feign.codec.Decoder, ApplicationContextAware {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+    @Value("${spring.application.name}")
+    private String applicationName;
 
-	private List<ClientInterceptor> clientInterceptor = new ArrayList<>(0);
+    private List<ClientInterceptor> clientInterceptor = new ArrayList<>(0);
 
-	private static final String RET_CODE_KEY = "code";
-	private static final String RET_MSG_KEY = "message";
-	private static final String BODY_KEY = "data";
+    private static final String RET_CODE_KEY = "code";
+    private static final String RET_MSG_KEY = "message";
+    private static final String BODY_KEY = "data";
 
-	private static final ThreadLocal<String[]> REMOTE_EXCEPTION = new ThreadLocal<>();
+    private static final ThreadLocal<String[]> REMOTE_EXCEPTION = new ThreadLocal<>();
 
-	@Override
-	public void apply(feign.RequestTemplate template) {
-		template.header(CoreConstant.CONSUMER_SIDE, applicationName);
 
-		ServiceContext.setRemoteServiceCode(template.url());
+    @Override
+    public void apply(feign.RequestTemplate template) {
+        template.header(CoreConstant.CONSUMER_SIDE, applicationName);
 
-		for (ClientInterceptor c : clientInterceptor) {
-			c.apply(template);
-		}
+        ServiceContext.setRemoteServiceCode(template.url());
 
-		log.debug("request url {}{}", template.url(), template.queryLine());
-		if (log.isDebugEnabled() && template.body() != null) {
-			log.debug("request body {}", JSON.parse(template.body()));
-		}
-	}
+        for (ClientInterceptor c : clientInterceptor) {
+            c.apply(template);
+        }
 
-	@Override
-	public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
-		// feignclient 调用前会设置值,如果接收到后不再使用此值
-		ServiceContext.setRemoteServiceCode(null);
+        log.debug("request url {}{}", template.url(), template.queryLine());
+        if (log.isDebugEnabled() && template.body() != null) {
+            log.debug("request body {}", JSON.parse(template.body()));
+        }
+    }
 
-		// 接口声明返回类型是ServiceResponse，则不做任何处理
-		if ((type instanceof Class && ServiceResponse.class.isAssignableFrom((Class<?>) type))
-				|| (type instanceof ParameterizedType && ServiceResponse.class
-					.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))) {
-			return JSON.parseObject(response.body().asInputStream(), BeanUtils.FASTJSON_CONFIG.getCharset(), type,
-				BeanUtils.FASTJSON_CONFIG.getFeatures());
-		}
 
-		try {
-			InputStream in = response.body().asInputStream();
-			JSONObject jsonObj = JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), JSONObject.class,
-				BeanUtils.FASTJSON_CONFIG.getFeatures());
+    @Override
+    public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
+        // feignclient 调用前会设置值,如果接收到后不再使用此值
+        ServiceContext.setRemoteServiceCode(null);
 
-			log.debug("receive response message : {}", jsonObj);
+        // 接口声明返回类型是ServiceResponse，则不做任何处理
+        if ((type instanceof Class && ServiceResponse.class.isAssignableFrom((Class<?>) type))
+                || (type instanceof ParameterizedType && ServiceResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))) {
+            return JSON.parseObject(response.body().asInputStream(), BeanUtils.FASTJSON_CONFIG.getCharset(), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+        }
 
-			if (jsonObj.containsKey(RET_CODE_KEY)) {
-				String retCode = jsonObj.getString(RET_CODE_KEY);
-				if (!String.valueOf(SysRespCodeEnum.SUCCESS.getCode()).equals(retCode)) {
-					log.info("server sign execute fail , receive {} ", jsonObj);
-					// 如果直接在此处抛异常会导致hystrix触发熔断
-					REMOTE_EXCEPTION
-						.set(new String[] { retCode, jsonObj.getString(RET_MSG_KEY), jsonObj.toJSONString() });
-					return null;
-				}
-				if (type instanceof Class && BeanUtils.isPrimitive((Class<?>) type)) {
-					if (Date.class.isAssignableFrom((Class<?>) type)) {
-						return DateUtils.parseDate(jsonObj.getString(BODY_KEY), BeanUtils.DATE_FORMAT);
-					} else if (Long.class.isAssignableFrom((Class<?>) type)) {
-						return Long.parseLong(jsonObj.getString(BODY_KEY));
-					}
-					return jsonObj.get(BODY_KEY);
-				}
-				return JSON.parseObject(jsonObj.getString(BODY_KEY), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
-			} else {
-				return jsonObj.toJavaObject(type);
-			}
-		} catch (JSONException ex) {
-			throw new DecodeException("JSON parse error: " + ex.getMessage(), ex);
-		} catch (ParseException e) {
-			throw new DecodeException("Date parse error :", e);
-		}
-	}
+        try {
+            InputStream in = response.body().asInputStream();
+            if (type instanceof ParameterizedType && List.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
+                return JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+            }
+            JSONObject jsonObj = JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), JSONObject.class, BeanUtils.FASTJSON_CONFIG.getFeatures());
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+            log.debug("receive response message : {}", jsonObj);
 
-		List<ClientInterceptor> clients =
-				new ArrayList<>(applicationContext.getBeansOfType(ClientInterceptor.class).values());
-		Collections.sort(clients, new Comparator<ClientInterceptor>() {
-			@Override
-			public int compare(ClientInterceptor o1, ClientInterceptor o2) {
-				return o1.getClass().getAnnotation(Order.class).value()
-						- o2.getClass().getAnnotation(Order.class).value();
-			}
-		});
-		clientInterceptor.addAll(clients);
-	}
+            if (jsonObj.containsKey(RET_CODE_KEY)) {
+                String retCode = jsonObj.getString(RET_CODE_KEY);
+                if (!String.valueOf(SysRespCodeEnum.SUCCESS.getCode()).equals(retCode)) {
+                    log.info("server sign execute fail , receive {} ", jsonObj);
+                    // 如果直接在此处抛异常会导致hystrix触发熔断
+                    REMOTE_EXCEPTION.set(new String[] { retCode, jsonObj.getString(RET_MSG_KEY), jsonObj.toJSONString() });
+                    return null;
+                }
+                if (type instanceof Class && BeanUtils.isPrimitive((Class<?>) type)) {
+                    if (Date.class.isAssignableFrom((Class<?>) type)) {
+                        return DateUtils.parseDate(jsonObj.getString(BODY_KEY), BeanUtils.DATE_FORMAT);
+                    } else if (Long.class.isAssignableFrom((Class<?>) type)) {
+                        return Long.parseLong(jsonObj.getString(BODY_KEY));
+                    }
+                    return jsonObj.get(BODY_KEY);
+                }
+                return JSON.parseObject(jsonObj.getString(BODY_KEY), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+            } else {
+                return jsonObj.toJavaObject(type);
+            }
+        } catch (JSONException ex) {
+            throw new DecodeException("JSON parse error: " + ex.getMessage(), ex);
+        } catch (ParseException e) {
+            throw new DecodeException("Date parse error :", e);
+        }
+    }
 
-	@Override
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		Map<String, Object> attrs = importingClassMetadata.getAnnotationAttributes(EnableFeignClients.class.getName());
 
-		Set<String> basePackages = new HashSet<>();
-		for (String pkg : (String[]) attrs.get("basePackages")) {
-			if (StringUtils.hasText(pkg)) {
-				basePackages.add(pkg);
-			}
-		}
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
-		RootBeanDefinition advisorBeanDevinition = new RootBeanDefinition(FeignClientResponseAdvisor.class);
-		advisorBeanDevinition.setScope(BeanDefinition.SCOPE_SINGLETON);
-		advisorBeanDevinition.setSynthetic(true);
-		advisorBeanDevinition.getPropertyValues().add("basePackages", basePackages);
+        List<ClientInterceptor> clients = new ArrayList<>(applicationContext.getBeansOfType(ClientInterceptor.class).values());
+        Collections.sort(clients, new Comparator<ClientInterceptor>() {
+            @Override
+            public int compare(ClientInterceptor o1, ClientInterceptor o2) {
+                return o1.getClass().getAnnotation(Order.class).value() - o2.getClass().getAnnotation(Order.class).value();
+            }
+        });
+        clientInterceptor.addAll(clients);
+    }
 
-		BeanDefinitionHolder holder =
-				new BeanDefinitionHolder(advisorBeanDevinition, "feignClientResponseAdvisor", new String[] {});
-		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
-	}
 
-	/**
-	 * 用于使用feignclient调用服务后，进行业务判断，抛出业务异常
-	 */
-	public static class FeignClientResponseAdvisor extends AbstractPointcutAdvisor {
-		private static final long serialVersionUID = -243997959201304289L;
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        Map<String, Object> attrs = importingClassMetadata.getAnnotationAttributes(EnableFeignClients.class.getName());
 
-		private transient Pointcut pointcut;
-		private transient Advice advice;
+        Set<String> basePackages = new HashSet<>();
+        for (String pkg : (String[]) attrs.get("basePackages")) {
+            if (StringUtils.hasText(pkg)) {
+                basePackages.add(pkg);
+            }
+        }
 
-		private Set<String> basePackages;// SpiClients.basePackages
+        RootBeanDefinition advisorBeanDevinition = new RootBeanDefinition(FeignClientResponseAdvisor.class);
+        advisorBeanDevinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+        advisorBeanDevinition.setSynthetic(true);
+        advisorBeanDevinition.getPropertyValues().add("basePackages", basePackages);
 
-		public FeignClientResponseAdvisor() {
-			this.pointcut = new FeignResponsePointcut();
-			this.advice = new FeignResponseInterceptor();
-			this.setOrder(Ordered.LOWEST_PRECEDENCE);
-		}
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(advisorBeanDevinition, "feignClientResponseAdvisor", new String[] {});
+        BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+    }
 
-		public void setBasePackages(Set<String> basePackages) {
-			this.basePackages = basePackages;
-		}
+    /**
+     * 用于使用feignclient调用服务后，进行业务判断，抛出业务异常
+     */
+    public static class FeignClientResponseAdvisor extends AbstractPointcutAdvisor {
+        private static final long serialVersionUID = -243997959201304289L;
 
-		@Override
-		public Pointcut getPointcut() {
-			return pointcut;
-		}
+        private transient Pointcut pointcut;
+        private transient Advice advice;
 
-		@Override
-		public Advice getAdvice() {
-			return advice;
-		}
+        private Set<String> basePackages;// SpiClients.basePackages
 
-		private class FeignResponsePointcut extends DynamicMethodMatcherPointcut {
 
-			@Override
-			public boolean matches(Method method, Class<?> targetClass, Object... args) {
-				return true;
-			}
+        public FeignClientResponseAdvisor() {
+            this.pointcut = new FeignResponsePointcut();
+            this.advice = new FeignResponseInterceptor();
+            this.setOrder(Ordered.LOWEST_PRECEDENCE);
+        }
 
-			@Override
-			public ClassFilter getClassFilter() {
-				return new ClassFilter() {
-					@Override
-					public boolean matches(Class<?> clazz) {
-						boolean flag = new AnnotationClassFilter(FeignClient.class, true).matches(clazz);
-						if (flag) {
-							for (Class<?> ifc : clazz.getInterfaces()) {
-								if (basePackages.contains(ifc.getPackage().getName()))
-									return true;
-							}
 
-						}
-						return false;
-					}
-				};
-			}
-		}
+        public void setBasePackages(Set<String> basePackages) {
+            this.basePackages = basePackages;
+        }
 
-		private class FeignResponseInterceptor implements MethodInterceptor {
-			@Override
-			public Object invoke(MethodInvocation invocation) throws Throwable {
 
-				Object result = invocation.proceed();
+        @Override
+        public Pointcut getPointcut() {
+            return pointcut;
+        }
 
-				String[] e = FeignClientInterceptor.REMOTE_EXCEPTION.get();
-				if (e != null) {
-					FeignClientInterceptor.REMOTE_EXCEPTION.set(null);
 
-					RemoteExecutionException se = new RemoteExecutionException(Integer.parseInt(e[0]), e[1]);
-					se.setDetail(e[2]);
+        @Override
+        public Advice getAdvice() {
+            return advice;
+        }
 
-					throw se;
-				}
-				return result;
-			}
-		}
+        private class FeignResponsePointcut extends DynamicMethodMatcherPointcut {
 
-	}
+            @Override
+            public boolean matches(Method method, Class<?> targetClass, Object... args) {
+                return true;
+            }
+
+
+            @Override
+            public ClassFilter getClassFilter() {
+                return new ClassFilter() {
+                    @Override
+                    public boolean matches(Class<?> clazz) {
+                        boolean flag = new AnnotationClassFilter(FeignClient.class, true).matches(clazz);
+                        if (flag) {
+                            for (Class<?> ifc : clazz.getInterfaces()) {
+                                if (basePackages.contains(ifc.getPackage().getName()))
+                                    return true;
+                            }
+
+                        }
+                        return false;
+                    }
+                };
+            }
+        }
+
+        private class FeignResponseInterceptor implements MethodInterceptor {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+
+                Object result = invocation.proceed();
+
+                String[] e = FeignClientInterceptor.REMOTE_EXCEPTION.get();
+                if (e != null) {
+                    FeignClientInterceptor.REMOTE_EXCEPTION.set(null);
+
+                    RemoteExecutionException se = new RemoteExecutionException(Integer.parseInt(e[0]), e[1]);
+                    se.setDetail(e[2]);
+
+                    throw se;
+                }
+                return result;
+            }
+        }
+
+    }
 
 }

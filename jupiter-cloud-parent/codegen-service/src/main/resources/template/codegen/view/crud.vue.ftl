@@ -21,7 +21,7 @@
       </template>
       <template slot="menu" slot-scope="scope">
         <router-link :to="/url">
-	      <el-button icon="el-icon-refresh" class="el-button el-button&#45;&#45;text el-button&#45;&#45;small">自定义操作按钮</el-button>
+	      <el-button icon="el-icon-refresh" class="el-button el-button--text el-button--small">自定义操作按钮</el-button>
         </router-link>
       </template>
       <template slot="menuForm">

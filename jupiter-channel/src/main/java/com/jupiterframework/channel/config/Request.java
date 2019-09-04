@@ -21,6 +21,9 @@ import lombok.Data;
 @lombok.Data
 public class Request {
 
+    /** 根据参数有不同的请求路径 */
+    private String dynamicPath = "";
+
     /** 签名值 */
     private String signValue;
 

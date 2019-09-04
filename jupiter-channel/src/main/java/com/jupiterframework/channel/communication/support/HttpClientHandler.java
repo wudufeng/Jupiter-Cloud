@@ -99,7 +99,7 @@ public class HttpClientHandler implements ClientHandler {
             throw new IllegalArgumentException("不支持的请求方法" + svccfg.getRequestMethod());
         }
 
-        String url = auth.getUrl() + svccfg.getPath();
+        String url = auth.getUrl() + svccfg.getPath() + requestParams.getDynamicPath();
 
         List<NameValuePair> nvps = new ArrayList<>();
 

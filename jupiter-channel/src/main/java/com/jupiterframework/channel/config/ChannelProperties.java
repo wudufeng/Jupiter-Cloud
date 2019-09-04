@@ -55,24 +55,28 @@ public class ChannelProperties implements InitializingBean {
             for (Resource res : files) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(res.getInputStream(), StandardCharsets.UTF_8));) {
                     String line = null;
-                    while ((line = reader.readLine()) != null) {
+                    while ((line = reader.readLine()) != null && line.startsWith("<request ")) {
 
-                        if (line.startsWith("<request ")) {
-                            String filename = res.getFilename();
-                            Service svc = XmlUtils.parse(line + "</request>", Service.class);
-                            svc.setChannel(chnl.getValue());
-                            svc.setName(filename.substring(0, filename.length() - 4));
-                            if (svc.getRequestMethod() == null) {
-                                svc.setRequestMethod(chnl.getValue().getRequestMethod());
-                            }
-
-                            this.parseResponseConfig(svc);
-
-                            chnl.getValue().getServices().put(svc.getName(), svc);
-                            log.info("registry service {} {} {}", chnl.getValue().getName(), svc.getName(), svc.getDescription());
-
-                            break;
+                        // 截断dynamicPath配置
+                        int index = line.indexOf("dynamicPath");
+                        if (index != -1) {
+                            line = line.substring(0, index) + line.substring(line.indexOf("\" ", index) + 1);
                         }
+
+                        String filename = res.getFilename();
+                        Service svc = XmlUtils.parse(line + "</request>", Service.class);
+                        svc.setChannel(chnl.getValue());
+                        svc.setName(filename.substring(0, filename.length() - 4));
+                        if (svc.getRequestMethod() == null) {
+                            svc.setRequestMethod(chnl.getValue().getRequestMethod());
+                        }
+
+                        this.parseResponseConfig(svc);
+
+                        chnl.getValue().getServices().put(svc.getName(), svc);
+                        log.info("registry service {} {} {}", chnl.getValue().getName(), svc.getName(), svc.getDescription());
+
+                        break;
                     }
                 }
 

@@ -21,7 +21,7 @@
       </template>
       <template slot="menu" slot-scope="scope">
         <router-link :to="/url">
-	      <el-button icon="el-icon-refresh" class="el-button el-button--text el-button--small">自定义操作按钮</el-button>
+          <el-button icon="el-icon-refresh" class="el-button el-button--text el-button--small">自定义操作按钮</el-button>
         </router-link>
       </template>
       <template slot="menuForm">
@@ -71,6 +71,10 @@ export default {
 <#list table.fields as field>
           { label: '${field.comment}', prop: '${field.propertyName}',<#if field.keyFlag> addDisplay: false, addDisabled: true, editDisabled: true, hide: true,</#if> rules: [{ required: true, message: '${field.comment}不能为空', trigger: 'blur' }]<#if field.comment?index_of(":") != -1>, type: 'select', dicData: [<#list field.comment?split(":")[1]?split(",") as item>{ value: '${item?split("-")[0]}', label: '${item?split("-")[1]}' }<#if item?has_next>, </#if></#list>]</#if> }<#if field?has_next>,</#if>
 </#list>
+<#list table.commonFields as field>
+          { label: '${field.comment}', prop: '${field.propertyName}', addDisplay: false, addDisabled: true, editDisplay: false, editDisabled: true }<#if field?has_next>,</#if>
+</#list>
+
         ]
       }
     }
@@ -82,10 +86,12 @@ export default {
     handleGetList() {
       this.query.current = this.page.currentPage
       this.query.size = this.page.pageSize
+      this.loading = true
       getList(this.routerVal, this.query).then(res => {
-        this.datas = res.body.data
-        this.page.total = res.body.totalRecord
+        this.datas = res.data.records
+        this.page.total = res.data.total
       })
+      this.loading = false
     },
     handleSearch(params) {
       this.page.currentPage = 1

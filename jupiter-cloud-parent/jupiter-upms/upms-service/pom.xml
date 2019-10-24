@@ -24,4 +24,24 @@
 			<artifactId>jupiter-web</artifactId>
 		</dependency>
 	</dependencies>
+	<build>
+		<finalName>jupiter-upms</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<configuration>
+					<daemons>
+						<daemon>
+							<mainClass>com.jupiter.upms.UpmsApplication</mainClass>
+						</daemon>
+					</daemons>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

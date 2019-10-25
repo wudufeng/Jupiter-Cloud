@@ -33,9 +33,9 @@ public class Service {
     @XmlAttribute
     private String description = "";
     @XmlAttribute(name = "connect-timeout")
-    private int connectTimeout = 10000;
+    private Integer connectTimeout;
     @XmlAttribute(name = "socket-timeout")
-    private int socketTimeout = 30000;
+    private Integer socketTimeout;
 
     private Request request;
     private Response response;

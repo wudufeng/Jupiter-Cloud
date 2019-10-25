@@ -21,6 +21,7 @@ import com.jupiterframework.channel.util.XmlUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 @Component(value = "XML")
 public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
@@ -30,10 +31,12 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
         return XmlUtils.readxml(respData);
     }
 
+
     @Override
     protected String getPath(String parentPath, Field f) {
         return f.getPath();
     }
+
 
     @Override
     protected void handleList(AbstractConfiguration xmlcfg, Field f, Map<String, Object> result, String path) {
@@ -46,8 +49,10 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
             return;
         }
         List<Map<String, Object>> items = new ArrayList<>(cfgList.size());
+        int i = 0;
         for (HierarchicalConfiguration cfg : cfgList) {
             Map<String, Object> map = new HashMap<>();
+            map.put(LIST_ITEM_INDEX_KEY_STRING, i++);
             items.add(map);
 
             if (f.isPayload()) {
@@ -67,6 +72,7 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
         result.put(f.getName(), items);
     }
 
+
     @Override
     protected void handleMap(AbstractConfiguration xmlcfg, Field f, Map<String, Object> result, String path) {
         SubnodeConfiguration sub = null;
@@ -82,6 +88,7 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
             this.transform(sub, f.getPath(), sf, map);
         }
     }
+
 
     @Override
     protected String readPathValue(AbstractConfiguration xmlcfg, String path) {

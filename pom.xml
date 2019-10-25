@@ -23,6 +23,7 @@
 		<mybatis.version>3.4.6</mybatis.version>
 		<mysql.version>5.1.46</mysql.version>
 		<feign.version>9.5.1</feign.version>
+		<mvel.version>2.4.3.Final</mvel.version>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 	</properties>
 
@@ -147,6 +148,11 @@
 				<version>${swagger.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.mvel</groupId>
+				<artifactId>mvel2</artifactId>
+				<version>${mvel.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>fastjson</artifactId>

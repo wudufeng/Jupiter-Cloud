@@ -15,7 +15,7 @@ spring:
     config:
       label: master
       server:
-        native.searchLocations: file:D:/DEV_ENV/config-file/config-server-files
+        native.searchLocations: file:/media/wudf/DEV_ENV/config-file/config-server-files
         git:
           uri: http://git.jupiter.com/config-files/stars.git
           search-paths: commons,{application} 

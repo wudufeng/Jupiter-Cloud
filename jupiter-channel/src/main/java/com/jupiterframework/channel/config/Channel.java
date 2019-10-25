@@ -13,6 +13,7 @@ public class Channel {
     private RequestMethod requestMethod = RequestMethod.HTTP_POST;
     private String url = "";
     private int connectTimeout = 10000;
+    private int socketTimeout = 30000;
 
     private Authorized authorized;
 

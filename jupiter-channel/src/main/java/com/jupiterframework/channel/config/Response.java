@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
+
 
 /**
  * 数据字典映射
@@ -65,6 +67,10 @@ public class Response {
         @XmlAttribute(name = "default-value")
         private String defaultValue;
 
+        /** 使用表达式计算，将计算值设置为此值,参数为整个map串 */
+        private String mvelExpression;
+        private String mvelElemment;
+
         @XmlElement(name = "field")
         private List<Field> fields;
 
@@ -76,6 +82,22 @@ public class Response {
         /** 是否返回源报文仅限在List类型中使用 */
         @XmlAttribute
         private boolean payload;
+
+
+        @XmlAttribute(name = "mvel-expression")
+        public void setExpression(String mvelExpression) {
+            if (StringUtils.isNotBlank(mvelExpression) && this.mvelExpression == null) {
+                this.mvelExpression = mvelExpression;
+            }
+        }
+
+
+        @XmlElement(name = "mvel-expression")
+        public void setMvelElemment(String mvel) {
+            if (StringUtils.isNotBlank(mvel) && mvelExpression == null) {
+                this.mvelExpression = mvel.trim();
+            }
+        }
 
         /** 值映射关系 */
         @XmlRootElement(name = "value-mapping")

@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.Data;
 
 
@@ -20,8 +22,8 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.NONE)
 @lombok.Data
 public class Request {
-
     /** 根据参数有不同的请求路径 */
+    @XmlAttribute(name = "dynamic-path")
     private String dynamicPath = "";
 
     /** 签名值 */
@@ -57,6 +59,8 @@ public class Request {
         }
 
         /** 值转换或解析 */
+        private String mvelExpression;
+        /** 值转换或解析 */
         @XmlAttribute
         private String resolver;
 
@@ -66,6 +70,22 @@ public class Request {
 
         @XmlAttribute(name = "request-type")
         private RequestTypeEnum requestType = RequestTypeEnum.QUERY_PARAM;
+
+
+        @XmlAttribute(name = "mvel-expression")
+        public void setExpression(String mvelExpression) {
+            if (StringUtils.isNotBlank(mvelExpression) && this.mvelExpression == null) {
+                this.mvelExpression = mvelExpression;
+            }
+        }
+
+
+        @XmlElement(name = "mvel-expression")
+        public void setMvelElemment(String mvel) {
+            if (StringUtils.isNotBlank(mvel) && mvelExpression == null) {
+                this.mvelExpression = mvel.trim();
+            }
+        }
 
         @XmlRootElement(name = "value")
         @XmlAccessorType(XmlAccessType.NONE)

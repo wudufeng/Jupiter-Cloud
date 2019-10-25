@@ -43,6 +43,9 @@ public abstract class SignatureAlgorithmProcessor {
         case BASE64:
             encode = Base64Utils.encodeToString(src);
             break;
+        case STRING:
+            encode = new String(src, StandardCharsets.UTF_8);
+            break;
         default:
             throw new IllegalArgumentException("不支持的字节转换方式" + authCfg.getByteConvert());
         }
@@ -57,27 +60,25 @@ public abstract class SignatureAlgorithmProcessor {
 
 
     protected String generateSortedParamString(Service svccfg, Authorization auth, Map<String, String> params) {
+        String dynamicPath = params.remove("_DynamicPath_");
         Map<String, String> sorted = new TreeMap<>();
         sorted.putAll(params);
-
-        // 忽略不需要参与签名的参数
-        for (String ignore : svccfg.getChannel().getAuthorized().getIgnoreProperties()) {
-            sorted.remove(ignore);
-        }
 
         Authorized authCfg = svccfg.getChannel().getAuthorized();
 
         StringBuilder query = new StringBuilder();
         if (StringUtils.hasText(authCfg.getPrefix())) {
-            query.append(authCfg.getPrefix().replace("@URL", auth.getUrl() + svccfg.getPath()).replace("@PATH", svccfg.getPath())
+            query.append(authCfg.getPrefix().replace("@URL", auth.getUrl() + svccfg.getPath() + dynamicPath).replace("@PATH", svccfg.getPath() + dynamicPath)
                 .replace("@HOST", URI.create(auth.getUrl()).getHost()).replace("@SECURET", auth.getSecuretKey()));
         }
 
         Iterator<Entry<String, String>> pairs = sorted.entrySet().iterator();
         while (pairs.hasNext()) {
             Map.Entry<String, String> pair = pairs.next();
-
-            query.append(pair.getKey()).append(authCfg.getPairs()).append(authCfg.isEncodeValue() ? urlEncode(pair.getValue()) : pair.getValue());
+            if (authCfg.getPattern() != null)
+                query.append(authCfg.getPattern().replace("@key", pair.getKey()).replace("@value", pair.getValue()));
+            else
+                query.append(pair.getKey()).append(authCfg.getPairs()).append(authCfg.isEncodeValue() ? urlEncode(pair.getValue()) : pair.getValue());
             if (pairs.hasNext())
                 query.append(authCfg.getSplit());
         }

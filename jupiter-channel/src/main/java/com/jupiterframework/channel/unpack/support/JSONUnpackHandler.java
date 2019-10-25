@@ -34,7 +34,8 @@ public class JSONUnpackHandler extends UnpackHandler<ReadContext> {
     protected String getPath(String parentPath, Field f) {
         if (parentPath == null)
             parentPath = "$";
-        return f.getPath().startsWith("$.") ? f.getPath() : String.format("%s.%s", parentPath, f.getPath());
+        String format = "".equals(f.getPath()) ? "%s%s" : "%s.%s";
+        return f.getPath().startsWith("$.") ? f.getPath() : String.format(format, parentPath, f.getPath());
     }
 
 
@@ -57,16 +58,20 @@ public class JSONUnpackHandler extends UnpackHandler<ReadContext> {
     @Override
     protected void handleList(ReadContext obj, Field f, Map<String, Object> result, String path) {
         Integer len = obj.read(path + ".length()", Integer.class);
-        if (len == null)
+        if (len == null) {
+            result.put(f.getName(), null);
             return;
+        }
 
         List<Map<String, Object>> items = new ArrayList<>();
 
         for (int i = 0; i < len; i++) {
             Map<String, Object> map = new HashMap<>();
+            map.put(LIST_ITEM_INDEX_KEY_STRING, i);
             items.add(map);
             String parentPath = String.format("%s[%d]", path, i);
             if (f.isPayload()) {
+
                 map.put(Response.PAYLOAD_KEY, JSON.toJSONString(obj.read(parentPath)));
             }
             for (Field sf : f.getFields()) {

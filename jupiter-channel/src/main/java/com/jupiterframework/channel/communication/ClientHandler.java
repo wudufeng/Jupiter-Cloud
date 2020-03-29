@@ -13,5 +13,5 @@ public interface ClientHandler {
     byte[] request(Service config, Authorization auth, Request req) throws IOException;
 
 
-    List<RequestMethod> getRequestMode();
+    List<RequestMethod> getRequestMethod();
 }

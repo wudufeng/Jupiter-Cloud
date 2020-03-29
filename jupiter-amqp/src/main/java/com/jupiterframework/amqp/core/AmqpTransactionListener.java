@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
-import com.jupiterframework.amqp.handler.AmqpHandlerService;
 import com.jupiterframework.transaction.TransactionActionListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,18 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 public class AmqpTransactionListener implements TransactionActionListener {
 
     private RabbitTemplate amqpTemplate;
-    private AmqpHandlerService amqpHandlerService;
 
-
-    public AmqpTransactionListener(RabbitTemplate amqpTemplate, AmqpHandlerService amqpHandler) {
+    public AmqpTransactionListener(RabbitTemplate amqpTemplate) {
         this.amqpTemplate = amqpTemplate;
-        this.amqpHandlerService = amqpHandler;
     }
 
 
     @Override
     public void doBeforeCommit() {
-        amqpHandlerService.consumeSucc(MessageThreadLocalContext.takeConsumerMessage());
     }
 
 

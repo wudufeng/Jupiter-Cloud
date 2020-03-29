@@ -29,7 +29,7 @@ public class Response {
 
     /** 是否返回源报文 */
     @XmlAttribute
-    private boolean payload;
+    private String payload;
 
     /** 指定只解析某个结构体作为field */
     @XmlAttribute
@@ -59,6 +59,10 @@ public class Response {
         @XmlAttribute(name = "date-format")
         private String dateFormat;
 
+        /** 时区不一样时候，用于计算与北京时间相隔的小时数, 例如utc格式的时间，值为8 */
+        @XmlAttribute(name = "amount-hours")
+        private Integer amountHours;
+
         /** 值转换或解析 */
         @XmlAttribute
         private String resolver;
@@ -79,9 +83,9 @@ public class Response {
         @XmlElement(name = "value-mapping", type = ValueMapping.class)
         private List<ValueMapping> valueMapping;
 
-        /** 是否返回源报文仅限在List类型中使用 */
+        /** 是否返回源报文仅限在List类型中使用 , 或者json */
         @XmlAttribute
-        private boolean payload;
+        private String payload;
 
 
         @XmlAttribute(name = "mvel-expression")

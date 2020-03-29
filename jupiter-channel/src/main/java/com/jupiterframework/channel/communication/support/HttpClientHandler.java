@@ -61,10 +61,10 @@ public class HttpClientHandler implements ClientHandler {
             if (entity != null) {
                 // 按指定编码转换结果实体为String类型
                 byte[] resp = EntityUtils.toByteArray(entity);
-                if (log.isDebugEnabled()) {
-                    log.debug("receive response : {}", new String(resp, StandardCharsets.UTF_8));
+
+                if (resp.length > 0) {
+                    return resp;
                 }
-                return resp;
             }
             if (status.getStatusCode() != HttpStatus.SC_OK) {
                 log.error("request failure ! url : {}  , status {}", req.getURI(), status);
@@ -146,9 +146,9 @@ public class HttpClientHandler implements ClientHandler {
 
 
     @Override
-    public List<RequestMethod> getRequestMode() {
+    public List<RequestMethod> getRequestMethod() {
 
-        return Arrays.asList(RequestMethod.HTTP_GET, RequestMethod.HTTP_POST);
+        return Arrays.asList(RequestMethod.HTTP_GET, RequestMethod.HTTP_POST, RequestMethod.HTTP_DELETE, RequestMethod.HTTP_PATCH, RequestMethod.HTTP_PUT);
     }
 
 }

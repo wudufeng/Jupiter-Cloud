@@ -7,6 +7,11 @@ import java.util.Map;
  * 值转换器
  */
 public interface ValueResolver {
-
-    String resolve(Map<String, String> queryParams, String value);
+    /**
+     * 
+     * @param params 请求或者响应的参数
+     * @param value
+     * @return
+     */
+    String resolve(Map<String, Object> params, String value);
 }

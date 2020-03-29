@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -39,14 +40,13 @@ public abstract class UnpackHandler<T> {
 
     protected static final String LIST_ITEM_INDEX_KEY_STRING = "_index_";
 
-
     public Map<String, Object> handle(String respData, Response response) {
         return this.handle(respData.getBytes(StandardCharsets.UTF_8), response, null);
     }
 
 
-    public Map<String, Object> handle(String respData, Response response, Map<String, Object> resultMap) {
-        return this.handle(respData.getBytes(StandardCharsets.UTF_8), response, resultMap);
+    public Map<String, Object> handle(String respData, Response response, Map<String, Object> paramMap) {
+        return this.handle(respData.getBytes(StandardCharsets.UTF_8), response, paramMap);
     }
 
 
@@ -55,11 +55,11 @@ public abstract class UnpackHandler<T> {
     }
 
 
-    public Map<String, Object> handle(byte[] respData, Response response, Map<String, Object> resultMap) {
+    public Map<String, Object> handle(byte[] respData, Response response, Map<String, Object> paramMap) {
         T ctx = this.parseObj(respData);
         String indicateVal = null;
         if (StringUtils.hasText(response.getIndicate())) {
-            indicateVal = this.readPathValue(ctx, response.getIndicate());
+            indicateVal = this.readPathValue(ctx, response.getIndicate(), String.class);
             if (indicateVal != null) {
                 log.debug("receive response : {}", indicateVal);
                 ctx = this.parseObj(indicateVal.getBytes(StandardCharsets.UTF_8));
@@ -67,9 +67,10 @@ public abstract class UnpackHandler<T> {
         }
 
         List<Field> field = response.getFields();
-        Map<String, Object> result = resultMap == null ? new HashMap<>(field.size()) : resultMap;
-        if (response.isPayload()) {
-            result.put(Response.PAYLOAD_KEY, indicateVal != null ? indicateVal : new String(respData, StandardCharsets.UTF_8));
+        Map<String, Object> result = paramMap == null ? new HashMap<>(field.size()) : new HashMap<>(paramMap);// 响应数据会写入到此map
+                                                                                                              // 重新创建一个用于防止脏数据写到此处
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(response.getPayload())) {
+            result.put(Response.PAYLOAD_KEY, this.readPathValue(ctx, response.getPayload(), Properties.class));
         }
 
         try {
@@ -114,7 +115,7 @@ public abstract class UnpackHandler<T> {
         } else if (Map.class.isAssignableFrom(f.getType())) {
             handleMap(obj, f, result, path);
         } else {
-            this.convertValue(readPathValue(obj, path), f, result);
+            this.convertValue(readPathValue(obj, path, String.class), f, result);
 
             if (org.apache.commons.lang3.StringUtils.isNotBlank(f.getMvelExpression())) {
                 if (MVELS.get() == null)
@@ -139,7 +140,7 @@ public abstract class UnpackHandler<T> {
 
 
     /** 从对象中获取path的值 */
-    protected abstract String readPathValue(T obj, String path);
+    protected abstract <E> String readPathValue(T obj, String path, Class<E> clazz);
 
 
     protected abstract void handleList(T obj, Field f, Map<String, Object> result, String path);
@@ -170,10 +171,15 @@ public abstract class UnpackHandler<T> {
         // 值解析/加、解密
         if (StringUtils.hasText(f.getResolver())) {
             for (String resolver : f.getResolver().split(","))
-                val = valueResolverFactory.create(resolver).resolve(null, val);
+                val = valueResolverFactory.create(resolver).resolve(result, val);
         }
 
-        result.put(f.getName(), this.parseValue(f, val));
+        try {
+            result.put(f.getName(), this.parseValue(f, val));
+        } catch (RuntimeException e) {
+            log.error("解析{}失败，值{}", f.getName(), val);
+            throw e;
+        }
     }
 
 
@@ -196,16 +202,22 @@ public abstract class UnpackHandler<T> {
             if (val.equals("currentTime")) {
                 return new Date();
             }
+            Date date = null;
             if (f.getDateFormat().startsWith("###")) {
                 /* 时间戳格式 */
-                return new Date(Long.valueOf(f.getDateFormat().replace("###", val)));
+                date = new Date(Long.valueOf(f.getDateFormat().trim().replace("###", val)));
+            } else {
+                try {
+                    date = DateUtils.parseDate(val, f.getDateFormat().trim().trim());
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(val + " 无法转换为日期格式" + f.getDateFormat());
+                }
             }
-            try {
-                return DateUtils.parseDate(val, f.getDateFormat());
-            } catch (ParseException e) {
-                throw new IllegalArgumentException(val + " 无法转换为日期格式" + f.getDateFormat());
+            if (f.getAmountHours() != null) {
+                date = DateUtils.addHours(date, f.getAmountHours());
             }
 
+            return date;
         case "java.lang.Double":
             return Double.valueOf(val);
         case "java.lang.Float":

@@ -3,10 +3,14 @@ package com.jupiterframework.channel.core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
@@ -35,6 +39,10 @@ import com.jupiterframework.channel.config.Response.Field;
 import com.jupiterframework.channel.config.Response.Field.ValueMapping;
 import com.jupiterframework.channel.util.XmlUtils;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -45,6 +53,8 @@ public class ChannelConfigurationContext implements ApplicationContextAware {
     private ChannelProperties<Channel> channelProperties;
 
     private Map<String /* name */, Map<String, Response>> responses = new HashMap<>();
+    // Configuration 缓存 Template 实例
+    private static Configuration cfg = new Configuration(Configuration.VERSION_2_3_28);
 
     private static ScheduledExecutorService executor =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("reload-channel-reponse-xml-%d").build());
@@ -62,10 +72,12 @@ public class ChannelConfigurationContext implements ApplicationContextAware {
 
     @PostConstruct
     public void init() throws IOException {
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        this.initConfigurationTemplate(resolver.getResources(channelProperties.getPath())[0].getFilename());
+
         for (Entry<String, Channel> chnl : channelProperties.getChannelConfigurations().entrySet()) {
             chnl.getValue().setName(chnl.getKey());
 
-            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] files = resolver.getResources(String.format("%s/%s/*.ftl", channelProperties.getPath(), chnl.getKey()));
 
             for (Resource res : files) {
@@ -110,14 +122,53 @@ public class ChannelConfigurationContext implements ApplicationContextAware {
     }
 
 
+    /** 请求报文 */
+    public String createTemplate(String templateName, Object dataModel) {
+
+        Template template = null;
+
+        try {
+            template = cfg.getTemplate(templateName, Locale.CHINA, "UTF-8");
+        } catch (IOException e) {
+            throw new IllegalArgumentException("加载模板文件失败" + templateName, e);
+        }
+
+        try (Writer w = new StringWriter();) {
+            template.process(dataModel, w);
+            return w.toString();
+        } catch (TemplateException | IOException e) {
+            throw new IllegalArgumentException("生成模板数据失败", e);
+        }
+
+    }
+
+
+    private void initConfigurationTemplate(String basePackagePath) {
+        cfg.setClassLoaderForTemplateLoading(Thread.currentThread().getContextClassLoader(), basePackagePath);
+        cfg.setDefaultEncoding("UTF-8");
+        cfg.setNumberFormat("#");
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        cfg.setTemplateUpdateDelayMilliseconds(10000);
+    }
+
+
     public Response parseResponse(String channel, String serviceName) {
         Response r;
+        InputStream inputStream = null;
         try {
-            Resource res = this.getResponseFilePath(channel, serviceName);
-            r = XmlUtils.parse(res.getInputStream(), Response.class);
+            org.springframework.core.io.Resource res = this.getResponseFilePath(channel, serviceName);
+            inputStream = res.getInputStream();
+            r = XmlUtils.parse(inputStream, Response.class);
             r.setLastModified(res.lastModified());
         } catch (JAXBException | IOException e) {
             throw new IllegalArgumentException(String.format("解析xml文件%s/%s错误!", channel, serviceName), e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+            }
         }
 
         this.validate(r.getFields(), serviceName);

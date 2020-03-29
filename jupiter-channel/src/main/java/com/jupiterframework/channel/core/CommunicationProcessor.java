@@ -2,7 +2,9 @@ package com.jupiterframework.channel.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumMap;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.jupiterframework.channel.communication.ClientHandler;
+import com.jupiterframework.channel.communication.SDKClientHandler;
 import com.jupiterframework.channel.config.Channel;
 import com.jupiterframework.channel.config.Request;
 import com.jupiterframework.channel.config.RequestMethod;
@@ -30,7 +33,6 @@ import com.jupiterframework.channel.pojo.MessageResponse;
 import com.jupiterframework.channel.resolver.ValueResolverFactory;
 import com.jupiterframework.channel.sign.SignatureFactory;
 import com.jupiterframework.channel.unpack.UnpackHandlerFactory;
-import com.jupiterframework.channel.util.FreemarkerUtils;
 import com.jupiterframework.channel.util.XmlUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,15 +58,28 @@ public class CommunicationProcessor implements ApplicationContextAware {
     @Autowired
     private UnpackHandlerFactory unpackFactory;
 
-    private Map<RequestMethod, ClientHandler> clients = new EnumMap<>(RequestMethod.class);
+    private Map<String, ClientHandler> clients = new HashMap<>();
 
 
     @PostConstruct
     public void init() {
-        applicationContext.getBeansOfType(ClientHandler.class).values().forEach(a -> a.getRequestMode().forEach(x -> clients.put(x, a)));
+        applicationContext.getBeansOfType(ClientHandler.class).entrySet().forEach(a -> {
+            if (a.getValue() instanceof SDKClientHandler) {
+                a.getValue().getRequestMethod().forEach(x -> clients.put(x.name() + a.getKey(), a.getValue()));
+            } else {
+
+                a.getValue().getRequestMethod().forEach(x -> clients.put(x.name(), a.getValue()));
+            }
+        });
     }
 
 
+    /**
+     * 响应码为 0005:请求超时 , 0010:拒绝连接
+     * 
+     * @param request
+     * @return
+     */
     public MessageResponse request(MessageRequest request) {
 
         Authorization auth = request.getAuth();
@@ -104,24 +119,37 @@ public class CommunicationProcessor implements ApplicationContextAware {
         long startTime = System.currentTimeMillis();
         try {
             // 通讯调用
-            respData = clients.get(svccfg.getRequestMethod()).request(svccfg, auth, reqParam);
+            String requestMethod = svccfg.getRequestMethod().name() + (svccfg.getRequestMethod() == RequestMethod.SDK ? svccfg.getChannel().getName() : "");
+            if (!clients.containsKey(requestMethod)) {
+                return new MessageResponse("0001", "无此请求" + requestMethod + "方式");
+            }
+            respData = clients.get(requestMethod).request(svccfg, auth, reqParam);
+            if (log.isDebugEnabled()) {
+                log.debug("receive response : {}", new String(respData, StandardCharsets.UTF_8));
+            }
+        } catch (SocketTimeoutException e1) {
+            log.error("request url failure ! url[{}], parameter {}, cause {}", url, request, e1);
+            return new MessageResponse("0005", ExceptionUtils.getRootCauseMessage(e1));
+        } catch (ConnectException e1) {
+            log.error("request url failure ! url[{}], parameter {}, cause {}", url, request, e1);
+            return new MessageResponse("0010", ExceptionUtils.getRootCauseMessage(e1));
         } catch (IOException e) {
-            log.error("request url failure ! url[{}], parameter {}", url, request, e);
-
+            log.error("request url failure ! url[{}], parameter {}, cause {}", url, request, e);
             return new MessageResponse("9999", ExceptionUtils.getRootCauseMessage(e));
+
         } finally {
             long elasped = System.currentTimeMillis() - startTime;
             String format = "{} 耗时{} ms";
-            if (elasped > 5000)
+            if (elasped > 8000)
                 log.warn(format, url, elasped);
-            else if (elasped > 3000)
+            else if (elasped > 5000)
                 log.info(format, url, elasped);
             else
                 log.debug(format, url, elasped);
         }
 
         // 解析报文
-        Map<String, Object> data = unpackFactory.create(svccfg.getResponse().getFormat().name()).handle(respData, svccfg.getResponse());
+        Map<String, Object> data = unpackFactory.create(svccfg.getResponse().getFormat().name()).handle(respData, svccfg.getResponse(), request.getRequestParams());
 
         if (log.isDebugEnabled()) {
             log.debug("after transform : {} {}", System.lineSeparator(), JSON.toJSONString(data, true));
@@ -129,11 +157,27 @@ public class CommunicationProcessor implements ApplicationContextAware {
 
         String retCode = (String) data.remove("retCode");
         String retMessage = (String) data.remove("retMessage");
+        MessageResponse response = new MessageResponse(retCode, retMessage, data);
+
+        if (!log.isInfoEnabled()) {
+            log.warn("remote process failure ! {}", new String(respData, StandardCharsets.UTF_8));
+        }
 
         if ("9999".equals(retCode))
             throw new RemoteAccessException(retMessage);
 
-        return new MessageResponse(retCode, retMessage, data);
+        return response;
+    }
+
+
+    public <E, T> T request(String channel, String service, E reqParams, Class<T> responseClass) {
+        Map<String, Object> requestParams = JSON.parseObject(JSON.toJSONBytes(reqParams), Map.class);
+        MessageResponse response = this.request(new MessageRequest(channel, service, null, requestParams));
+        if (!response.isSuccess()) {
+            throw new RemoteAccessException(String.format("%s:%s", response.getRetCode(), response.getRetMsg()));
+
+        }
+        return JSON.parseObject(JSON.toJSONBytes(response.getBody()), responseClass);
     }
 
 
@@ -145,7 +189,7 @@ public class CommunicationProcessor implements ApplicationContextAware {
         if (!temp.containsKey("timestamp"))
             temp.put("timestamp", System.currentTimeMillis());
 
-        String template = FreemarkerUtils.createTemplate(templatFile, temp);
+        String template = configs.createTemplate(templatFile, temp);
         log.debug("request parameters : {}", template);
 
         Request reqParam = XmlUtils.parse(template, Request.class);
@@ -170,7 +214,7 @@ public class CommunicationProcessor implements ApplicationContextAware {
         }
 
         if (StringUtils.hasText(p.getResolver()))
-            return valueResolverFactory.create(p.getResolver()).resolve(null, p.getValue());
+            return valueResolverFactory.create(p.getResolver()).resolve(vars, p.getValue());
         return p.getValue();
     }
 

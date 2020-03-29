@@ -6,7 +6,6 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 
 
 public class TraceRabbitListenerContainerFactory extends SimpleRabbitListenerContainerFactory {
-
     @Override
     protected SimpleMessageListenerContainer createContainerInstance() {
         TraceMessageListenerContainer container = new TraceMessageListenerContainer();

@@ -12,6 +12,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalReloadableConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.jupiterframework.channel.config.Response;
@@ -55,7 +56,7 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
             map.put(LIST_ITEM_INDEX_KEY_STRING, i++);
             items.add(map);
 
-            if (f.isPayload()) {
+            if (StringUtils.isNotBlank(f.getPayload())) {
                 StringWriter buf = new StringWriter();
                 try {
                     new XMLConfiguration(cfg).save(buf);
@@ -91,8 +92,21 @@ public class XMLUnpackHandler extends UnpackHandler<AbstractConfiguration> {
 
 
     @Override
-    protected String readPathValue(AbstractConfiguration xmlcfg, String path) {
-        return xmlcfg.getString(path);
+    protected <E> String readPathValue(AbstractConfiguration xmlcfg, String path, Class<E> clazz) {
+        if (clazz == String.class)
+            return xmlcfg.getString(path);
+
+        try {
+            SubnodeConfiguration subnode = ((XMLConfiguration) xmlcfg).configurationAt(path);
+            StringWriter buf = new StringWriter();
+            new XMLConfiguration(subnode).save(buf);
+            return buf.toString();
+        } catch (IllegalArgumentException e) {
+            return "";
+        } catch (ConfigurationException e) {
+            throw new IllegalArgumentException(path + "解析错误!", e);
+        }
+
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
@@ -40,8 +41,11 @@ public class JSONUnpackHandler extends UnpackHandler<ReadContext> {
 
 
     @Override
-    protected String readPathValue(ReadContext obj, String path) {
-        return obj.read(path, String.class);
+    protected <E> String readPathValue(ReadContext obj, String path, Class<E> clazz) {
+        if (clazz == String.class)
+            return obj.read(path, String.class);
+
+        return JSON.toJSONString(obj.read(path));
     }
 
 
@@ -70,9 +74,10 @@ public class JSONUnpackHandler extends UnpackHandler<ReadContext> {
             map.put(LIST_ITEM_INDEX_KEY_STRING, i);
             items.add(map);
             String parentPath = String.format("%s[%d]", path, i);
-            if (f.isPayload()) {
+            if (StringUtils.isNotBlank(f.getPayload())) {
 
-                map.put(Response.PAYLOAD_KEY, JSON.toJSONString(obj.read(parentPath)));
+                map.put(Response.PAYLOAD_KEY,
+                    "true".equals(f.getPayload()) ? JSON.toJSONString(obj.read(parentPath)) : JSON.toJSONString(obj.read(parentPath + "." + f.getPayload())));
             }
             for (Field sf : f.getFields()) {
                 this.transform(obj, parentPath, sf, map);

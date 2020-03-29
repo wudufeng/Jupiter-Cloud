@@ -12,6 +12,8 @@ public enum RequestMethod {
 
     HTTP_PATCH,
 
-    HTTP_DELETE
+    HTTP_DELETE,
 
+    /** 使用sdk扩展 */
+    SDK
 }

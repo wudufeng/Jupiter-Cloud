@@ -11,8 +11,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,13 +87,14 @@ public class XmlUtils {
 
 
     public static XMLConfiguration readxml(byte[] bytes) {
-        XMLConfiguration xmlcfg = new XMLConfiguration();
         try {
-            xmlcfg.load(new ByteArrayInputStream(bytes));
+            XMLConfiguration xmlConf = new XMLConfiguration();
+            FileHandler fileHandler = new FileHandler(xmlConf);
+            fileHandler.load(new ByteArrayInputStream(bytes));
+            return xmlConf;
         } catch (ConfigurationException e) {
             throw new IllegalArgumentException("非法的xml文本!", e);
         }
-        return xmlcfg;
     }
 
 }

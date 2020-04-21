@@ -1,19 +1,18 @@
 package com.jupiterframework.channel.unpack.support;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.apache.commons.configuration2.tree.InMemoryNodeModel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -98,18 +97,50 @@ public class XMLUnpackHandler extends UnpackHandler<HierarchicalConfiguration<Im
             return xmlcfg.getString(path);
 
         try {
-            HierarchicalConfiguration<ImmutableNode> subnode = xmlcfg.configurationAt(path);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            OutputStreamWriter buf = new OutputStreamWriter(baos, StandardCharsets.UTF_8);
-            new XMLConfiguration(subnode).write(buf);
-            buf.flush();
-            return baos.toString(StandardCharsets.UTF_8.displayName());
+            HierarchicalConfiguration<ImmutableNode> node = xmlcfg.configurationAt(path);
+            // 此方法会将表情字符转换 "&#55356;&#57218;"
+            if (node.getNodeModel() instanceof InMemoryNodeModel) {
+                StringBuilder content = new StringBuilder(xmlcfg.size());
+                content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                toXMLString(content, ((InMemoryNodeModel) node.getNodeModel()).getRootNode());
+                return content.toString();
+            }
+            StringWriter sw = new StringWriter();
+            new XMLConfiguration(node).write(sw);
+            return sw.toString();
         } catch (IllegalArgumentException e) {
             return "";
         } catch (ConfigurationException | IOException e) {
             throw new IllegalArgumentException(path + "解析错误!", e);
         }
 
+    }
+
+
+    public void toXMLString(StringBuilder content, ImmutableNode node) {
+
+        content.append("<").append(node.getNodeName());
+        if (node.getAttributes() != null && !node.getAttributes().isEmpty()) {
+            for (Entry<String, Object> entry : node.getAttributes().entrySet()) {
+                content.append(" ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
+            }
+
+        }
+        content.append(">");
+
+        if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+            if (node.getValue() != null) {
+                content.append("<").append(node.getValue());
+                content.append(">");
+            }
+            for (ImmutableNode child : node.getChildren()) {
+                toXMLString(content, child);
+            }
+        } else {
+            content.append(node.getValue());
+        }
+
+        content.append("</").append(node.getNodeName()).append(">");
     }
 
 }

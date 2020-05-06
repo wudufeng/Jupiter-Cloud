@@ -64,12 +64,12 @@ export default {
         index: true,
         headerAlign: 'center',
         align: 'center',
-        labelWidth: '42%',
+        labelWidth: '',
         dialogType: 'drawer',
         indexLabel: '序号',
         column: [
 <#list table.fields as field>
-          { label: '${field.comment}', prop: '${field.propertyName}',<#if field.keyFlag> addDisplay: false, addDisabled: true, editDisabled: true, hide: true,</#if> rules: [{ required: true, message: '${field.comment}不能为空', trigger: 'blur' }]<#if field.comment?index_of(":") != -1>, type: 'select', dicData: [<#list field.comment?split(":")[1]?split(",") as item>{ value: '${item?split("-")[0]}', label: '${item?split("-")[1]}' }<#if item?has_next>, </#if></#list>]</#if> }<#if field?has_next>,</#if>
+          { label: '${field.comment}', prop: '${field.propertyName}',<#if field.keyFlag> addDisplay: false, addDisabled: true, editDisabled: true, hide: true,</#if> rules: [{ required: true, message: '${field.comment}不能为空', trigger: 'blur' }]<#if field.comment?index_of(":") != -1>, type: 'select', dicData: [<#list field.comment?split(":")[1]?split(",") as item>{ value: '${item?split("-")[0]}', label: '${item?split("-")[1]}' }<#if item?has_next>, </#if></#list>]</#if> }<#if field?has_next || table.commonFields?size&gt;0>,</#if>
 </#list>
 <#list table.commonFields as field>
           { label: '${field.comment}', prop: '${field.propertyName}', addDisplay: false, addDisabled: true, editDisplay: false, editDisabled: true }<#if field?has_next>,</#if>
@@ -83,21 +83,25 @@ export default {
     this.routerVal = this.$route.path
   },
   methods: {
-    handleGetList() {
+    handleGetList(done) {
       this.query.current = this.page.currentPage
       this.query.size = this.page.pageSize
       this.loading = true
       getList(this.routerVal, this.query).then(res => {
         this.datas = res.data.records
         this.page.total = res.data.total
+        done ? done() : ''
       })
       this.loading = false
     },
-    handleSearch(params) {
+    handleSearch(params, done) {
       this.page.currentPage = 1
       this.query.condition = params
       // this.query.condition = this.$refs['crud'].$refs['headerSearch'].searchForm
-      this.handleGetList()
+      this.handleGetList(done)
+      setTimeout(() => {
+        done()
+      }, 3000)
     },
     handleCurrentChange(currentPage) {
       this.page.currentPage = currentPage
@@ -111,26 +115,35 @@ export default {
       this.data.id = ''
       add(this.routerVal, this.data).then(() => {
         this.loading = false
+        done()
         this.$notify({
           title: 'Success',
           message: '新增成功!',
           type: 'success'
         })
         loading()
+        this.handleGetList()
+      }).catch(() => {
         setTimeout(() => {
-          done()
+          loading()
         }, 3000)
       })
     },
     handleUpdate(row, index, done, loading) {
       update(this.routerVal, this.data).then(() => {
         this.loading = false
+        done()
         this.$notify({
           title: 'Success',
           message: '更新成功!',
           type: 'success'
         })
         loading()
+        this.handleGetList()
+      }).catch(() => {
+        setTimeout(() => {
+          loading()
+        }, 3000)
       })
     },
     handleDel(scope) {

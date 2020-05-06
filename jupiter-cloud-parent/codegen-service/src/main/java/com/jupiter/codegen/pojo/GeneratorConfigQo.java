@@ -2,7 +2,7 @@ package com.jupiter.codegen.pojo;
 
 import java.util.Map;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

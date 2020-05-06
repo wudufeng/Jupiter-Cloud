@@ -2,12 +2,13 @@ package com.jupiterframework.workflow.service.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.baomidou.mybatisplus.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.jupiterframework.workflow.service.ProcessInstanceIdGenerator;
 
 
 @Component
-public class ActivitiIDGenerator implements org.activiti.engine.impl.cfg.IdGenerator, ProcessInstanceIdGenerator {
+public class ActivitiIDGenerator
+        implements org.activiti.engine.impl.cfg.IdGenerator, ProcessInstanceIdGenerator {
 
     private static final ThreadLocal<String> PROC_INST_ID_HOLDER = new ThreadLocal<>();
 

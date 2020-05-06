@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.upms.user.dao.UserLoginDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.upms.user.entity.UserLogin">
+        <id column="user_id" property="userId" />
+        <result column="login_name" property="loginName" />
+        <result column="password" property="password" />
+        <result column="phone_login_flag" property="phoneLoginFlag" />
+        <result column="email_login_flag" property="emailLoginFlag" />
+        <result column="pwd_reset" property="pwdReset" />
+        <result column="error_count" property="errorCount" />
+        <result column="first_login_time" property="firstLoginTime" />
+        <result column="latest_login_time" property="latestLoginTime" />
+    </resultMap>
+
+	<sql id="Table_Name">user_login</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		
+        user_id,login_name,password,phone_login_flag,email_login_flag,pwd_reset,error_count,first_login_time,latest_login_time
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="ew.userId != null">user_id=#{ew.userId} AND</if>
+	  <if test="ew.loginName != null and ew.loginName != ''">login_name=#{ew.loginName} AND</if>
+	  <if test="ew.password != null and ew.password != ''">password=#{ew.password} AND</if>
+	  <if test="ew.phoneLoginFlag != null">phone_login_flag=#{ew.phoneLoginFlag} AND</if>
+	  <if test="ew.emailLoginFlag != null">email_login_flag=#{ew.emailLoginFlag} AND</if>
+	  <if test="ew.pwdReset != null">pwd_reset=#{ew.pwdReset} AND</if>
+	  <if test="ew.errorCount != null">error_count=#{ew.errorCount} AND</if>
+	  <if test="ew.firstLoginTime != null">first_login_time=#{ew.firstLoginTime} AND</if>
+	  <if test="ew.latestLoginTime != null">latest_login_time=#{ew.latestLoginTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
+		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

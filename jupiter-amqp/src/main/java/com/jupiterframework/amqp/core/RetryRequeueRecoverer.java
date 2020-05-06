@@ -11,7 +11,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.sleuth.Span;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -35,6 +34,7 @@ public class RetryRequeueRecoverer implements MessageRecoverer {
     @Value("${spring.application.name:unknow}")
     private String applicationName;
 
+
     public RetryRequeueRecoverer(AmqpTemplate amqpTemplate) {
         super();
         this.amqpTemplate = amqpTemplate;
@@ -44,7 +44,8 @@ public class RetryRequeueRecoverer implements MessageRecoverer {
     @Override
     public void recover(Message message, Throwable cause) {
         if (log.isWarnEnabled()) {
-            log.warn("Retries exhausted for message {}", new String(message.getBody(), StandardCharsets.UTF_8), cause);
+            log.warn("Retries exhausted for message {}",
+                new String(message.getBody(), StandardCharsets.UTF_8), cause);
         }
 
         MessageProperties mp = new MessageProperties();
@@ -70,8 +71,8 @@ public class RetryRequeueRecoverer implements MessageRecoverer {
             ob.put("exception", ExceptionUtils.getRootCauseMessage(cause));// 处理失败的时间
 
             try {
-                ob.put("traceId", MDC.get(Span.TRACE_ID_NAME)); // 链路跟踪号
-                ob.put("spanId", MDC.get(Span.SPAN_ID_NAME)); // 执行当前消息跟踪号
+                ob.put("traceId", MDC.get("TRACE_ID_NAME")); // 链路跟踪号
+                ob.put("spanId", MDC.get("SPAN_ID_NAME")); // 执行当前消息跟踪号
                 // ob.put("ip", NetUtil.getLocalHost());
             } catch (Exception e) {
                 log.debug("", e);

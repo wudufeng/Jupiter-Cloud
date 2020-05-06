@@ -9,7 +9,14 @@ public enum UpmsExceptionCodeEnum implements ExceptionDefinition {
     ORGANIZATION_EXIST_CHILD(4003, "请先删除下属机构"),
 
     MENU_NOT_EXISTS(4011, "菜单编码[{}]不存在"),
-    MENU_EXIST_CHILD(4013, "请先删除子菜单");
+    MENU_EXIST_CHILD(4013, "请先删除子菜单"),
+
+    ROLE_NOT_EXISTS(4011, "角色编码[{}]不存在"),
+
+    USER_EXISTS(4020, "用户名[{}]已不存在"),
+    USER_NOT_EXISTS(4021, "用户[{}]不存在"),
+
+    ;
 
     private int code;
     private String message;

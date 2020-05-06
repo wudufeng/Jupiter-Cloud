@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.cglib.core.Converter;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -76,7 +77,13 @@ public class BeanUtils {
         T targetObj;
         try {
             targetObj = targetClass.newInstance();
-            copier.copy(source, targetObj, null);
+            copier.copy(source, targetObj, new Converter() {
+                @SuppressWarnings("rawtypes")
+                @Override
+                public Object convert(Object var1, Class var2, Object var3) {
+                    return var1;
+                }
+            });
             return targetObj;
         } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException(targetClass.getName() + " could not initial ! ", e);

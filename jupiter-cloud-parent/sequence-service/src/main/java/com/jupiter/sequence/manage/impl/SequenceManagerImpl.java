@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jupiter.sequence.dao.SequenceDefinitionDao;
 import com.jupiter.sequence.entity.SequenceDefinition;
 import com.jupiter.sequence.exception.SequenceExceptionCode;
@@ -63,7 +63,7 @@ public class SequenceManagerImpl extends GenericManageImpl<SequenceDefinitionDao
     public Boolean dropSequence(SequenceOperationRequest request) {
 
         SequenceDefinition seq = BeanUtils.copy(request, SequenceDefinition.class);
-        int rowAffected = sequenceDao.delete(new EntityWrapper<>(seq));
+        int rowAffected = sequenceDao.delete(new QueryWrapper<>(seq));
         return rowAffected > 0;
     }
 

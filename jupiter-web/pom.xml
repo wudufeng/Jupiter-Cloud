@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.jupiterframework</groupId>
     <artifactId>jupiter-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
   </parent>
   <artifactId>jupiter-web</artifactId>
   
@@ -52,7 +52,7 @@
 		<!-- rpc -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-feign</artifactId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 		<!-- 上传文件会导致文件损坏 <dependency>
 			<groupId>io.github.openfeign</groupId>
@@ -75,6 +75,14 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
 		</dependency>
   </dependencies>
 </project>

@@ -76,7 +76,7 @@ public class SequenceDefinitionController {
     @ApiOperation("根据ID获取序列信息")
     @GetMapping("/{id}")
     public SequenceDefinition getSequence(@PathVariable Long id) {
-        return manager.selectById(id);
+        return manager.get(id);
     }
 
 

@@ -1,6 +1,10 @@
 package com.jupiterframework.manage;
 
-import com.baomidou.mybatisplus.service.IService;
+import java.util.Collection;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.jupiterframework.model.PageQuery;
 import com.jupiterframework.model.PageResult;
 
@@ -13,6 +17,20 @@ import com.jupiterframework.model.PageResult;
  * @param <T>
  */
 public interface GenericManage<T> extends IService<T> {
+    boolean add(T data);
 
-	PageResult<T> selectPage(PageQuery<T> query);
+
+    boolean addBatch(Collection<T> entityList);
+
+
+    T get(@PathVariable Long id);
+
+
+    boolean update(T data);
+
+
+    boolean remove(Long id);
+
+
+    PageResult<T> selectPage(PageQuery<T> query);
 }

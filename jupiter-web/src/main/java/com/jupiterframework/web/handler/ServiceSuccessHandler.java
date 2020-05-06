@@ -20,17 +20,19 @@ import com.jupiterframework.web.annotation.MicroService;
  */
 @ControllerAdvice(annotations = MicroService.class)
 public class ServiceSuccessHandler implements ResponseBodyAdvice<Object> {
-	@Override
-	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		Class<?> type = returnType.getMethod().getReturnType();
-		return !ServiceResponse.class.isAssignableFrom(type) && !byte[].class.isAssignableFrom(type);
-	}
+    @Override
+    public boolean supports(MethodParameter returnType,
+            Class<? extends HttpMessageConverter<?>> converterType) {
+        Class<?> type = returnType.getMethod().getReturnType();
+        return !ServiceResponse.class.isAssignableFrom(type) && !byte[].class.isAssignableFrom(type);
+    }
 
-	@Override
-	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
-			ServerHttpResponse response) {
-		return new ServiceResponse<>(body);
-	}
+
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
+            ServerHttpResponse response) {
+        return new ServiceResponse<>(body);
+    }
 
 }

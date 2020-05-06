@@ -17,8 +17,9 @@ import io.swagger.annotations.ApiModelProperty;
  */
 <#if entityLombokModel>
 @lombok.Data
+@lombok.NoArgsConstructor
 <#if superEntityClass??>
-@lombok.EqualsAndHashCode(callSuper = true)
+@lombok.EqualsAndHashCode(callSuper = false)
 </#if>
 </#if>
 <#if table.convert>

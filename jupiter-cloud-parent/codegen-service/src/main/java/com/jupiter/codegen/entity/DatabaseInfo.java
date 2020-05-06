@@ -1,7 +1,7 @@
 package com.jupiter.codegen.entity;
 
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -47,6 +47,5 @@ public class DatabaseInfo extends GenericPo {
     /** 密码 */
     @ApiModelProperty(value = "密码")
     private String password;
-
 
 }

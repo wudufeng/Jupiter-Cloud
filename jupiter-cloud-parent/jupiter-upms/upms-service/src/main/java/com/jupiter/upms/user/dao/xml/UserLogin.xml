@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.upms.user.dao.UserLoginDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.upms.user.entity.UserLogin">
+        <id column="user_id" property="userId" />
+        <result column="login_name" property="loginName" />
+        <result column="password" property="password" />
+        <result column="phone_login_flag" property="phoneLoginFlag" />
+        <result column="email_login_flag" property="emailLoginFlag" />
+        <result column="pwd_reset" property="pwdReset" />
+        <result column="error_count" property="errorCount" />
+        <result column="first_login_time" property="firstLoginTime" />
+        <result column="latest_login_time" property="latestLoginTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id AS userId, login_name AS loginName, password, phone_login_flag AS phoneLoginFlag, email_login_flag AS emailLoginFlag, pwd_reset AS pwdReset, error_count AS errorCount, first_login_time AS firstLoginTime, latest_login_time AS latestLoginTime
+    </sql>
+
+</mapper>

@@ -1,6 +1,6 @@
 logging.config: classpath:config/logback-spring.xml
-logging.path: ${user.home}/logs/${spring.application.name}
-logging.file: ${logging.path}/all.log
+logging.file.path: ${user.home}/logs/${spring.application.name}
+logging.file.name: ${logging.file.path}/all.log
 logging.level.root: INFO
 
 server:

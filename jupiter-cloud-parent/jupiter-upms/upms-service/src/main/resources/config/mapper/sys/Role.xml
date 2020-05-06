@@ -25,7 +25,7 @@
 	<sql id="Base_Where">
 	  <if test="ew.id != null">id=#{ew.id} AND</if>
 	  <if test="ew.tenantId != null">tenant_id=#{ew.tenantId} AND</if>
-	  <if test="ew.name != null and ew.name != ''">name=#{ew.name} AND</if>
+	  <if test="ew.name != null and ew.name != ''">name like "%"#{ew.name}"%" AND</if>
 	  <if test="ew.code != null and ew.code != ''">code=#{ew.code} AND</if>
 	  <if test="ew.description != null and ew.description != ''">description=#{ew.description} AND</if>
 	  <if test="ew.dataType != null">data_type=#{ew.dataType} AND</if>

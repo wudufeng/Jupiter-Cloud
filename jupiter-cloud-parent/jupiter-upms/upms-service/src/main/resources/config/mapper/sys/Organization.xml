@@ -8,8 +8,10 @@
         <result column="code" property="code" />
         <result column="level" property="level" />
         <result column="name" property="name" />
+        <result column="full_name" property="fullName" />
         <result column="parent_code" property="parentCode" />
         <result column="sort" property="sort" />
+        <result column="type" property="type" />
         <result column="is_del" property="del" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
@@ -20,7 +22,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
 		create_time,update_time,
-        id,tenant_id,code,level,name,parent_code,sort,is_del
+        id,tenant_id,code,level,name,full_name,parent_code,sort,type,is_del
     </sql>
 
 	<sql id="Base_Where">
@@ -28,9 +30,10 @@
 	  <if test="ew.tenantId != null and ew.tenantId != ''">tenant_id=#{ew.tenantId} AND</if>
 	  <if test="ew.code != null and ew.code != ''">code=#{ew.code} AND</if>
 	  <if test="ew.level != null">level=#{ew.level} AND</if>
-	  <if test="ew.name != null and ew.name != ''">name=#{ew.name} AND</if>
+	  <if test="ew.name != null and ew.name != ''">name like "%"#{ew.name}"%" AND</if>
 	  <if test="ew.parentCode != null and ew.parentCode != ''">parent_code=#{ew.parentCode} AND</if>
 	  <if test="ew.sort != null">sort=#{ew.sort} AND</if>
+	  <if test="ew.type != null">type=#{ew.type} AND</if>
 	  <if test="ew.del != null">is_del=#{ew.del} AND</if>
 	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
 	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>

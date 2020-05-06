@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
  */
 @Api(tags = "菜单管理")
 @MicroService
-@RequestMapping("/menu")
+@RequestMapping("/sys/menu")
 public class MenuController extends GenericController<MenuManage, Menu> {
 
     @GetMapping("/trees")

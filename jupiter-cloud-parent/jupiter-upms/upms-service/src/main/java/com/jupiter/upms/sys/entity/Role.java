@@ -1,10 +1,11 @@
 package com.jupiter.upms.sys.entity;
 
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @since 2019-10-25
  */
 @lombok.Data
+@NoArgsConstructor
 @lombok.EqualsAndHashCode(callSuper = true)
 @TableName("sys_role")
 public class Role extends GenericPo {
@@ -50,5 +52,11 @@ public class Role extends GenericPo {
     @ApiModelProperty(value = "是否删除:0-正常,1-已删除")
     @TableField("is_del")
     private Boolean del;
+
+
+    public Role(Long tenantId) {
+        super();
+        this.tenantId = tenantId;
+    }
 
 }

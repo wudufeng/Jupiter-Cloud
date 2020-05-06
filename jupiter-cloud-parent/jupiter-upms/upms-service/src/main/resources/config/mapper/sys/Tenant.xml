@@ -11,6 +11,7 @@
         <result column="contact_user" property="contactUser" />
         <result column="contact_phone" property="contactPhone" />
         <result column="contact_email" property="contactEmail" />
+        <result column="domain" property="domain" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
     </resultMap>
@@ -20,12 +21,12 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
 		create_time,update_time,
-        tenant_id,name,begin_time,end_time,status,contact_user,contact_phone,contact_email
+        tenant_id,name,begin_time,end_time,status,contact_user,contact_phone,contact_email,domain
     </sql>
 
 	<sql id="Base_Where">
 	  <if test="ew.tenantId != null and ew.tenantId != ''">tenant_id=#{ew.tenantId} AND</if>
-	  <if test="ew.name != null and ew.name != ''">name=#{ew.name} AND</if>
+	  <if test="ew.name != null and ew.name != ''">name like "%"#{ew.name}"%" AND</if>
 	  <if test="ew.beginTime != null">begin_time=#{ew.beginTime} AND</if>
 	  <if test="ew.endTime != null">end_time=#{ew.endTime} AND</if>
 	  <if test="ew.status != null">status=#{ew.status} AND</if>
@@ -35,7 +36,7 @@
 	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
 	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
 	</sql>
-
+ 
 	<select id="selectPageList" resultMap="BaseResultMap">
 		SELECT <include refid="Base_Column_List" /> 
 		FROM <include refid="Table_Name" />
@@ -46,6 +47,13 @@
 		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
 		</trim>
 		</where>
+		order by create_time desc
 	</select>
 
+	<select id="selecSimpleTenantList" resultType="com.jupiter.upms.sys.pojo.TenantVo">
+		SELECT tenant_id tenantId,name FROM <include refid="Table_Name" />
+		<if test="status != null">
+		<where><foreach collection="status" open="status in (" close=")" item="s" separator=",">#{s}</foreach></where>
+		</if>
+	</select>
 </mapper>

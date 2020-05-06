@@ -2,8 +2,6 @@ package com.jupiterframework.servicegovernance.monitor.domain;
 
 import java.io.Serializable;
 
-import org.slf4j.MDC;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,7 +35,7 @@ public class ErrorInstance implements Serializable {
         this.exceptionDetail = exceptionDetail;
         this.uri = uri;
 
-        traceId = MDC.get(org.springframework.cloud.sleuth.Span.SPAN_ID_NAME);
+        // traceId = MDC.get(org.springframework.cloud.sleuth.Span.SPAN_ID_NAME);
     }
 
 }

@@ -2,44 +2,53 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.6.RELEASE</version>
+    </parent>
+    
 	<groupId>com.jupiterframework</groupId>
 	<artifactId>jupiter-parent</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+		
 		<spring.cloud.version>Hoxton.SR4</spring.cloud.version>
 		<spring.boot.version>2.2.6.RELEASE</spring.boot.version>
-		<spring.admin.version>1.5.7</spring.admin.version>
-		<jupiter.framework.version>2.0.0-SNAPSHOT</jupiter.framework.version>
-		<slf4j.version>1.7.25</slf4j.version>
+		<spring.admin.version>2.2.2</spring.admin.version>
+		
+		<slf4j.version>1.7.30</slf4j.version>
 		<lombok.version>1.18.8</lombok.version>
-		<swagger.version>2.7.0</swagger.version>
-		<fastjson.version>1.2.59</fastjson.version>
-		<jackson.version>2.8.11</jackson.version>
-		<kryo.version>4.0.2</kryo.version>
-		<mybatis.version>3.4.6</mybatis.version>
+		<swagger.version>2.9.2</swagger.version>
+		
+		<mybatis.plus.version>3.3.1</mybatis.plus.version>
 		<mysql.version>5.1.46</mysql.version>
-		<feign.version>9.5.1</feign.version>
-		<mvel.version>2.4.3.Final</mvel.version>
+		
+		<mvel.version>2.4.7.Final</mvel.version>
+		<fastjson.version>1.2.68</fastjson.version>
+		<jackson.version>2.10.4</jackson.version>
+		<kryo.version>5.0.0-RC5</kryo.version>
+		<kryo.serializers.version>0.45</kryo.serializers.version>
+		<gson.version>2.8.6</gson.version>
+		<snappy.java.version>1.1.7.3</snappy.java.version>
+		<asm.version>8.0.1</asm.version>
+		<commons.io.version>2.6</commons.io.version>
+		<commons.compress.version>1.20</commons.compress.version>
+		<commons.lang3.version>3.10</commons.lang3.version>
 		<commons.configuration2>2.7</commons.configuration2>
-		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+		<commons.collections4.verson>4.4</commons.collections4.verson>
+		<commons.fileupload.version>1.4</commons.fileupload.version>
+		
+		
+		<jupiter.framework.version>2.1.0-SNAPSHOT</jupiter.framework.version>
 	</properties>
 
 	<modules>
-		<module>jupiter-amqp</module>
-		<module>jupiter-assembly</module>
-		<module>jupiter-cache</module>
-		<module>jupiter-channel</module>
-		<module>jupiter-cloud-parent</module>
-		<module>jupiter-core</module>
-		<module>jupiter-dao</module>
-		<module>jupiter-governance</module>
-		<module>jupiter-logging</module>
-		<module>jupiter-web</module>
-		<module>jupiter-workflow</module>
 	</modules>
 
 	<dependencyManagement>
@@ -60,6 +69,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- 
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
@@ -67,11 +77,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			 -->
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter</artifactId>
 				<version>${spring.boot.version}</version>
 			</dependency>
+			<!-- spring boot admin -->
 			<dependency>
 				<groupId>de.codecentric</groupId>
 				<artifactId>spring-boot-admin-server</artifactId>
@@ -88,60 +100,18 @@
 				<artifactId>spring-boot-admin-starter-client</artifactId>
 				<version>${spring.admin.version}</version>
 			</dependency>
-
-			<!-- feignclient -->
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-core</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-slf4j</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-httpclient</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-hystrix</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-
+			<!-- 数据库相关 -->
 			<dependency>
 				<groupId>org.bgee.log4jdbc-log4j2</groupId>
 				<artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
 				<version>1.16</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mybatis</groupId>
-				<artifactId>mybatis</artifactId>
-				<version>${mybatis.version}</version>
+			    <groupId>com.baomidou</groupId>
+			    <artifactId>mybatis-plus-boot-starter</artifactId>
+			    <version>${mybatis.plus.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.mybatis.spring.boot</groupId>
-				<artifactId>mybatis-spring-boot-starter</artifactId>
-				<version>1.3.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>${lombok.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.baomidou</groupId>
-				<artifactId>mybatis-plus</artifactId>
-				<version>2.1.9</version>
-			</dependency>
-			<dependency><!-- mongodb非官方连接池扩展配置 -->
-				<groupId>com.spring4all</groupId>
-				<artifactId>mongodb-plus-spring-boot-starter</artifactId>
-				<version>1.0.0.RELEASE</version>
-			</dependency>
+			<!-- api doc -->
 			<dependency>
 				<groupId>io.springfox</groupId>
 				<artifactId>springfox-swagger2</artifactId>
@@ -158,6 +128,7 @@
 				<version>${swagger.version}</version>
 			</dependency>
 
+			<!-- 工具类 -->
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
@@ -171,8 +142,7 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.5</version>
-				<scope>compile</scope>
+				<version>${gson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
@@ -180,34 +150,29 @@
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zaxxer</groupId>
-				<artifactId>HikariCP</artifactId>
-				<version>2.7.9</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.5</version>
+				<version>${commons.io.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.12</version>
+				<version>${commons.compress.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.xerial.snappy</groupId>
-				<artifactId>snappy-java</artifactId>
-				<version>1.1.2.6</version>
+				<artifactId>snappy-java</artifactId><!-- 解压缩 -->
+				<version>${snappy.java.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.10</version>
+				<version>${commons.lang3.version}</version>
 			</dependency>
 			<dependency>
 			    <groupId>org.apache.commons</groupId>
 			    <artifactId>commons-collections4</artifactId>
-			    <version>4.4</version>
+			    <version>${commons.collections4.verson}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.esotericsoftware</groupId>
@@ -217,7 +182,7 @@
 			<dependency>
 				<groupId>de.javakaffee</groupId>
 				<artifactId>kryo-serializers</artifactId>
-				<version>0.42</version>
+				<version>${kryo.serializers.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>com.esotericsoftware.kryo</groupId>
@@ -232,12 +197,12 @@
 			<dependency>
 				<groupId>org.ow2.asm</groupId>
 				<artifactId>asm</artifactId>
-				<version>5.0.4</version>
+				<version>${asm.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
-				<version>1.3.3</version>
+				<version>${commons.fileupload.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -346,6 +311,14 @@
 			<artifactId>jupiter-web</artifactId>
 			<version>${jupiter.framework.version}</version>
 		</dependency>
+		
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -353,6 +326,11 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -362,7 +340,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.6.2</version>
+					<version>3.8.1</version>
 					<configuration>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
@@ -372,7 +350,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.20.1</version>
+					<version>2.22.2</version>
 					<configuration>
 						<skip>true</skip><!-- 执行install命令，不执行单元测试 -->
 						<testFailureIgnore>true</testFailureIgnore>
@@ -382,7 +360,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.2.1</version>
 					<configuration>
 						<encoding>${project.build.sourceEncoding}</encoding>
 						<attach>true</attach>

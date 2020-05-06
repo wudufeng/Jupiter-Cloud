@@ -1,16 +1,15 @@
 package com.jupiter.upms.sys.manage.impl;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
-import com.baomidou.mybatisplus.enums.SqlLike;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jupiter.upms.exception.UpmsExceptionCodeEnum;
 import com.jupiter.upms.sys.dao.OrganizationDao;
 import com.jupiter.upms.sys.entity.Organization;
@@ -18,6 +17,7 @@ import com.jupiter.upms.sys.manage.OrganizationManage;
 import com.jupiter.upms.sys.pojo.OrganizationTreeVo;
 import com.jupiterframework.exception.BusinessException;
 import com.jupiterframework.manage.impl.GenericManageImpl;
+import com.jupiterframework.util.BeanUtils;
 import com.jupiterframework.util.StringUtils;
 
 
@@ -28,18 +28,35 @@ import com.jupiterframework.util.StringUtils;
  * @since 2019-08-09
  */
 @Service
-public class OrganizationManageImpl extends GenericManageImpl<OrganizationDao, Organization> implements OrganizationManage {
+public class OrganizationManageImpl extends GenericManageImpl<OrganizationDao, Organization>
+        implements OrganizationManage {
+
+    private static final String TOP_LEVEL_PARENT_CODE = "";
+    private static final Integer TOP_LEVEL = 1;
+
+
+    private String generateCode(Long tenantId, String parentCode) {
+
+        QueryWrapper<Organization> wrapper = new QueryWrapper<>(new Organization(tenantId, parentCode));
+        int count = this.count(wrapper);
+        return String.format("%s%02x", parentCode, count + 1);
+    }
+
 
     @Override
-    public boolean insert(Organization param) {
+    public boolean add(Organization param) {
         Organization org = new Organization(param.getTenantId(), param.getParentCode());
         org.setName(param.getName());
+        org.setFullName(param.getFullName());
         org.setSort(param.getSort());
+        org.setType(param.getType());
 
         if (StringUtils.isNotBlank(org.getParentCode())) {
-            Organization parent = this.selectOne(new EntityWrapper<>(new Organization(org.getParentCode(), org.getTenantId())));
+            Organization parent =
+                    this.getOne(new QueryWrapper<>(new Organization(org.getParentCode(), org.getTenantId())));
             if (parent == null)
-                throw new BusinessException(UpmsExceptionCodeEnum.ORGANIZATION_NOT_EXISTS, org.getParentCode());
+                throw new BusinessException(UpmsExceptionCodeEnum.ORGANIZATION_NOT_EXISTS,
+                    org.getParentCode());
             org.setLevel(parent.getLevel() + 1);
 
             if (org.getLevel() > 9) {
@@ -47,63 +64,122 @@ public class OrganizationManageImpl extends GenericManageImpl<OrganizationDao, O
             }
 
         } else {
-            org.setLevel(1);
-            org.setParentCode("");
+            org.setLevel(TOP_LEVEL);
+            org.setParentCode(TOP_LEVEL_PARENT_CODE);
         }
 
-        Wrapper<Organization> wrapper = new EntityWrapper<>(new Organization(org.getTenantId(), org.getParentCode()));
-        int count = this.selectCount(wrapper);
-        org.setCode(String.format("%s%02x", org.getParentCode(), count + 1));
+        org.setCode(this.generateCode(org.getTenantId(), org.getParentCode()));
 
         if (org.getSort() == null)
             org.setSort(1);
 
-        return super.insert(org);
+        return super.save(org);
     }
 
 
     @Override
-    public boolean updateById(Organization entity) {
+    @Transactional
+    public boolean updateById(Organization param) {
+        Assert.notNull(param.getId(), "ID SHOULD NOT BE NULL");
+
+        Organization origin = this.getById(param.getId());
+        if (origin == null)
+            throw new BusinessException(UpmsExceptionCodeEnum.ORGANIZATION_NOT_EXISTS, param.getId());
+
+        // 所属租户不允许修改, 其它字段有发生变更则修改
         Organization updater = new Organization();
-        updater.setId(entity.getId());
-
-        // 仅允许修改名称和排序
+        updater.setId(param.getId());
         boolean changed = false;
-        if (entity.getName() != null) {
-            updater.setName(entity.getName());
+        if (param.getName() != null && !StringUtils.equals(param.getName(), origin.getName())) {
+            updater.setName(param.getName());
             changed = true;
         }
-        if (entity.getSort() != null) {
-            updater.setSort(entity.getSort());
+
+        if (param.getFullName() != null && !StringUtils.equals(param.getFullName(), origin.getFullName())) {
+            updater.setFullName(param.getFullName());
+            changed = true;
+        }
+
+        if (param.getType() != null && !param.getType().equals(origin.getType())) {
+            updater.setType(param.getType());
+            changed = true;
+        }
+
+        if (param.getSort() != null && !param.getSort().equals(origin.getSort())) {
+            updater.setSort(param.getSort());
+            changed = true;
+        }
+
+        if (StringUtils.isBlank(param.getParentCode())) {
+            param.setParentCode(TOP_LEVEL_PARENT_CODE);
+        }
+
+        if (!StringUtils.equals(param.getParentCode(), origin.getParentCode())) {
             changed = true;
 
+            if (param.getParentCode() != TOP_LEVEL_PARENT_CODE) {
+                Organization parent = this.getOne(
+                    new QueryWrapper<>(new Organization(param.getParentCode(), origin.getTenantId())));
+                if (parent == null)
+                    throw new BusinessException(UpmsExceptionCodeEnum.ORGANIZATION_NOT_EXISTS,
+                        param.getParentCode());
+                updater.setLevel(parent.getLevel() + 1);
+            } else {
+                updater.setLevel(TOP_LEVEL);
+            }
+            updater.setParentCode(param.getParentCode());
+            updater.setCode(this.generateCode(origin.getTenantId(), updater.getParentCode()));
+
+            // 所属上级改变了，需要将下级也变更编码
+            this.updateChildParentCode(origin.getTenantId(), origin.getCode(), updater.getCode(),
+                updater.getLevel() - origin.getLevel());
         }
+
         if (changed)
-            return super.updateById(entity);
+            return super.updateById(updater);
 
         return false;
     }
 
 
+    private void updateChildParentCode(Long tenantId, String originParentCode, String updateParentCode,
+            Integer increaseLevel) {
+        List<Organization> childs = super.list(
+            new QueryWrapper<>(new Organization(tenantId)).likeRight("parent_code", originParentCode));
+
+        for (Organization child : childs) {
+            Organization update = new Organization();
+            update.setId(child.getId());
+            update.setLevel(child.getLevel() + increaseLevel);
+            update.setCode(child.getCode().replaceFirst(originParentCode, updateParentCode));
+            update.setParentCode(child.getParentCode().replaceFirst(originParentCode, updateParentCode));
+
+            super.updateById(update);
+        }
+    }
+
+
     @Override
-    public boolean deleteById(Serializable id) {
-        Organization org = super.selectById(id);
+    public boolean remove(Long id) {
+        Organization org = super.getById(id);
         if (org == null || org.getDel())
             return true;
 
-        Wrapper<Organization> wrapper = new EntityWrapper<>(new Organization(org.getTenantId()));
+        // 查询子节点
+        QueryWrapper<Organization> wrapper = new QueryWrapper<>(new Organization(org.getTenantId()));
         wrapper.getEntity().setDel(Boolean.FALSE);
-        wrapper.like("parent_code", org.getCode(), SqlLike.RIGHT);
+        wrapper.likeRight("parent_code", org.getCode());
         wrapper.ne("id", id);
 
-        int count = this.selectCount(wrapper);
+        int count = this.count(wrapper);
 
         if (count > 0) {
+            // 需要先删除子节点
             throw new BusinessException(UpmsExceptionCodeEnum.ORGANIZATION_EXIST_CHILD);
         }
 
         Organization delete = new Organization();
-        delete.setId((Long) id);
+        delete.setId(id);
         delete.setDel(Boolean.TRUE);
 
         return super.updateById(delete);
@@ -112,21 +188,24 @@ public class OrganizationManageImpl extends GenericManageImpl<OrganizationDao, O
 
     @Override
     public List<OrganizationTreeVo> trees(Long tenantId) {
-        Wrapper<Organization> wrapper = new EntityWrapper<>(new Organization(tenantId));
+        QueryWrapper<Organization> wrapper = new QueryWrapper<>(new Organization(tenantId));
         wrapper.getEntity().setDel(Boolean.FALSE);
-        wrapper.orderBy("level,sort");
-        List<Organization> all = super.selectList(wrapper);
+        wrapper.orderByAsc("level,sort");
+        List<Organization> all = super.list(wrapper);
 
-        Map<Long, List<Organization>> tenantMap = all.stream().collect(Collectors.groupingBy(Organization::getTenantId));
+        Map<Long, List<Organization>> tenantMap =
+                all.stream().collect(Collectors.groupingBy(Organization::getTenantId));
 
         List<OrganizationTreeVo> result = new ArrayList<>();
 
-        tenantMap.entrySet().forEach(entry -> {
-            Map<String, List<Organization>> map = entry.getValue().stream().collect(Collectors.groupingBy(Organization::getParentCode));
+        tenantMap.entrySet().forEach(orgList -> {
+            Map<String/* 上级机构编码 */, List<Organization>> map =
+                    orgList.getValue().stream().collect(Collectors.groupingBy(Organization::getParentCode));
             // 筛选出顶级节点
-            List<Organization> top = entry.getValue().stream().filter(a -> a.getLevel() == 1).collect(Collectors.toList());
+            List<Organization> topList = orgList.getValue().stream()
+                .filter(a -> a.getParentCode().equals(TOP_LEVEL_PARENT_CODE)).collect(Collectors.toList());
             // 将每个节点递归设置子节点
-            top.forEach(o -> result.add(this.convert(o, map)));
+            topList.forEach(top -> result.add(this.convert(top, map)));
         });
 
         return result;
@@ -135,7 +214,7 @@ public class OrganizationManageImpl extends GenericManageImpl<OrganizationDao, O
 
     /** 设置子节点 */
     private OrganizationTreeVo convert(Organization o, Map<String, List<Organization>> map) {
-        OrganizationTreeVo treeVo = new OrganizationTreeVo(o.getId(), o.getCode(), o.getName());
+        OrganizationTreeVo treeVo = BeanUtils.copy(o, OrganizationTreeVo.class);
         List<Organization> childrens = map.get(o.getCode());
         if (childrens == null)
             return treeVo;

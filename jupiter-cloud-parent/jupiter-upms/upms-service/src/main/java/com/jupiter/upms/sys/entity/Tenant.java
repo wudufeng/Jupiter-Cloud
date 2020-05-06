@@ -2,9 +2,9 @@ package com.jupiter.upms.sys.entity;
 
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.annotations.TableId;
-import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @since 2019-08-07
  */
 @lombok.Data
-@lombok.EqualsAndHashCode(callSuper = true)
+@lombok.EqualsAndHashCode(callSuper = false)
 @TableName("sys_tenant")
 public class Tenant extends GenericPo {
 
@@ -61,4 +61,8 @@ public class Tenant extends GenericPo {
     @TableField("contact_email")
     private String contactEmail;
 
+    /** 绑定域名 */
+    @ApiModelProperty(value = "绑定域名")
+    @TableField("domain")
+    private String domain;
 }

@@ -48,10 +48,6 @@
 	</appender>
 	
 	
-	<!-- spring 自带的 -->
-	<appender name="DEBUG_LEVEL_REMAPPER" class="org.springframework.boot.logging.logback.LevelRemappingAppender">
-		<destinationLogger>org.springframework.boot</destinationLogger>
-	</appender>
 	<logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR"/>
 	<logger name="org.apache.catalina.util.LifecycleBase" level="ERROR"/>
 	<logger name="org.apache.coyote.http11.Http11NioProtocol" level="WARN"/>
@@ -62,13 +58,6 @@
 	<logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="ERROR"/>
 	<logger name="org.hibernate.validator.internal.util.Version" level="WARN"/>
 	<logger name="org.springframework.boot.actuate.autoconfigure.CrshAutoConfiguration" level="WARN"/>
-	<logger name="org.springframework.boot.actuate.endpoint.jmx" additivity="false">
-		<appender-ref ref="DEBUG_LEVEL_REMAPPER"/>
-	</logger>
-	<logger name="org.thymeleaf" additivity="false">
-		<appender-ref ref="DEBUG_LEVEL_REMAPPER"/>
-	</logger>
-	
 	
 	
 	<!-- additivity设为false ,则logger内容不附加至root -->

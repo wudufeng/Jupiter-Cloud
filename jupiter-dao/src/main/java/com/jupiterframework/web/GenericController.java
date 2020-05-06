@@ -23,28 +23,28 @@ public class GenericController<M extends GenericManage<T>, T> {
     @ApiOperation(value = "新增数据")
     @PostMapping
     public boolean add(T data) {
-        return manage.insert(data);
+        return manage.add(data);
     }
 
 
     @ApiOperation(value = "根据主键获取数据")
     @GetMapping(value = "{id}")
     public T get(@PathVariable Long id) {
-        return manage.selectById(id);
+        return manage.get(id);
     }
 
 
     @ApiOperation(value = "根据ID更新数据")
     @PutMapping
     public boolean update(T data) {
-        return manage.updateById(data);
+        return manage.update(data);
     }
 
 
     @ApiOperation(value = "根据主键删除数据")
     @DeleteMapping(value = "{id}")
     public boolean remove(@PathVariable Long id) {
-        return manage.deleteById(id);
+        return manage.remove(id);
     }
 
 

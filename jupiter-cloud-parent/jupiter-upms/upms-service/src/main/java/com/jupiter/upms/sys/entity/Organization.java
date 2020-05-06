@@ -1,8 +1,10 @@
 package com.jupiter.upms.sys.entity;
 
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.annotations.TableId;
-import com.baomidou.mybatisplus.annotations.TableName;
+import org.apache.ibatis.type.JdbcType;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -25,7 +27,7 @@ public class Organization extends GenericPo {
     /** 机构ID */
     @ApiModelProperty(value = "机构ID")
     @TableId
-    @TableField(el = "jdbcType=Long")
+    @TableField(jdbcType = JdbcType.BIGINT)
     private Long id;
 
     /** 租户编码 */
@@ -41,14 +43,22 @@ public class Organization extends GenericPo {
     @ApiModelProperty(value = "机构层级")
     private Integer level;
 
-    /** 机构名称 */
-    @ApiModelProperty(value = "机构名称")
+    /** 机构简称 */
+    @ApiModelProperty(value = "机构简称")
     private String name;
+
+    /** 机构名称 */
+    @ApiModelProperty(value = "机构全称")
+    private String fullName;
 
     /** 上级机构编号 */
     @ApiModelProperty(value = "上级机构编号")
     @TableField("parent_code")
     private String parentCode;
+
+    /** 机构类型:1-公司,2-部门 */
+    @ApiModelProperty(value = "机构类型:1-公司,2-部门")
+    private Integer type;
 
     /** 排序 */
     @ApiModelProperty(value = "排序")

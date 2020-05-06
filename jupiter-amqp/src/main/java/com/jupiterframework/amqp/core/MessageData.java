@@ -1,7 +1,7 @@
 package com.jupiterframework.amqp.core;
 
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.support.CorrelationData;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

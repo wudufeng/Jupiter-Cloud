@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
@@ -57,7 +57,7 @@ public class GeneratorServiceImpl implements GeneratorService {
 
     @Override
     public boolean generateCurdCode(GeneratorConfigQo qo) {
-        DatabaseInfo db = databaseInfoManage.selectById(qo.getDatabaseId());
+        DatabaseInfo db = databaseInfoManage.get(qo.getDatabaseId());
         if (db == null) {
             return false;
         }
@@ -69,7 +69,8 @@ public class GeneratorServiceImpl implements GeneratorService {
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setUrl(db.getJdbcUrl());
-        dsc.setDbType(com.baomidou.mybatisplus.generator.config.rules.DbType.valueOf(com.baomidou.mybatisplus.toolkit.JdbcUtils.getDbType(db.getJdbcUrl()).name()));
+        dsc.setDbType(com.baomidou.mybatisplus.generator.config.rules.DbType
+            .valueOf(com.baomidou.mybatisplus.toolkit.JdbcUtils.getDbType(db.getJdbcUrl()).name()));
         dsc.setDriverName(Driver.class.getName());
         dsc.setUsername(db.getUserName());
         dsc.setPassword(db.getPassword());
@@ -180,7 +181,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/mapper/" + moduleName + "/" + tableInfo.getEntityName() + ".xml";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/mapper/" + moduleName + "/"
+                        + tableInfo.getEntityName() + ".xml";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -189,7 +191,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/" + tableInfo.getEntityName() + "-index.vue";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/"
+                        + tableInfo.getEntityName() + "-index.vue";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -198,7 +201,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/" + tableInfo.getEntityName().toLowerCase() + ".vue";
+                String file = mpg.getGlobalConfig().getOutputDir() + "/web/views/" + moduleName + "/"
+                        + tableInfo.getEntityName().toLowerCase() + ".vue";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -216,7 +220,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输出文件名
-                String file = mpg.getGlobalConfig().getOutputDir() + "/web/router/modules/" + moduleName + ".js";
+                String file =
+                        mpg.getGlobalConfig().getOutputDir() + "/web/router/modules/" + moduleName + ".js";
                 new File(file).getParentFile().mkdirs();
                 return file;
             }
@@ -229,9 +234,9 @@ public class GeneratorServiceImpl implements GeneratorService {
 
     @Override
     public PageResult<CodeGeneratorVo> getTableList(PageQuery<TableListQo> pageQuery) {
-        Object object = databaseInfoManage.selectById(pageQuery.getCondition().getDatabaseId());
+        Object object = databaseInfoManage.get(pageQuery.getCondition().getDatabaseId());
         log.debug("{}", object);
-        DatabaseInfo db = databaseInfoManage.selectById(pageQuery.getCondition().getDatabaseId());
+        DatabaseInfo db = databaseInfoManage.get(pageQuery.getCondition().getDatabaseId());
         PageResult<CodeGeneratorVo> result = new PageResult<>();
         if (db == null)
             return result;
@@ -246,7 +251,8 @@ public class GeneratorServiceImpl implements GeneratorService {
         ResultSet rs = null;
         try {
             conn = DriverManager.getConnection(db.getJdbcUrl(), db.getUserName(), db.getPassword());
-            String condition = "from information_schema.tables where table_schema = (select database()) and table_name like ? order by create_time desc";
+            String condition =
+                    "from information_schema.tables where table_schema = (select database()) and table_name like ? order by create_time desc";
 
             // 总记录
             stmt = conn.prepareStatement("select count(*) " + condition);
@@ -258,7 +264,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             JdbcUtils.closeStatement(stmt);
 
             // 明细
-            stmt = conn.prepareStatement("select table_name, table_comment, create_time, engine " + condition + " limit ?, ?");
+            stmt = conn.prepareStatement(
+                "select table_name, table_comment, create_time, engine " + condition + " limit ?, ?");
             stmt.setString(1, String.format("%%%s%%", tableName));
             stmt.setInt(2, (pageQuery.getCurrent() - 1) * pageQuery.getSize());
             stmt.setInt(3, pageQuery.getSize());

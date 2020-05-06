@@ -1,6 +1,5 @@
 package com.jupiter.upms.sys.manage.impl;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.enums.SqlLike;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jupiter.upms.exception.UpmsExceptionCodeEnum;
 import com.jupiter.upms.sys.dao.MenuDao;
 import com.jupiter.upms.sys.entity.Menu;
@@ -31,10 +29,10 @@ import com.jupiterframework.util.StringUtils;
 public class MenuManageImpl extends GenericManageImpl<MenuDao, Menu> implements MenuManage {
 
     @Override
-    public boolean insert(Menu menu) {
+    public boolean add(Menu menu) {
 
         if (StringUtils.isNotBlank(menu.getParentCode())) {
-            Menu parent = this.selectOne(new EntityWrapper<>(new Menu(null, menu.getParentCode())));
+            Menu parent = this.getOne(new QueryWrapper<>(new Menu(null, menu.getParentCode())));
             if (parent == null)
                 throw new BusinessException(UpmsExceptionCodeEnum.MENU_NOT_EXISTS, menu.getParentCode());
 
@@ -42,14 +40,14 @@ public class MenuManageImpl extends GenericManageImpl<MenuDao, Menu> implements 
             menu.setParentCode("");
         }
 
-        Wrapper<Menu> wrapper = new EntityWrapper<>(new Menu(menu.getParentCode(), null));
-        int count = this.selectCount(wrapper);
+        Wrapper<Menu> wrapper = new QueryWrapper<>(new Menu(menu.getParentCode(), null));
+        int count = this.count(wrapper);
         menu.setCode(String.format("%s%02x", menu.getParentCode(), count + 1));
 
         if (menu.getSort() == null)
             menu.setSort(1);
 
-        return super.insert(menu);
+        return super.save(menu);
     }
 
 
@@ -77,24 +75,24 @@ public class MenuManageImpl extends GenericManageImpl<MenuDao, Menu> implements 
 
 
     @Override
-    public boolean deleteById(Serializable id) {
-        Menu org = super.selectById(id);
+    public boolean remove(Long id) {
+        Menu org = super.get(id);
         if (org == null || org.getDel())
             return true;
 
-        Wrapper<Menu> wrapper = new EntityWrapper<>(new Menu());
+        QueryWrapper<Menu> wrapper = new QueryWrapper<>(new Menu());
         wrapper.getEntity().setDel(Boolean.FALSE);
-        wrapper.like("parent_code", org.getCode(), SqlLike.RIGHT);
+        wrapper.likeRight("parent_code", org.getCode());
         wrapper.ne("id", id);
 
-        int count = this.selectCount(wrapper);
+        int count = this.count(wrapper);
 
         if (count > 0) {
             throw new BusinessException(UpmsExceptionCodeEnum.MENU_EXIST_CHILD);
         }
 
         Menu delete = new Menu();
-        delete.setId((Long) id);
+        delete.setId(id);
         delete.setDel(Boolean.TRUE);
 
         return super.updateById(delete);
@@ -103,13 +101,13 @@ public class MenuManageImpl extends GenericManageImpl<MenuDao, Menu> implements 
 
     @Override
     public List<MenuTreeVo> trees(String parentCode) {
-        Wrapper<Menu> wrapper = new EntityWrapper<>(new Menu());
+        QueryWrapper<Menu> wrapper = new QueryWrapper<>(new Menu());
         wrapper.getEntity().setDel(Boolean.FALSE);
         if (StringUtils.isNotBlank(parentCode)) {
-            wrapper.like("parent_code", parentCode, SqlLike.RIGHT);
+            wrapper.likeRight("parent_code", parentCode);
         }
-        wrapper.orderBy("sort");
-        List<Menu> all = super.selectList(wrapper);
+        wrapper.orderByAsc("sort");
+        List<Menu> all = super.list(wrapper);
 
         List<MenuTreeVo> result = new ArrayList<>();
 

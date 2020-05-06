@@ -1,7 +1,7 @@
 package com.jupiter.sequence.entity;
 
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
 import io.swagger.annotations.ApiModelProperty;

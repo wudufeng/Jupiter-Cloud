@@ -31,14 +31,15 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -66,7 +67,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, feign.RequestInterceptor, feign.codec.Decoder, ApplicationContextAware {
+public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, feign.RequestInterceptor,
+        feign.codec.Decoder, ApplicationContextAware {
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -104,16 +106,21 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
 
         // 接口声明返回类型是ServiceResponse，则不做任何处理
         if ((type instanceof Class && ServiceResponse.class.isAssignableFrom((Class<?>) type))
-                || (type instanceof ParameterizedType && ServiceResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))) {
-            return JSON.parseObject(response.body().asInputStream(), BeanUtils.FASTJSON_CONFIG.getCharset(), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+                || (type instanceof ParameterizedType && ServiceResponse.class
+                    .isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))) {
+            return JSON.parseObject(response.body().asInputStream(), BeanUtils.FASTJSON_CONFIG.getCharset(),
+                type, BeanUtils.FASTJSON_CONFIG.getFeatures());
         }
 
         try {
             InputStream in = response.body().asInputStream();
-            if (type instanceof ParameterizedType && List.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
-                return JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+            if (type instanceof ParameterizedType
+                    && List.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
+                return JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), type,
+                    BeanUtils.FASTJSON_CONFIG.getFeatures());
             }
-            JSONObject jsonObj = JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(), JSONObject.class, BeanUtils.FASTJSON_CONFIG.getFeatures());
+            JSONObject jsonObj = JSON.parseObject(in, BeanUtils.FASTJSON_CONFIG.getCharset(),
+                JSONObject.class, BeanUtils.FASTJSON_CONFIG.getFeatures());
 
             log.debug("receive response message : {}", jsonObj);
 
@@ -122,7 +129,8 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
                 if (!String.valueOf(SysRespCodeEnum.SUCCESS.getCode()).equals(retCode)) {
                     log.info("server sign execute fail , receive {} ", jsonObj);
                     // 如果直接在此处抛异常会导致hystrix触发熔断
-                    REMOTE_EXCEPTION.set(new String[] { retCode, jsonObj.getString(RET_MSG_KEY), jsonObj.toJSONString() });
+                    REMOTE_EXCEPTION.set(
+                        new String[] { retCode, jsonObj.getString(RET_MSG_KEY), jsonObj.toJSONString() });
                     return null;
                 }
                 if (type instanceof Class && BeanUtils.isPrimitive((Class<?>) type)) {
@@ -133,14 +141,17 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
                     }
                     return jsonObj.get(BODY_KEY);
                 }
-                return JSON.parseObject(jsonObj.getString(BODY_KEY), type, BeanUtils.FASTJSON_CONFIG.getFeatures());
+                return JSON.parseObject(jsonObj.getString(BODY_KEY), type,
+                    BeanUtils.FASTJSON_CONFIG.getFeatures());
             } else {
                 return jsonObj.toJavaObject(type);
             }
         } catch (JSONException ex) {
-            throw new DecodeException("JSON parse error: " + ex.getMessage(), ex);
+            throw new DecodeException(HttpStatus.BAD_REQUEST.value(), "JSON parse error: " + ex.getMessage(),
+                response.request(), ex);
         } catch (ParseException e) {
-            throw new DecodeException("Date parse error :", e);
+            throw new DecodeException(HttpStatus.BAD_REQUEST.value(), "Date parse error :",
+                response.request(), e);
         }
     }
 
@@ -148,11 +159,13 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
-        List<ClientInterceptor> clients = new ArrayList<>(applicationContext.getBeansOfType(ClientInterceptor.class).values());
+        List<ClientInterceptor> clients =
+                new ArrayList<>(applicationContext.getBeansOfType(ClientInterceptor.class).values());
         Collections.sort(clients, new Comparator<ClientInterceptor>() {
             @Override
             public int compare(ClientInterceptor o1, ClientInterceptor o2) {
-                return o1.getClass().getAnnotation(Order.class).value() - o2.getClass().getAnnotation(Order.class).value();
+                return o1.getClass().getAnnotation(Order.class).value()
+                        - o2.getClass().getAnnotation(Order.class).value();
             }
         });
         clientInterceptor.addAll(clients);
@@ -160,8 +173,10 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
 
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        Map<String, Object> attrs = importingClassMetadata.getAnnotationAttributes(EnableFeignClients.class.getName());
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+            BeanDefinitionRegistry registry) {
+        Map<String, Object> attrs =
+                importingClassMetadata.getAnnotationAttributes(EnableFeignClients.class.getName());
 
         Set<String> basePackages = new HashSet<>();
         for (String pkg : (String[]) attrs.get("basePackages")) {
@@ -175,7 +190,8 @@ public class FeignClientInterceptor implements ImportBeanDefinitionRegistrar, fe
         advisorBeanDevinition.setSynthetic(true);
         advisorBeanDevinition.getPropertyValues().add("basePackages", basePackages);
 
-        BeanDefinitionHolder holder = new BeanDefinitionHolder(advisorBeanDevinition, "feignClientResponseAdvisor", new String[] {});
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(advisorBeanDevinition,
+            "feignClientResponseAdvisor", new String[] {});
         BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
     }
 

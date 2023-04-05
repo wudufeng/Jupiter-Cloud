@@ -2,6 +2,9 @@ package com.jupiter.upms.sys.entity;
 
 import java.util.Date;
 
+import org.apache.ibatis.type.JdbcType;
+
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -25,7 +28,8 @@ public class Tenant extends GenericPo {
 
     /** 租户编码 */
     @ApiModelProperty(value = "租户编码")
-    @TableId("tenant_id")
+    @TableId(value = "tenant_id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Long tenantId;
 
     /** 租户名称 */

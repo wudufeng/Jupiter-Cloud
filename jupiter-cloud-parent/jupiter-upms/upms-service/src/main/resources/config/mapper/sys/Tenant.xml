@@ -25,16 +25,16 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.tenantId != null and ew.tenantId != ''">tenant_id=#{ew.tenantId} AND</if>
-	  <if test="ew.name != null and ew.name != ''">name like "%"#{ew.name}"%" AND</if>
-	  <if test="ew.beginTime != null">begin_time=#{ew.beginTime} AND</if>
-	  <if test="ew.endTime != null">end_time=#{ew.endTime} AND</if>
-	  <if test="ew.status != null">status=#{ew.status} AND</if>
-	  <if test="ew.contactUser != null and ew.contactUser != ''">contact_user=#{ew.contactUser} AND</if>
-	  <if test="ew.contactPhone != null and ew.contactPhone != ''">contact_phone=#{ew.contactPhone} AND</if>
-	  <if test="ew.contactEmail != null and ew.contactEmail != ''">contact_email=#{ew.contactEmail} AND</if>
-	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
-	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	  <if test="condition.ew.tenantId != null and condition.ew.tenantId != ''">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.name != null and condition.ew.name != ''">name like "%"#{condition.ew.name}"%" AND</if>
+	  <if test="condition.ew.beginTime != null">begin_time=#{condition.ew.beginTime} AND</if>
+	  <if test="condition.ew.endTime != null">end_time=#{condition.ew.endTime} AND</if>
+	  <if test="condition.ew.status != null">status=#{condition.ew.status} AND</if>
+	  <if test="condition.ew.contactUser != null and condition.ew.contactUser != ''">contact_user=#{condition.ew.contactUser} AND</if>
+	  <if test="condition.ew.contactPhone != null and condition.ew.contactPhone != ''">contact_phone=#{condition.ew.contactPhone} AND</if>
+	  <if test="condition.ew.contactEmail != null and condition.ew.contactEmail != ''">contact_email=#{condition.ew.contactEmail} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
 	</sql>
  
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -43,8 +43,8 @@
 		<where> 
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where>
 		order by create_time desc

@@ -13,7 +13,7 @@ public enum UpmsExceptionCodeEnum implements ExceptionDefinition {
 
     ROLE_NOT_EXISTS(4011, "角色编码[{}]不存在"),
 
-    USER_EXISTS(4020, "用户名[{}]已不存在"),
+    USER_EXISTS(4020, "用户名[{}]已存在"),
     USER_NOT_EXISTS(4021, "用户[{}]不存在"),
 
     ;

@@ -50,7 +50,6 @@ public class FastJsonHttpMessageConverterEx extends FastJsonHttpMessageConverter
 
         List<MediaType> supportedMediaTypes = new ArrayList<>();
         supportedMediaTypes.add(MediaType.APPLICATION_JSON);
-        supportedMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
         supportedMediaTypes.add(MediaType.TEXT_PLAIN);
         setSupportedMediaTypes(supportedMediaTypes);
     }

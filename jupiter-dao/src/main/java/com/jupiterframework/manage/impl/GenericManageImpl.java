@@ -1,6 +1,7 @@
 package com.jupiterframework.manage.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class GenericManageImpl<M extends GenericDao<T>, T> extends ServiceImpl<M
         Map<String, Object> condition = query.getExtra();
         if (condition == null)
             condition = new HashMap<>();
-        condition.put("ew", query.getCondition());
+        condition.put("ew", query.getCondition() == null ? Collections.emptyMap() : query.getCondition());
         condition.put("queryBeginTime", query.getQueryBeginTime());
         condition.put("queryEndTime", query.getQueryEndTime());
 

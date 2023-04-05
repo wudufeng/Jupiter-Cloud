@@ -9,6 +9,9 @@
 	</parent>
 	<artifactId>codegen-service</artifactId>
 	<description>代码生成服务</description>
+	<properties>
+		<start-class>com.jupiter.codegen.CodegenApplication</start-class>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>com.jupiterframework</groupId>
@@ -19,6 +22,10 @@
 			<artifactId>jupiter-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.jupiterframework</groupId>
+			<artifactId>jupiter-governance</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-generate</artifactId>
 			<version>2.3.3</version>
@@ -27,15 +34,19 @@
 	<build>
 		<plugins>
 			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-deploy-plugin</artifactId>
+			    <configuration>
+			        <skip>true</skip>
+			    </configuration>
+			</plugin>
+	        <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<configuration>
-					<daemons>
-						<daemon>
-							<mainClass>com.jupiter.codegen.CodegenApplication</mainClass>
-						</daemon>
-					</daemons>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

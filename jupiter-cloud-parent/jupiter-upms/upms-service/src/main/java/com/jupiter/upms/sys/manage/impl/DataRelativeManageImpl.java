@@ -1,6 +1,7 @@
 package com.jupiter.upms.sys.manage.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,5 +66,11 @@ public class DataRelativeManageImpl extends GenericManageImpl<DataRelativeDao, D
         }
 
         return rowAffected;
+    }
+
+
+    @Override
+    public List<Long> getDataRelativeList(Integer relativeType, Long... scopeIds) {
+        return baseMapper.getDataRelativeList(relativeType, Arrays.asList(scopeIds));
     }
 }

@@ -27,19 +27,19 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.id != null">id=#{ew.id} AND</if>
-	  <if test="ew.tenantId != null and ew.tenantId != ''">tenant_id=#{ew.tenantId} AND</if>
-	  <if test="ew.seqName != null and ew.seqName != ''">seq_name=#{ew.seqName} AND</if>
-	  <if test="ew.minValue != null">min_value=#{ew.minValue} AND</if>
-	  <if test="ew.maxValue != null">max_value=#{ew.maxValue} AND</if>
-	  <if test="ew.increase != null">increase=#{ew.increase} AND</if>
-	  <if test="ew.currentValue != null">current_value=#{ew.currentValue} AND</if>
-	  <if test="ew.cycle != null">cycle=#{ew.cycle} AND</if>
-	  <if test="ew.charLength != null">char_length=#{ew.charLength} AND</if>
-	  <if test="ew.prefix != null and ew.prefix != ''">prefix=#{ew.prefix} AND</if>
-	  <if test="ew.appendDateFormat != null and ew.appendDateFormat != ''">append_date_format=#{ew.appendDateFormat} AND</if>
-	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
-	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.tenantId != null and condition.ew.tenantId != ''">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.seqName != null and condition.ew.seqName != ''">seq_name=#{condition.ew.seqName} AND</if>
+	  <if test="condition.ew.minValue != null">min_value=#{condition.ew.minValue} AND</if>
+	  <if test="condition.ew.maxValue != null">max_value=#{condition.ew.maxValue} AND</if>
+	  <if test="condition.ew.increase != null">increase=#{condition.ew.increase} AND</if>
+	  <if test="condition.ew.currentValue != null">current_value=#{condition.ew.currentValue} AND</if>
+	  <if test="condition.ew.cycle != null">cycle=#{condition.ew.cycle} AND</if>
+	  <if test="condition.ew.charLength != null">char_length=#{condition.ew.charLength} AND</if>
+	  <if test="condition.ew.prefix != null and condition.ew.prefix != ''">prefix=#{condition.ew.prefix} AND</if>
+	  <if test="condition.ew.appendDateFormat != null and condition.ew.appendDateFormat != ''">append_date_format=#{condition.ew.appendDateFormat} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
 	</sql>
 
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -48,8 +48,8 @@
 		<where>
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">  create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">  create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">  create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">  create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where> 
 	</select>

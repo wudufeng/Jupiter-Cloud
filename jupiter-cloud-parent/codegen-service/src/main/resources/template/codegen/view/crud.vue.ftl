@@ -91,6 +91,8 @@ export default {
         this.datas = res.data.records
         this.page.total = res.data.total
         done ? done() : ''
+      }).catch(() => {
+        done ? done() : ''
       })
       this.loading = false
     },

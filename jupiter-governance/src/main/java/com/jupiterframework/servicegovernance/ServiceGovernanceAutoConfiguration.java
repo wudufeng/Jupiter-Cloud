@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.jupiterframework.servicegovernance.ServiceGovernanceAutoConfiguration.ExceptionMonitorTriggerConfigurer;
 import com.jupiterframework.servicegovernance.ServiceGovernanceAutoConfiguration.WebMonitorConfigurer;
@@ -30,57 +30,63 @@ import com.jupiterframework.servicegovernance.monitor.support.StatisticsServiceI
 @EnableConfigurationProperties(ServiceGovernanceProperties.class)
 @Import({ WebMonitorConfigurer.class, ExceptionMonitorTriggerConfigurer.class })
 public class ServiceGovernanceAutoConfiguration {
-	@Bean
-	@ConditionalOnMissingBean(ExceptionMonitor.class)
-	public ExceptionMonitor exceptionMonitor() {
-		return new Slf4jExceptionMonitor();
-	}
+    @Bean
+    @ConditionalOnMissingBean(ExceptionMonitor.class)
+    public ExceptionMonitor exceptionMonitor() {
+        return new Slf4jExceptionMonitor();
+    }
 
-	@Bean
-	@ConditionalOnMissingBean(StatisticsService.class)
-	public StatisticsService businessEventMonitor() {
-		return new StatisticsServiceImpl();
-	}
 
-	@Bean
-	@ConditionalOnWebApplication
-	public ServiceMonitorInterceptor serviceMonitorFilter(StatisticsService statisticsService,
-			ServiceGovernanceProperties serviceGovernanceProperties) {
-		return new ServiceMonitorInterceptor(statisticsService, serviceGovernanceProperties);
-	}
+    @Bean
+    @ConditionalOnMissingBean(StatisticsService.class)
+    public StatisticsService businessEventMonitor() {
+        return new StatisticsServiceImpl();
+    }
 
-	@Bean
-	public StatisticsMonitorTrigger statisticsMonitorTrigger(ServiceGovernanceProperties serviceGovernanceProperties) {
-		return new StatisticsMonitorTrigger(serviceGovernanceProperties.getStatisticsPeriod());
-	}
 
-	@Configuration
-	@ConditionalOnClass({ com.jupiterframework.web.handler.ServiceFailureHandler.class })
-	public static class ExceptionMonitorTriggerConfigurer {
-		// 如果不额外定义一个class, 当参数类不存在时会报错
-		@Bean
-		public ExceptionMonitorTrigger exceptionMonitorTrigger(ApplicationContext applicationContext,
-				ServiceInstance server, com.jupiterframework.web.handler.ServiceFailureHandler serviceErrorHandler,
-				ServiceGovernanceProperties serviceGovernanceProperties) {
-			return new ExceptionMonitorTrigger(applicationContext.getBeansOfType(ExceptionMonitor.class).values(),
-				server, serviceErrorHandler, serviceGovernanceProperties);
-		}
+    @Bean
+    @ConditionalOnWebApplication
+    public ServiceMonitorInterceptor serviceMonitorFilter(StatisticsService statisticsService,
+            ServiceGovernanceProperties serviceGovernanceProperties) {
+        return new ServiceMonitorInterceptor(statisticsService, serviceGovernanceProperties);
+    }
 
-	}
 
-	@Order(10000)
-	@Configuration
-	@ConditionalOnWebApplication
-	public static class WebMonitorConfigurer extends WebMvcConfigurerAdapter {
-		@Autowired
-		private ApplicationContext applicationContext;
+    @Bean
+    public StatisticsMonitorTrigger statisticsMonitorTrigger(
+            ServiceGovernanceProperties serviceGovernanceProperties) {
+        return new StatisticsMonitorTrigger(serviceGovernanceProperties.getStatisticsPeriod());
+    }
 
-		@Override
-		public void addInterceptors(InterceptorRegistry registry) {
-			super.addInterceptors(registry);
-			registry.addWebRequestInterceptor(applicationContext.getBean(ServiceMonitorInterceptor.class));
-		}
+    @Configuration
+    @ConditionalOnClass({ com.jupiterframework.web.handler.ServiceFailureHandler.class })
+    public static class ExceptionMonitorTriggerConfigurer {
+        // 如果不额外定义一个class, 当参数类不存在时会报错
+        @Bean
+        public ExceptionMonitorTrigger exceptionMonitorTrigger(ApplicationContext applicationContext,
+                ServiceInstance server,
+                com.jupiterframework.web.handler.ServiceFailureHandler serviceErrorHandler,
+                ServiceGovernanceProperties serviceGovernanceProperties) {
+            return new ExceptionMonitorTrigger(
+                applicationContext.getBeansOfType(ExceptionMonitor.class).values(), server,
+                serviceErrorHandler, serviceGovernanceProperties);
+        }
 
-	}
+    }
+
+    @Order(10000)
+    @Configuration
+    @ConditionalOnWebApplication
+    public static class WebMonitorConfigurer implements WebMvcConfigurer {
+        @Autowired
+        private ApplicationContext applicationContext;
+
+
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addWebRequestInterceptor(applicationContext.getBean(ServiceMonitorInterceptor.class));
+        }
+
+    }
 
 }

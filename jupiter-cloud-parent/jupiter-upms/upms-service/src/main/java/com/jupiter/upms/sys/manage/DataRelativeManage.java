@@ -15,4 +15,6 @@ public interface DataRelativeManage extends GenericManage<DataRelative> {
 
     Integer save(DataRelativeQo qo, Integer refType);
 
+
+    java.util.List<Long> getDataRelativeList(Integer relativeType, Long... scopeIds);
 }

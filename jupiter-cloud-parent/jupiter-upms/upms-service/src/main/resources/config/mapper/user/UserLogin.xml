@@ -23,15 +23,15 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.userId != null">user_id=#{ew.userId} AND</if>
-	  <if test="ew.loginName != null and ew.loginName != ''">login_name=#{ew.loginName} AND</if>
-	  <if test="ew.password != null and ew.password != ''">password=#{ew.password} AND</if>
-	  <if test="ew.phoneLoginFlag != null">phone_login_flag=#{ew.phoneLoginFlag} AND</if>
-	  <if test="ew.emailLoginFlag != null">email_login_flag=#{ew.emailLoginFlag} AND</if>
-	  <if test="ew.pwdReset != null">pwd_reset=#{ew.pwdReset} AND</if>
-	  <if test="ew.errorCount != null">error_count=#{ew.errorCount} AND</if>
-	  <if test="ew.firstLoginTime != null">first_login_time=#{ew.firstLoginTime} AND</if>
-	  <if test="ew.latestLoginTime != null">latest_login_time=#{ew.latestLoginTime} AND</if>
+	  <if test="condition.ew.userId != null">user_id=#{condition.ew.userId} AND</if>
+	  <if test="condition.ew.loginName != null and condition.ew.loginName != ''">login_name=#{condition.ew.loginName} AND</if>
+	  <if test="condition.ew.password != null and condition.ew.password != ''">password=#{condition.ew.password} AND</if>
+	  <if test="condition.ew.phoneLoginFlag != null">phone_login_flag=#{condition.ew.phoneLoginFlag} AND</if>
+	  <if test="condition.ew.emailLoginFlag != null">email_login_flag=#{condition.ew.emailLoginFlag} AND</if>
+	  <if test="condition.ew.pwdReset != null">pwd_reset=#{condition.ew.pwdReset} AND</if>
+	  <if test="condition.ew.errorCount != null">error_count=#{condition.ew.errorCount} AND</if>
+	  <if test="condition.ew.firstLoginTime != null">first_login_time=#{condition.ew.firstLoginTime} AND</if>
+	  <if test="condition.ew.latestLoginTime != null">latest_login_time=#{condition.ew.latestLoginTime} AND</if>
 	</sql>
 
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -40,8 +40,8 @@
 		<where> 
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where>
 	</select>

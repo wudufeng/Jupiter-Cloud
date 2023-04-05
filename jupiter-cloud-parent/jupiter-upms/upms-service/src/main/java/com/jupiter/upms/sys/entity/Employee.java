@@ -2,6 +2,8 @@ package com.jupiter.upms.sys.entity;
 
 import java.util.Date;
 
+import org.apache.ibatis.type.JdbcType;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -25,9 +27,10 @@ public class Employee extends GenericPo {
 
     private static final long serialVersionUID = 1L;
 
-    /** 主键ID */
+    /** 主键ID , 不要使用此值用于其它表关联 */
     @ApiModelProperty(value = "主键ID")
     @TableId(value = "id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Integer id;
 
     /** 租户编码 */
@@ -37,7 +40,7 @@ public class Employee extends GenericPo {
 
     /** 机构 */
     @ApiModelProperty(value = "机构")
-    @TableField("organization_id")
+    @TableField(value = "organization_id", jdbcType = JdbcType.INTEGER)
     private Long organizationId;
 
     /** 用户ID */
@@ -47,7 +50,7 @@ public class Employee extends GenericPo {
 
     /** 岗位 */
     @ApiModelProperty(value = "岗位")
-    @TableField("post_id")
+    @TableField(value = "post_id", jdbcType = JdbcType.INTEGER)
     private Long postId;
 
     /** 工号 */

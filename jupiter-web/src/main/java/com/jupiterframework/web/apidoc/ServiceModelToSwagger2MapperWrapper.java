@@ -11,6 +11,7 @@ import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
@@ -30,6 +31,7 @@ import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2MapperImpl
 @Component
 public class ServiceModelToSwagger2MapperWrapper extends ServiceModelToSwagger2MapperImpl {
 
+    @SuppressWarnings("deprecation")
     @Override
     public Swagger mapDocumentation(Documentation from) {
         Swagger swagger = super.mapDocumentation(from);
@@ -53,10 +55,10 @@ public class ServiceModelToSwagger2MapperWrapper extends ServiceModelToSwagger2M
                     }
                 }
 
-                String newName = "ServiceResponse&lt;" + oriName + "&gt;";
+                String newName = "ServiceResponse<" + oriName + ">";
 
                 ModelImpl svc = new ModelImpl();
-                StringProperty code = new StringProperty();
+                IntegerProperty code = new IntegerProperty();
                 code.setDescription("响应码[表示成功]");
                 code.setExample(SysRespCodeEnum.SUCCESS.getCode());
                 svc.addProperty("code", code);
@@ -84,12 +86,13 @@ public class ServiceModelToSwagger2MapperWrapper extends ServiceModelToSwagger2M
 
         String itemType = ap.getItems().getType();
         if (ap.getItems() instanceof RefProperty) {
-            ModelImpl model = (ModelImpl) swagger.getDefinitions().get(((RefProperty) ap.getItems()).getSimpleRef());
+            ModelImpl model =
+                    (ModelImpl) swagger.getDefinitions().get(((RefProperty) ap.getItems()).getSimpleRef());
 
             if (model != null) {
                 itemType = model.getName();
             }
         }
-        return "Array&lt;" + itemType + "&gt;";
+        return "Array<" + itemType + ">";
     }
 }

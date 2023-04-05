@@ -28,11 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ServiceInitialInterceptor extends GenericFilterBean {// filter比HandlerInterceptor优先执行
-    private static final String[] ENDPOINTS = { "/health", "/logfile" };
+    private static final String[] ENDPOINTS = { "/actuator/health", "/actuator/info", "/actuator/logfile" };
 
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         if (log.isDebugEnabled()) {
             String uri = ((HttpServletRequest) req).getRequestURI();
             String contextPath = this.getServletContext().getContextPath();
@@ -40,7 +41,8 @@ public class ServiceInitialInterceptor extends GenericFilterBean {// filter比Ha
             if (Arrays.binarySearch(ENDPOINTS, uri.substring(contextPath.length())) < 0) {
                 String clientSide = ((HttpServletRequest) req).getHeader(CoreConstant.CONSUMER_SIDE);
                 clientSide = clientSide == null ? "" : String.format("[%s]", clientSide);
-                log.debug("receive request from {}:{}{}, uri {}", NetUtils.getRemoteAddr((HttpServletRequest) req), req.getRemotePort(), clientSide, uri);
+                log.debug("receive request from {}:{}{}, uri {}",
+                    NetUtils.getRemoteAddr((HttpServletRequest) req), req.getRemotePort(), clientSide, uri);
             }
         }
 

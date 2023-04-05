@@ -1,6 +1,11 @@
 package com.jupiter.upms.sys.entity;
 
+import org.apache.ibatis.type.JdbcType;
+
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
@@ -21,8 +26,13 @@ public class Menu extends GenericPo {
 
     private static final long serialVersionUID = 1L;
 
+    /** 最顶层菜单的parentCode字段值 */
+    public static final String TOP_LEVEL_PARENT_CODE = "";
+
     /** 菜单ID */
     @ApiModelProperty(value = "菜单ID")
+    @TableId(value = "id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Long id;
 
     /** 菜单编码，从第一层开始拼接，同级使用16进制两位数递增 */
@@ -31,7 +41,7 @@ public class Menu extends GenericPo {
 
     /** 上级菜单编号 */
     @ApiModelProperty(value = "上级菜单编号")
-    @TableField("parent_code")
+    @TableField(value = "parent_code", whereStrategy = FieldStrategy.NOT_NULL)
     private String parentCode;
 
     /** 菜单名称 */
@@ -80,4 +90,8 @@ public class Menu extends GenericPo {
         this.code = code;
     }
 
+
+    public String getLabel() {
+        return this.name;
+    }
 }

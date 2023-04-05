@@ -21,4 +21,17 @@ public interface RoleService {
      */
     Integer saveRoleMenu(Long roleId, List<Long> menuIds);
 
+
+    /** 获取角色绑定的菜单ID */
+    List<Long> getRoleMenus(Long roleId);
+
+
+    /**
+     * 获取角色绑定的数据权限
+     * 
+     * @param organizationId
+     * @return
+     */
+    List<Long> getRoleOrganizations(Long organizationId);
+
 }

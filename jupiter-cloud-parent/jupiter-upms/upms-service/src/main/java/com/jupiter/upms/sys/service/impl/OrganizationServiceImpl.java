@@ -50,4 +50,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         return dataRelativeManage.save(qo, RelativeType.ORGANIZATION_ROLE);
     }
+
+
+    @Override
+    public List<Long> getOrganizationRole(Long organizationId) {
+        return dataRelativeManage.getDataRelativeList(RelativeType.ORGANIZATION_ROLE, organizationId);
+    }
 }

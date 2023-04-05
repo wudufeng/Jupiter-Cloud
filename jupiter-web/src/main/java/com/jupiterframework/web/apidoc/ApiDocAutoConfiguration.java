@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.jupiterframework.constant.CoreConstant;
-import com.jupiterframework.web.annotation.MicroService;
 
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
@@ -29,40 +29,41 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @ConditionalOnWebApplication
 public class ApiDocAutoConfiguration {
-	@Autowired(required = false)
-	private ApiInfo apiInfo;
-	@Autowired
-	private ConfigurableEnvironment env;
+    @Autowired(required = false)
+    private ApiInfo apiInfo;
+    @Autowired
+    private ConfigurableEnvironment env;
 
-	@Value("${swagger.enable:true}")
-	private boolean enable;
+    @Value("${swagger.enable:true}")
+    private boolean enable;
 
-	@Bean
-	public Docket getApi() {
-		List<Parameter> pars = new ArrayList<>();
-		// pars.add(new ParameterBuilder().name(UserInfo.HEADER_KEY).description("用户登录基本信息").defaultValue(JSON.toJSONString(new UserInfo(null, -1L, "", "")))
-		// .modelRef(new ModelRef("string")).parameterType("header").required(false).build());
-		// pars.add(new ParameterBuilder().name(BaseInfo.HEADER_KEY).description("应用基本信息").defaultValue(JSON.toJSONString(new BaseInfo())).modelRef(new
-		// ModelRef("string"))
-		// .parameterType("header").required(false).build());
-		pars.add(new ParameterBuilder().name(CoreConstant.SESSION_KEY).description("Session").defaultValue("")
-			.modelRef(new ModelRef("string")).parameterType("header").required(false).build());
 
-		Docket docket = new Docket(DocumentationType.SWAGGER_2).groupName("Default")
-			.apiInfo(this.apiInfo == null ? apiInfo() : this.apiInfo).select()
-			.apis(RequestHandlerSelectors.withClassAnnotation(MicroService.class)).build()
-			.globalOperationParameters(pars).globalResponseMessage(RequestMethod.POST, new ArrayList<>());
+    @Bean
+    public Docket getApi() {
+        List<Parameter> pars = new ArrayList<>();
+        pars.add(new ParameterBuilder().name(CoreConstant.SESSION_KEY).description("Session").defaultValue("")
+            .modelRef(new ModelRef("string")).parameterType("header").required(false).build());
 
-		if (!enable)
-			docket.enable(false);
+        Docket docket = new Docket(DocumentationType.SWAGGER_2).groupName("Default")
+            .genericModelSubstitutes(DeferredResult.class).useDefaultResponseMessages(false)
+            .forCodeGeneration(true).apiInfo(this.apiInfo == null ? apiInfo() : this.apiInfo).select()
+            .apis(RequestHandlerSelectors.basePackage("com.jupiter"))
+            // .paths(PathSelectors.regex(".*/jupiter/.*"))
+            // .apis(RequestHandlerSelectors.withClassAnnotation(MicroService.class))
+            .build().globalOperationParameters(pars)
+            .globalResponseMessage(RequestMethod.POST, new ArrayList<>());
 
-		return docket;
+        if (!enable)
+            docket.enable(false);
 
-	}
+        return docket;
 
-	private ApiInfo apiInfo() {
-		return new ApiInfoBuilder().title(this.env.getProperty("spring.application.name") + "的API文档")
-			.description("自动生成的文档").termsOfServiceUrl("http://www.jupiter.com").version("1.0").build();
-	}
+    }
+
+
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder().title(this.env.getProperty("spring.application.name") + "的API文档")
+            .description("自动生成的文档").termsOfServiceUrl("http://www.jupiter.com").version("1.0").build();
+    }
 
 }

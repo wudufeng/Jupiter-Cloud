@@ -255,7 +255,7 @@ public class ServiceFailureHandler implements ErrorController {
     }
 
 
-    @RequestMapping(value = "/error", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/error", produces = MediaType.APPLICATION_JSON_VALUE)
     public ServiceFailureResponse handleError(HttpServletRequest request, HttpServletResponse response) {
         // request.getRequestUri 为error , 此处获取的是原出错的uri
         String uri = (String) request.getAttribute("javax.servlet.error.request_uri");

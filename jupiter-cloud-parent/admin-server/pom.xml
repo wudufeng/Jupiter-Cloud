@@ -8,6 +8,9 @@
 	</parent>
 	<artifactId>admin-server</artifactId>
 	<description>spring boot admin</description>
+	<properties>
+		<start-class>com.jupiter.admin.AdminServerApplication</start-class>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -15,11 +18,11 @@
 		</dependency>
 		<dependency>
 			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-server</artifactId>
+			<artifactId>spring-boot-admin-server-cloud</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-server-ui</artifactId>
+			<artifactId>spring-boot-admin-starter-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -36,20 +39,28 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>
 		<plugins>
 			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-deploy-plugin</artifactId>
+			    <configuration>
+			        <skip>true</skip>
+			    </configuration>
+			</plugin>
+	        <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<configuration>
-					<daemons>
-						<daemon>
-							<mainClass>com.jupiter.admin.AdminServerApplication</mainClass>
-						</daemon>
-					</daemons>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

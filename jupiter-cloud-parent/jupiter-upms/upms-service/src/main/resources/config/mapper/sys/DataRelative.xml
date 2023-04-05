@@ -21,13 +21,13 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.id != null">id=#{ew.id} AND</if>
-	  <if test="ew.scopeId != null">scope_id=#{ew.scopeId} AND</if>
-	  <if test="ew.instanceId != null">instance_id=#{ew.instanceId} AND</if>
-	  <if test="ew.refType != null">ref_type=#{ew.refType} AND</if>
-	  <if test="ew.enable != null">is_enable=#{ew.enable} AND</if>
-	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
-	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.scopeId != null">scope_id=#{condition.ew.scopeId} AND</if>
+	  <if test="condition.ew.instanceId != null">instance_id=#{condition.ew.instanceId} AND</if>
+	  <if test="condition.ew.refType != null">ref_type=#{condition.ew.refType} AND</if>
+	  <if test="condition.ew.enable != null">is_enable=#{condition.ew.enable} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
 	</sql>
 
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -36,8 +36,8 @@
 		<where> 
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where>
 	</select>
@@ -54,4 +54,12 @@
 			#{scopeId},#{instanceId},#{refType},1
 		</foreach>
 	</update>
+	
+	<select id="getDataRelativeList" resultType="Long">
+		select instance_id from <include refid="Table_Name" />
+		where ref_type=#{refType} and is_enable = 1 and scope_id in
+		<foreach collection="scopeIds" item="scopeId" open="(" close=")" separator=",">
+			#{scopeId}
+		</foreach>
+	</select>
 </mapper>

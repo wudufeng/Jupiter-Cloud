@@ -6,14 +6,14 @@
 	
 	<property name="LOG_CHARSET" value="utf8" />
 	<springProperty name="APPLICATION_NAME" source="spring.application.name" scope="context"/>
-	<springProperty name="LOG_DIR" source="logging.path" defaultValue="${user.home}/logs/${APPLICATION_NAME}" scope="context" />
-	<springProperty name="LOG_FILE" source="logging.file" defaultValue="${LOG_DIR}/all.log" scope="context" />
-	<springProperty name="CONSOLE_LOG_PATTERN" source="logging.consolePattern" defaultValue="%d{MM-dd HH:mm:ss.SSS} %5p [${APPLICATION_NAME},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] ${PID:- } --- [%thread] %logger{39}.%method&lt;%-3L&gt; : %msg%n" scope="context" />
-	<springProperty name="FILE_LOG_PATTERN" source="logging.filePattern" defaultValue="-|%d{yyyy-MM-dd HH:mm:ss.SSS}|%5p|${APPLICATION_NAME}|%X{X-B3-TraceId:-}|%X{X-B3-SpanId:-}|%X{X-B3-ParentSpanId:-}|${PID:-}|%thread|%-40.40logger{39}.%method&lt;%-3L&gt; |%msg%n" scope="context" />
-	<springProperty name="MAX_FILE_SIZE" source="logging.maxFileSize" defaultValue="100MB" scope="context" />
-	<springProperty name="MAX_HISTORY" source="logging.maxHistory" defaultValue="30" scope="context" />
-	<springProperty name="TOTAL_SIZE_CAP" source="logging.totalSizeCap" defaultValue="5GB" scope="context" />
-	<springProperty name="ENABLE_CONSOLE" source="logging.enableConsole" defaultValue="false" scope="context" />
+	<springProperty name="LOG_DIR" source="logging.file.path" defaultValue="${user.home}/logs/${APPLICATION_NAME}" scope="context" />
+	<springProperty name="LOG_FILE" source="logging.file.name" defaultValue="${LOG_DIR}/all.log" scope="context" />
+	<springProperty name="CONSOLE_LOG_PATTERN" source="logging.pattern.console" defaultValue="%d{MM-dd HH:mm:ss.SSS} %5p [${APPLICATION_NAME},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] ${PID:- } --- [%thread] %logger{39}.%method&lt;%-3L&gt; : %msg%n" scope="context" />
+	<springProperty name="FILE_LOG_PATTERN" source="logging.pattern.file" defaultValue="-|%d{yyyy-MM-dd HH:mm:ss.SSS}|%5p|${APPLICATION_NAME}|%X{X-B3-TraceId:-}|%X{X-B3-SpanId:-}|%X{X-B3-ParentSpanId:-}|${PID:-}|%thread|%-40.40logger{39}.%method&lt;%-3L&gt; |%msg%n" scope="context" />
+	<springProperty name="MAX_FILE_SIZE" source="logging.file.max-size" defaultValue="100MB" scope="context" />
+	<springProperty name="MAX_HISTORY" source="logging.file.max-history" defaultValue="30" scope="context" />
+	<springProperty name="TOTAL_SIZE_CAP" source="logging.file.total-size-cap" defaultValue="5GB" scope="context" />
+	<springProperty name="ENABLE_CONSOLE" source="logging.console.enable" defaultValue="false" scope="context" />
 
 	<!-- console  -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

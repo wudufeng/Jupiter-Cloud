@@ -1,5 +1,7 @@
 package com.jupiter.upms.sys.entity;
 
+import org.apache.ibatis.type.JdbcType;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -26,6 +28,7 @@ public class DataRelative extends GenericPo {
     /** 主键ID */
     @ApiModelProperty(value = "主键ID")
     @TableId(value = "id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Integer id;
 
     /** 范围ID */
@@ -39,7 +42,7 @@ public class DataRelative extends GenericPo {
     private Long instanceId;
 
     /** 关联类型:1-角色菜单,2-角色自定义数据权限,3-机构角色 */
-    @ApiModelProperty(value = "关联类型:1-角色菜单,2-角色自定义数据权限,3-机构角色")
+    @ApiModelProperty(value = "关联类型:1-角色菜单,2-角色自定义数据权限,3-机构角色,4-员工/用户角色")
     @TableField("ref_type")
     private Integer refType;
 

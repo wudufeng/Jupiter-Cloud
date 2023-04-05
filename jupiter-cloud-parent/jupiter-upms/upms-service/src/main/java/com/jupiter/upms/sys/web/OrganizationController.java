@@ -48,4 +48,11 @@ public class OrganizationController extends GenericController<OrganizationManage
             service.saveRole(new DataRelativeQo(org, roleIds));
         }
     }
+
+
+    @ApiOperation(value = "获取用户绑定的角色")
+    @GetMapping(value = "/role")
+    public Long[] getOrganizationRole(@RequestParam Long organizationId) {
+        return service.getOrganizationRole(organizationId).toArray(new Long[] {});
+    }
 }

@@ -1,6 +1,10 @@
 package com.jupiter.upms.sys.entity;
 
+import org.apache.ibatis.type.JdbcType;
+
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.jupiterframework.model.GenericPo;
 
@@ -24,11 +28,13 @@ public class Role extends GenericPo {
 
     /** 角色ID */
     @ApiModelProperty(value = "角色ID")
+    @TableId(value = "id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Long id;
 
     /** 租户编码 */
     @ApiModelProperty(value = "租户编码")
-    @TableField("tenant_id")
+    @TableField(value = "tenant_id", jdbcType = JdbcType.INTEGER)
     private Long tenantId;
 
     /** 角色名称 */

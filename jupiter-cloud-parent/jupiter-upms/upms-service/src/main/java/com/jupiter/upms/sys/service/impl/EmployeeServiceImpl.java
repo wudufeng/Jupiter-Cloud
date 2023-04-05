@@ -47,6 +47,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new BusinessException(UpmsExceptionCodeEnum.ROLE_NOT_EXISTS, roleIds.toString());
         }
 
-        return dataRelativeManage.save(qo, RelativeType.ORGANIZATION_ROLE);
+        return dataRelativeManage.save(qo, RelativeType.USER_ROLE);
+    }
+
+
+    @Override
+    public List<Long> getEmployeeRole(Long userId) {
+        return dataRelativeManage.getDataRelativeList(RelativeType.USER_ROLE, userId);
     }
 }

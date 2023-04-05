@@ -2,6 +2,7 @@ package com.jupiter.upms.sys.entity;
 
 import org.apache.ibatis.type.JdbcType;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -26,13 +27,13 @@ public class Organization extends GenericPo {
 
     /** 机构ID */
     @ApiModelProperty(value = "机构ID")
-    @TableId
-    @TableField(jdbcType = JdbcType.BIGINT)
+    @TableId(value = "id", type = IdType.AUTO)
+    @TableField(jdbcType = JdbcType.INTEGER)
     private Long id;
 
     /** 租户编码 */
     @ApiModelProperty(value = "租户编码")
-    @TableField(value = "tenant_id")
+    @TableField(value = "tenant_id", jdbcType = JdbcType.INTEGER)
     private Long tenantId;
 
     /** 机构编码，从第一层开始拼接，同级机构使用16进制两位数递增 */

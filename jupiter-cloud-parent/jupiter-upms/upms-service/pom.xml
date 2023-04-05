@@ -9,6 +9,9 @@
 	</parent>
 	<artifactId>upms-service</artifactId>
 
+	<properties>
+		<start-class>com.jupiter.upms.UpmsApplication</start-class>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
@@ -24,6 +27,10 @@
 			<artifactId>jupiter-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.jupiterframework</groupId>
+			<artifactId>jupiter-governance</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
@@ -32,15 +39,19 @@
 		<finalName>jupiter-upms</finalName>
 		<plugins>
 			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-deploy-plugin</artifactId>
+			    <configuration>
+			        <skip>true</skip>
+			    </configuration>
+			</plugin>
+	        <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<configuration>
-					<daemons>
-						<daemon>
-							<mainClass>com.jupiter.upms.UpmsApplication</mainClass>
-						</daemon>
-					</daemons>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

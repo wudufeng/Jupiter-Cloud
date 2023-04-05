@@ -3,6 +3,7 @@ package com.jupiter.upms.sys.dao;
 import com.jupiter.upms.sys.entity.Menu;
 import com.jupiterframework.dao.GenericDao;
 
+
 /**
  * <p>
  * 菜单管理 Mapper 接口

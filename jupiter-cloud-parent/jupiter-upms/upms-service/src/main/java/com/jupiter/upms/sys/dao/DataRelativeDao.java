@@ -24,4 +24,7 @@ public interface DataRelativeDao extends GenericDao<DataRelative> {
 
     int save(@Param("refType") Integer refType, @Param("scopeId") Long scopeId,
             @Param("instanceIds") List<Long> instanceIds);
+
+
+    List<Long> getDataRelativeList(@Param("refType") Integer refType, @Param("scopeIds") List<Long> scopeIds);
 }

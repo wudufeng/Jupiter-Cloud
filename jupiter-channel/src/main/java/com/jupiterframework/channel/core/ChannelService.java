@@ -38,13 +38,14 @@ public class ChannelService {
     }
 
 
-    @GetMapping(value = "/channel/service/configuration", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-    public Service getServiceConfiguration(@RequestParam String channelName, @RequestParam String serviceName) {
+    @GetMapping(value = "/channel/service/configuration", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public Service getServiceConfiguration(@RequestParam String channelName,
+            @RequestParam String serviceName) {
         return channelProperties.getChannelConfiguration(channelName).getServices().get(serviceName);
     }
 
 
-    @PostMapping(value = "/channel/invoke", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @PostMapping(value = "/channel/invoke", produces = { MediaType.APPLICATION_JSON_VALUE })
     public MessageResponse invoke(@RequestBody MessageRequest messageRequest) {
         return communication.request(messageRequest);
     }

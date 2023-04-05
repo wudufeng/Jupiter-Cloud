@@ -33,23 +33,23 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.userId != null">user_id=#{ew.userId} AND</if>
-	  <if test="ew.nickname != null and ew.nickname != ''">nickname=#{ew.nickname} AND</if>
-	  <if test="ew.realname != null and ew.realname != ''">realname=#{ew.realname} AND</if>
-	  <if test="ew.sex != null and ew.sex != ''">sex=#{ew.sex} AND</if>
-	  <if test="ew.headImgUrl != null and ew.headImgUrl != ''">head_img_url=#{ew.headImgUrl} AND</if>
-	  <if test="ew.phone != null and ew.phone != ''">phone=#{ew.phone} AND</if>
-	  <if test="ew.idType != null">id_type=#{ew.idType} AND</if>
-	  <if test="ew.idCode != null and ew.idCode != ''">id_code=#{ew.idCode} AND</if>
-	  <if test="ew.country != null and ew.country != ''">country=#{ew.country} AND</if>
-	  <if test="ew.province != null and ew.province != ''">province=#{ew.province} AND</if>
-	  <if test="ew.city != null and ew.city != ''">city=#{ew.city} AND</if>
-	  <if test="ew.address != null and ew.address != ''">address=#{ew.address} AND</if>
-	  <if test="ew.signature != null and ew.signature != ''">signature=#{ew.signature} AND</if>
-	  <if test="ew.srcType != null">src_type=#{ew.srcType} AND</if>
-	  <if test="ew.status != null and ew.status != ''">status=#{ew.status} AND</if>
-	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
-	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	  <if test="condition.ew.userId != null">user_id=#{condition.ew.userId} AND</if>
+	  <if test="condition.ew.nickname != null and condition.ew.nickname != ''">nickname=#{condition.ew.nickname} AND</if>
+	  <if test="condition.ew.realname != null and condition.ew.realname != ''">realname=#{condition.ew.realname} AND</if>
+	  <if test="condition.ew.sex != null and condition.ew.sex != ''">sex=#{condition.ew.sex} AND</if>
+	  <if test="condition.ew.headImgUrl != null and condition.ew.headImgUrl != ''">head_img_url=#{condition.ew.headImgUrl} AND</if>
+	  <if test="condition.ew.phone != null and condition.ew.phone != ''">phone=#{condition.ew.phone} AND</if>
+	  <if test="condition.ew.idType != null">id_type=#{condition.ew.idType} AND</if>
+	  <if test="condition.ew.idCode != null and condition.ew.idCode != ''">id_code=#{condition.ew.idCode} AND</if>
+	  <if test="condition.ew.country != null and condition.ew.country != ''">country=#{condition.ew.country} AND</if>
+	  <if test="condition.ew.province != null and condition.ew.province != ''">province=#{condition.ew.province} AND</if>
+	  <if test="condition.ew.city != null and condition.ew.city != ''">city=#{condition.ew.city} AND</if>
+	  <if test="condition.ew.address != null and condition.ew.address != ''">address=#{condition.ew.address} AND</if>
+	  <if test="condition.ew.signature != null and condition.ew.signature != ''">signature=#{condition.ew.signature} AND</if>
+	  <if test="condition.ew.srcType != null">src_type=#{condition.ew.srcType} AND</if>
+	  <if test="condition.ew.status != null and condition.ew.status != ''">status=#{condition.ew.status} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
 	</sql>
 
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -58,8 +58,8 @@
 		<where> 
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where>
 	</select>

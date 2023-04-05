@@ -2,27 +2,20 @@ package com.jupiter.upms.sys.pojo;
 
 import java.util.List;
 
+import com.jupiter.upms.sys.entity.Menu;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class MenuTreeVo {
+public class MenuTreeVo extends Menu {
 
-    private Long id;
-    private String code;
-    private String name;
-    private String parentCode;
+    private static final long serialVersionUID = 2237616346792136177L;
+
     private List<MenuTreeVo> children;
-
-
-    public MenuTreeVo(Long id, String code, String name, String parentCode) {
-        super();
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.parentCode = parentCode;
-    }
 
 }

@@ -10,6 +10,9 @@
 	<name>registry-server</name>
 	<description>注册中心</description>
 
+	<properties>
+		<start-class>com.jupiter.registry.RegistryServerApplication</start-class>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -34,15 +37,19 @@
 	<build>
 		<plugins>
 			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-deploy-plugin</artifactId>
+			    <configuration>
+			        <skip>true</skip>
+			    </configuration>
+			</plugin>
+	        <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<configuration>
-					<daemons>
-						<daemon>
-							<mainClass>com.jupiter.registry.RegistryServerApplication</mainClass>
-						</daemon>
-					</daemons>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

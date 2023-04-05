@@ -18,6 +18,7 @@ import org.springframework.cglib.core.Converter;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -54,10 +55,15 @@ public class BeanUtils {
         serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
         serializeConfig.put(Void.class, ToStringSerializer.instance);
         serializeConfig.put(Void.TYPE, ToStringSerializer.instance);
+        serializeConfig.put(TypeReferenceLong.class, ToStringSerializer.instance);
         serializeConfig.put(Date.class, new SimpleDateFormatSerializer(DATE_FORMAT));
         FASTJSON_CONFIG.setSerializerFeatures(SERIALIZER_FEATURES);
         FASTJSON_CONFIG.setSerializeConfig(serializeConfig);
         FASTJSON_CONFIG.setFeatures(Feature.AllowSingleQuotes);
+    }
+
+    public static class TypeReferenceLong extends TypeReference<Long> {
+
     }
 
 

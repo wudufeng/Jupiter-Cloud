@@ -50,9 +50,23 @@ public class RoleController extends GenericController<RoleManage, Role> {
     }
 
 
+    @ApiOperation(value = "获取角色菜单权限")
+    @GetMapping(value = "/menu")
+    public Long[] getRoleMenus(@RequestParam Long roleId) {
+        return roleService.getRoleMenus(roleId).toArray(new Long[] {});
+    }
+
+
     @ApiOperation(value = "获取租户下可用的角色")
     @GetMapping(value = "/dic-data")
     public List<RoleVo> selectRoleList(Long tenantId) {
         return this.manage.selecSimpleRoleList(tenantId);
+    }
+
+
+    @ApiOperation(value = "获取角色绑定的数据权限")
+    @GetMapping(value = "/organization")
+    public Long[] getRoleOrganizations(@RequestParam Long roleId) {
+        return this.roleService.getRoleOrganizations(roleId).toArray(new Long[] {});
     }
 }

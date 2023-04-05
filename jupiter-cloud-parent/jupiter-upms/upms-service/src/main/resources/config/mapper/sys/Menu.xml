@@ -28,20 +28,20 @@
     </sql>
 
 	<sql id="Base_Where">
-	  <if test="ew.id != null">id=#{ew.id} AND</if>
-	  <if test="ew.code != null and ew.code != ''">code=#{ew.code} AND</if>
-	  <if test="ew.parentCode != null and ew.parentCode != ''">parent_code=#{ew.parentCode} AND</if>
-	  <if test="ew.name != null and ew.name != ''">name=#{ew.name} AND</if>
-	  <if test="ew.path != null and ew.path != ''">path=#{ew.path} AND</if>
-	  <if test="ew.icon != null and ew.icon != ''">icon=#{ew.icon} AND</if>
-	  <if test="ew.component != null and ew.component != ''">component=#{ew.component} AND</if>
-	  <if test="ew.sort != null">sort=#{ew.sort} AND</if>
-	  <if test="ew.keepAlive != null and ew.keepAlive != ''">keep_alive=#{ew.keepAlive} AND</if>
-	  <if test="ew.menuType != null and ew.menuType != ''">menu_type=#{ew.menuType} AND</if>
-	  <if test="ew.permission != null and ew.permission != ''">permission=#{ew.permission} AND</if>
-	  <if test="ew.del != null">is_del=#{ew.del} AND</if>
-	  <if test="ew.createTime != null">create_time=#{ew.createTime} AND</if>
-	  <if test="ew.updateTime != null">update_time=#{ew.updateTime} AND</if>
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.code != null and condition.ew.code != ''">code=#{condition.ew.code} AND</if>
+	  <if test="condition.ew.parentCode != null and condition.ew.parentCode != ''">parent_code=#{condition.ew.parentCode} AND</if>
+	  <if test="condition.ew.name != null and condition.ew.name != ''">name=#{condition.ew.name} AND</if>
+	  <if test="condition.ew.path != null and condition.ew.path != ''">path=#{condition.ew.path} AND</if>
+	  <if test="condition.ew.icon != null and condition.ew.icon != ''">icon=#{condition.ew.icon} AND</if>
+	  <if test="condition.ew.component != null and condition.ew.component != ''">component=#{condition.ew.component} AND</if>
+	  <if test="condition.ew.sort != null">sort=#{condition.ew.sort} AND</if>
+	  <if test="condition.ew.keepAlive != null and condition.ew.keepAlive != ''">keep_alive=#{condition.ew.keepAlive} AND</if>
+	  <if test="condition.ew.menuType != null and condition.ew.menuType != ''">menu_type=#{condition.ew.menuType} AND</if>
+	  <if test="condition.ew.permission != null and condition.ew.permission != ''">permission=#{condition.ew.permission} AND</if>
+	  <if test="condition.ew.del != null">is_del=#{condition.ew.del} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
 	</sql>
 
 	<select id="selectPageList" resultMap="BaseResultMap">
@@ -50,8 +50,8 @@
 		<where> 
 		<trim suffixOverrides="AND">
 		  <include refid="Base_Where" />
-		  <if test="queryBeginTime != null">create_time&gt;=#{queryBeginTime} AND</if>
-		  <if test="queryEndTime != null">create_time&lt;=#{queryEndTime} AND</if>
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
 		</trim>
 		</where>
 	</select>

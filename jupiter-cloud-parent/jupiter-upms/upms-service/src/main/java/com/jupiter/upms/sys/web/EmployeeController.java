@@ -3,6 +3,7 @@ package com.jupiter.upms.sys.web;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,5 +39,12 @@ public class EmployeeController extends GenericController<EmployeeManage, Employ
         for (Long userId : userIds) {
             employeeService.saveRole(new DataRelativeQo(userId, roleIds));
         }
+    }
+
+
+    @ApiOperation(value = "获取用户绑定的角色")
+    @GetMapping(value = "/role")
+    public Long[] getEmployeeRole(@RequestParam Long userId) {
+        return employeeService.getEmployeeRole(userId).toArray(new Long[] {});
     }
 }

@@ -83,4 +83,15 @@ public class RoleServiceImpl implements RoleService {
         return dataRelativeManage.save(new DataRelativeQo(roleId, menuIds), RelativeType.ROLE_MENU);
     }
 
+
+    @Override
+    public List<Long> getRoleOrganizations(Long roleId) {
+        return dataRelativeManage.getDataRelativeList(RelativeType.ROLE_ORGANIZATION, roleId);
+    }
+
+
+    @Override
+    public List<Long> getRoleMenus(Long roleId) {
+        return dataRelativeManage.getDataRelativeList(RelativeType.ROLE_MENU, roleId);
+    }
 }

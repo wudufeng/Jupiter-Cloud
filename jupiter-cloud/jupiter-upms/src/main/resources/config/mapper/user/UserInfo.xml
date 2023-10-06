@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.user.dao.UserInfoDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.user.entity.UserInfo">
+        <id column="user_id" property="userId" />
+        <result column="nickname" property="nickname" />
+        <result column="realname" property="realname" />
+        <result column="sex" property="sex" />
+        <result column="head_img_url" property="headImgUrl" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="birthday" property="birthday" />
+        <result column="id_type" property="idType" />
+        <result column="id_code" property="idCode" />
+        <result column="country" property="country" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="address" property="address" />
+        <result column="signature" property="signature" />
+        <result column="src_type" property="srcType" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">user_info</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        user_id,nickname,realname,sex,head_img_url,phone,email,birthday,id_type,id_code,country,province,city,address,signature,src_type,status
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.userId != null">user_id=#{condition.ew.userId} AND</if>
+	  <if test="condition.ew.nickname != null and condition.ew.nickname != ''">nickname=#{condition.ew.nickname} AND</if>
+	  <if test="condition.ew.realname != null and condition.ew.realname != ''">realname=#{condition.ew.realname} AND</if>
+	  <if test="condition.ew.sex != null and condition.ew.sex != ''">sex=#{condition.ew.sex} AND</if>
+	  <if test="condition.ew.headImgUrl != null and condition.ew.headImgUrl != ''">head_img_url=#{condition.ew.headImgUrl} AND</if>
+	  <if test="condition.ew.phone != null and condition.ew.phone != ''">phone=#{condition.ew.phone} AND</if>
+	  <if test="condition.ew.idType != null">id_type=#{condition.ew.idType} AND</if>
+	  <if test="condition.ew.idCode != null and condition.ew.idCode != ''">id_code=#{condition.ew.idCode} AND</if>
+	  <if test="condition.ew.country != null and condition.ew.country != ''">country=#{condition.ew.country} AND</if>
+	  <if test="condition.ew.province != null and condition.ew.province != ''">province=#{condition.ew.province} AND</if>
+	  <if test="condition.ew.city != null and condition.ew.city != ''">city=#{condition.ew.city} AND</if>
+	  <if test="condition.ew.address != null and condition.ew.address != ''">address=#{condition.ew.address} AND</if>
+	  <if test="condition.ew.signature != null and condition.ew.signature != ''">signature=#{condition.ew.signature} AND</if>
+	  <if test="condition.ew.srcType != null">src_type=#{condition.ew.srcType} AND</if>
+	  <if test="condition.ew.status != null and condition.ew.status != ''">status=#{condition.ew.status} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

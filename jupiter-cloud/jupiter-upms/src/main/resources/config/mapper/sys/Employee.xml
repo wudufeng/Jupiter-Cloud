@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.sys.dao.EmployeeDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.sys.entity.Employee">
+        <id column="id" property="id" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="organization_id" property="organizationId" />
+        <result column="user_id" property="userId" />
+        <result column="post_id" property="postId" />
+        <result column="job_num" property="jobNum" />
+        <result column="enter_time" property="enterTime" />
+        <result column="leave_time" property="leaveTime" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sys_employee</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        id,tenant_id,organization_id,user_id,post_id,job_num,enter_time,leave_time,status
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.tenantId != null">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.organizationId != null">organization_id=#{condition.ew.organizationId} AND</if>
+	  <if test="condition.ew.userId != null">user_id=#{condition.ew.userId} AND</if>
+	  <if test="condition.ew.postId != null">post_id=#{condition.ew.postId} AND</if>
+	  <if test="condition.ew.jobNum != null and condition.ew.jobNum != ''">job_num=#{condition.ew.jobNum} AND</if>
+	  <if test="condition.ew.enterTime != null">enter_time=#{condition.ew.enterTime} AND</if>
+	  <if test="condition.ew.leaveTime != null">leave_time=#{condition.ew.leaveTime} AND</if>
+	  <if test="condition.ew.status != null and condition.ew.status != ''">status=#{condition.ew.status} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

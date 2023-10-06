@@ -1,0 +1,82 @@
+package com.jupiterframework.sequence.server.test;
+
+import com.jupiter.cloud.infra.sequence.manage.SequenceManager;
+import com.jupiter.cloud.infra.sequence.vo.CreateSequenceRequest;
+import com.jupiter.cloud.infra.sequence.vo.GetSequenceResponse;
+import com.jupiter.cloud.infra.sequence.vo.SequenceOperationRequest;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+
+
+public class SequenceGeneratorTest {
+    protected Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Resource
+    private SequenceManager sequenceGenerator;
+    private final static Long TENANT_ID = 1L;
+    private final static String SEQ_NAME = "SEQ";
+
+
+    @BeforeEach
+    public void before() {
+    }
+
+
+    @AfterAll
+    public void after() {
+
+    }
+
+
+    @Test
+    public void create() {
+
+        CreateSequenceRequest req = new CreateSequenceRequest();
+        req.setAppendDateFormat("yyMMdd");
+        req.setCharLength(20);
+        req.setIncrease(20);
+        req.setMaxValue(999999999L);
+        req.setMinValue(100000000L);
+        req.setCycle(true);
+        req.setPrefix("TEST_");
+        req.setSeqName(SEQ_NAME);
+        req.setTenantId(TENANT_ID);
+
+        sequenceGenerator.createSequence(req);
+
+    }
+
+
+    @Test
+    public void drop() {
+        SequenceOperationRequest req = new SequenceOperationRequest();
+        req.setTenantId(TENANT_ID);
+        req.setSeqName(SEQ_NAME);
+        sequenceGenerator.dropSequence(req);
+    }
+
+
+    @Test
+    public void testObtain() {
+        SequenceOperationRequest req = new SequenceOperationRequest();
+        req.setSeqName(SEQ_NAME);
+        req.setTenantId(TENANT_ID);
+
+        GetSequenceResponse resp = sequenceGenerator.obtainSequence(req);
+        String value = String.format(
+                "%s%s%0" + resp.getCharLength() + "d", resp.getPrefix(),
+            resp.getAppendDateFormat() != null
+                    ? DateFormatUtils.format(new Date(), resp.getAppendDateFormat())
+                    : "",
+            resp.getCurrentValue());
+
+        logger.debug("seq >> [{}] \r\n {}", value, resp);
+    }
+}

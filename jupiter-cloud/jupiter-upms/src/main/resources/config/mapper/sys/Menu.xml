@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.sys.dao.MenuDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.sys.entity.Menu">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="parent_code" property="parentCode" />
+        <result column="name" property="name" />
+        <result column="path" property="path" />
+        <result column="icon" property="icon" />
+        <result column="component" property="component" />
+        <result column="sort" property="sort" />
+        <result column="keep_alive" property="keepAlive" />
+        <result column="menu_type" property="menuType" />
+        <result column="permission" property="permission" />
+        <result column="is_del" property="del" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sys_menu</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        id,code,parent_code,name,path,icon,component,sort,keep_alive,menu_type,permission,is_del
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.code != null and condition.ew.code != ''">code=#{condition.ew.code} AND</if>
+	  <if test="condition.ew.parentCode != null and condition.ew.parentCode != ''">parent_code=#{condition.ew.parentCode} AND</if>
+	  <if test="condition.ew.name != null and condition.ew.name != ''">name=#{condition.ew.name} AND</if>
+	  <if test="condition.ew.path != null and condition.ew.path != ''">path=#{condition.ew.path} AND</if>
+	  <if test="condition.ew.icon != null and condition.ew.icon != ''">icon=#{condition.ew.icon} AND</if>
+	  <if test="condition.ew.component != null and condition.ew.component != ''">component=#{condition.ew.component} AND</if>
+	  <if test="condition.ew.sort != null">sort=#{condition.ew.sort} AND</if>
+	  <if test="condition.ew.keepAlive != null and condition.ew.keepAlive != ''">keep_alive=#{condition.ew.keepAlive} AND</if>
+	  <if test="condition.ew.menuType != null and condition.ew.menuType != ''">menu_type=#{condition.ew.menuType} AND</if>
+	  <if test="condition.ew.permission != null and condition.ew.permission != ''">permission=#{condition.ew.permission} AND</if>
+	  <if test="condition.ew.del != null">is_del=#{condition.ew.del} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.sys.dao.PostDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.sys.entity.Post">
+        <id column="id" property="id" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+        <result column="is_del" property="del" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sys_post</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        id,tenant_id,name,description,sort,type,is_del
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.tenantId != null">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.name != null and condition.ew.name != ''">name=#{condition.ew.name} AND</if>
+	  <if test="condition.ew.description != null and condition.ew.description != ''">description=#{condition.ew.description} AND</if>
+	  <if test="condition.ew.sort != null">sort=#{condition.ew.sort} AND</if>
+	  <if test="condition.ew.type != null">type=#{condition.ew.type} AND</if>
+	  <if test="condition.ew.del != null">is_del=#{condition.ew.del} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+</mapper>

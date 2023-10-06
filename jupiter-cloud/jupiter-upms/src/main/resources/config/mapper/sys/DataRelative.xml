@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.sys.dao.DataRelativeDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.sys.entity.DataRelative">
+        <id column="id" property="id" />
+        <result column="scope_id" property="scopeId" />
+        <result column="instance_id" property="instanceId" />
+        <result column="ref_type" property="refType" />
+        <result column="is_enable" property="enable" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sys_data_relative</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        id,scope_id,instance_id,ref_type,is_enable
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.scopeId != null">scope_id=#{condition.ew.scopeId} AND</if>
+	  <if test="condition.ew.instanceId != null">instance_id=#{condition.ew.instanceId} AND</if>
+	  <if test="condition.ew.refType != null">ref_type=#{condition.ew.refType} AND</if>
+	  <if test="condition.ew.enable != null">is_enable=#{condition.ew.enable} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+	</select>
+
+	<update id="updateEnable" ><!-- 删除原机构角色权限  -->
+		UPDATE <include refid="Table_Name" />
+		SET is_enable = #{enable} WHERE ref_type = #{refType} and scope_id = #{scopeId} and instance_id in(
+		<foreach collection="instanceIds" item="instanceId" separator=",">#{instanceId}</foreach>)
+	</update>
+	
+	<update id="save" ><!-- 新增或修改角色数据权限时使用 -->
+		insert into <include refid="Table_Name" /> (scope_id,instance_id,ref_type,is_enable) values
+		<foreach collection="instanceIds" item="instanceId" open="(" close=")" separator="),(">
+			#{scopeId},#{instanceId},#{refType},1
+		</foreach>
+	</update>
+	
+	<select id="getDataRelativeList" resultType="Long">
+		select instance_id from <include refid="Table_Name" />
+		where ref_type=#{refType} and is_enable = 1 and scope_id in
+		<foreach collection="scopeIds" item="scopeId" open="(" close=")" separator=",">
+			#{scopeId}
+		</foreach>
+	</select>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.infra.sequence.dao.SequenceDefinitionDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.infra.sequence.entity.SequenceDefinition">
+        <id column="id" property="id" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="seq_name" property="seqName" />
+        <result column="min_value" property="minValue" />
+        <result column="max_value" property="maxValue" />
+        <result column="increase" property="increase" />
+        <result column="current_value" property="currentValue" />
+        <result column="cycle" property="cycle" />
+        <result column="char_length" property="charLength" />
+        <result column="prefix" property="prefix" />
+        <result column="append_date_format" property="appendDateFormat" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sequence_definition</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,tenant_id,seq_name,min_value,max_value,increase,current_value,cycle,char_length,prefix,append_date_format,
+		create_time,update_time
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.id != null">id=#{condition.ew.id} AND</if>
+	  <if test="condition.ew.tenantId != null and condition.ew.tenantId != ''">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.seqName != null and condition.ew.seqName != ''">seq_name=#{condition.ew.seqName} AND</if>
+	  <if test="condition.ew.minValue != null">min_value=#{condition.ew.minValue} AND</if>
+	  <if test="condition.ew.maxValue != null">max_value=#{condition.ew.maxValue} AND</if>
+	  <if test="condition.ew.increase != null">increase=#{condition.ew.increase} AND</if>
+	  <if test="condition.ew.currentValue != null">current_value=#{condition.ew.currentValue} AND</if>
+	  <if test="condition.ew.cycle != null">cycle=#{condition.ew.cycle} AND</if>
+	  <if test="condition.ew.charLength != null">char_length=#{condition.ew.charLength} AND</if>
+	  <if test="condition.ew.prefix != null and condition.ew.prefix != ''">prefix=#{condition.ew.prefix} AND</if>
+	  <if test="condition.ew.appendDateFormat != null and condition.ew.appendDateFormat != ''">append_date_format=#{condition.ew.appendDateFormat} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" /> 
+		<where>
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">  create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">  create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where> 
+	</select>
+	
+	<select id="selectForUpdate"  resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" /> 
+		WHERE tenant_id=#{tenantId} and seq_name=#{seqName}
+	</select>
+</mapper>

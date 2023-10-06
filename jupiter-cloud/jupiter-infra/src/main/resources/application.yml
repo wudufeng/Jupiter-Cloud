@@ -1,0 +1,25 @@
+server:
+  port: 10003
+
+spring:
+  application:
+    name: @artifactId@
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server-addr:http://nacos.jupiter.com}
+        username: ${nacos.username:nacos}
+        password: ${nacos.password:nacos}
+        namespace: ${spring.profiles.active:dev}
+      config:
+        server-addr: ${nacos.server-addr:http://nacos.jupiter.com}
+        username: ${nacos.username:nacos}
+        password: ${nacos.password:nacos}
+        namespace: ${spring.profiles.active:dev}
+        file-extension: yml
+        shared-configs: application.yml
+        prefix: ${spring.application.name}
+  config:
+    import:
+      - nacos:application.yml
+      - nacos:${spring.application.name}.yml

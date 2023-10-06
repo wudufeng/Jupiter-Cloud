@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+	<conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+	<conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+	
+	<property name="LOG_CHARSET" value="utf8" />
+	<springProperty name="APPLICATION_NAME" source="spring.application.name" scope="context"/>
+	<springProperty name="LOG_DIR" source="logging.file.path" defaultValue="${user.home}/logs/${APPLICATION_NAME}" scope="context" />
+	<springProperty name="LOG_FILE" source="logging.file.name" defaultValue="${LOG_DIR}/all.log" scope="context" />
+	<springProperty name="CONSOLE_LOG_PATTERN" source="logging.pattern.console" defaultValue="%d{MM-dd HH:mm:ss.SSS} %5p [${APPLICATION_NAME},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] ${PID:- } --- [%thread] %logger{39}.%method&lt;%-3L&gt; : %msg%n" scope="context" />
+	<springProperty name="FILE_LOG_PATTERN" source="logging.pattern.file" defaultValue="-|%d{yyyy-MM-dd HH:mm:ss.SSS}|%5p|${APPLICATION_NAME}|%X{X-B3-TraceId:-}|%X{X-B3-SpanId:-}|%X{X-B3-ParentSpanId:-}|${PID:-}|%thread|%-40.40logger{39}.%method&lt;%-3L&gt; |%msg%n" scope="context" />
+	<springProperty name="MAX_FILE_SIZE" source="logging.file.max-size" defaultValue="100MB" scope="context" />
+	<springProperty name="MAX_HISTORY" source="logging.file.max-history" defaultValue="30" scope="context" />
+	<springProperty name="TOTAL_SIZE_CAP" source="logging.file.total-size-cap" defaultValue="5GB" scope="context" />
+	<springProperty name="ENABLE_CONSOLE" source="logging.console.enable" defaultValue="true" scope="context" />
+
+	<!-- console  -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 异步输出所有日志到all.log文件 -->
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_FILE}</File>
+		<!-- 按照固定窗口模式生成日志文件，当文件大于100MB时，生成新的日志文件，并将旧文件挪到带日期的目录下。所有日志文件超过5GB,或者超过30天,最早的日志会先删掉。 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_DIR}/%d{yyyyMMdd}/all_%i.log</FileNamePattern>
+			<maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+			<totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>${LOG_CHARSET}</charset>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<appender name="ALL_FILE" class="ch.qos.logback.classic.AsyncAppender">
+		<!--异步输入日志-->
+		<!-- 0不丢失日志，默认的如果队列的80%已满，则会丢丢弃TRACE、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度，该值会影响性能，默认值为256 -->
+		<queueSize>8192</queueSize>
+		<appender-ref ref="FILE" />
+	</appender>
+
+	<logger name="org.springframework.boot.SpringApplication" level="INFO" additivity="false">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ALL_FILE" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="ALL_FILE" />
+	</root>
+	<if condition='${ENABLE_CONSOLE}'>
+		<then>
+			<root level="INFO">
+				<appender-ref ref="CONSOLE" />
+			</root>
+	   </then>
+	</if>
+</included>

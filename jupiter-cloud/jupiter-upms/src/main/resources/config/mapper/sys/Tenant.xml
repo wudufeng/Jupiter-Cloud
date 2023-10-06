@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jupiter.cloud.upms.sys.dao.TenantDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jupiter.cloud.upms.sys.entity.Tenant">
+        <id column="tenant_id" property="tenantId" />
+        <result column="name" property="name" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="status" property="status" />
+        <result column="contact_user" property="contactUser" />
+        <result column="contact_phone" property="contactPhone" />
+        <result column="contact_email" property="contactEmail" />
+        <result column="domain" property="domain" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+	<sql id="Table_Name">sys_tenant</sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+		create_time,update_time,
+        tenant_id,name,begin_time,end_time,status,contact_user,contact_phone,contact_email,domain
+    </sql>
+
+	<sql id="Base_Where">
+	  <if test="condition.ew.tenantId != null and condition.ew.tenantId != ''">tenant_id=#{condition.ew.tenantId} AND</if>
+	  <if test="condition.ew.name != null and condition.ew.name != ''">name like "%"#{condition.ew.name}"%" AND</if>
+	  <if test="condition.ew.beginTime != null">begin_time=#{condition.ew.beginTime} AND</if>
+	  <if test="condition.ew.endTime != null">end_time=#{condition.ew.endTime} AND</if>
+	  <if test="condition.ew.status != null">status=#{condition.ew.status} AND</if>
+	  <if test="condition.ew.contactUser != null and condition.ew.contactUser != ''">contact_user=#{condition.ew.contactUser} AND</if>
+	  <if test="condition.ew.contactPhone != null and condition.ew.contactPhone != ''">contact_phone=#{condition.ew.contactPhone} AND</if>
+	  <if test="condition.ew.contactEmail != null and condition.ew.contactEmail != ''">contact_email=#{condition.ew.contactEmail} AND</if>
+	  <if test="condition.ew.createTime != null">create_time=#{condition.ew.createTime} AND</if>
+	  <if test="condition.ew.updateTime != null">update_time=#{condition.ew.updateTime} AND</if>
+	</sql>
+ 
+	<select id="selectPageList" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_List" /> 
+		FROM <include refid="Table_Name" />
+		<where> 
+		<trim suffixOverrides="AND">
+		  <include refid="Base_Where" />
+		  <if test="condition.queryBeginTime != null">create_time&gt;=#{condition.queryBeginTime} AND</if>
+		  <if test="condition.queryEndTime != null">create_time&lt;=#{condition.queryEndTime} AND</if>
+		</trim>
+		</where>
+		order by create_time desc
+	</select>
+
+	<select id="selecSimpleTenantList" resultType="com.jupiter.cloud.upms.sys.pojo.TenantVo">
+		SELECT tenant_id tenantId,name FROM <include refid="Table_Name" />
+		<if test="status != null">
+		<where><foreach collection="status" open="status in (" close=")" item="s" separator=",">#{s}</foreach></where>
+		</if>
+	</select>
+</mapper>
